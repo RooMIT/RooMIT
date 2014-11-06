@@ -1,0 +1,4 @@
+node_modules
+.openshift
+.DS_Store
+public/javascripts/templates.js

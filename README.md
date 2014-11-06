@@ -1,4 +1,5 @@
-finalProj
+RooMIT
 =========
 
-6.170 Final Team Project
+Find your perfect roommate
+[Hosted Here](http://roomit-roomit.rhcloud.com/)
