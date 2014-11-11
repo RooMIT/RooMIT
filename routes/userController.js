@@ -7,6 +7,8 @@ module.exports = {
         var email = req.body.email;
         var password = req.body.password;
 
+        // TODO: sanitize inputs
+
         User.findOne({ email: email }, function (err, user) {
             if (err) {
                 // something bad happened
@@ -23,6 +25,4 @@ module.exports = {
             }
         });
     }
-}
-
 }

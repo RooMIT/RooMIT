@@ -1,14 +1,25 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-    <script src='https://code.jquery.com/jquery-1.11.1.min.js'></script>
-    <script src='/lib/handlebars.runtime.js'></script>
-    <script src='/javascripts/templates.js'></script>
-  </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-  </body>
+    <head>
+        <title>RooMIT</title>
+        <link rel='stylesheet' href='/stylesheets/style.css' />
+        <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css'>
+        <script src='https://code.jquery.com/jquery-1.11.1.min.js'></script>
+        <script src='/lib/handlebars.runtime.js'></script>
+        <script src='/javascripts/templates.js'></script>
+        <script src='/javascripts/utils.js'></script>
+        <script src='/javascripts/user.js'></script>
+        <script src='/javascripts/index.js'></script>
+    </head>
+    <body>
+        <h1>Welcome to RooMIT!</h1>
+        <br>
+
+        <!-- error handling -->
+        <p id='error' class='text-danger'></p>
+
+        <div id='main'>
+        </div>
+
+    </body>
 </html>
