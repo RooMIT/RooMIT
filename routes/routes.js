@@ -13,6 +13,7 @@ module.exports = function(app) {
         POST /login
         Request Body: empty
         Response:
+            - user: user
             - error: error if there was one
     */
     app.post('/login', function(req, res) {
@@ -42,6 +43,7 @@ module.exports = function(app) {
         	- email: unique MIT email
         	- password: password
         Response:
+            - user: user
             - error: error if there was one
     */
     app.post('/users', function(req, res) {

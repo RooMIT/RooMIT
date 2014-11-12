@@ -7,7 +7,7 @@ var UserSchema = new Schema({
     name: { type: String, required: true },
     email: { type: String, unique: true, required: true },
     password: { type: String, required: true },
-    available: { type: String, enum: ['Available', 'Unavailable'], required: true },
+    available: { type: Boolean, required: true, default: true },
     roommates: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     requested: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     preferences: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Preference' }]

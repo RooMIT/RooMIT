@@ -1,12 +1,21 @@
 function handleError(error) {
-    console.log(error);
-    showError('Something went wrong');
+    // not human readable error
+    if (typeof error === 'object') {
+        console.log(error);
+        $('#error').html('Something went wrong');
+    } else {
+        // human readable error
+        $('#error').html(error);
+    }
 }
 
 function removeError() {
     $('#error').html('');
 }
 
-function showError(text) {
-	$('#error').html(text);
+// used to change the view: clear everything in the 
+// main div, and clear any errors
+function clearMainDiv() {
+	$('#main').children().remove();
+    removeError();
 }

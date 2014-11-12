@@ -1,5 +1,6 @@
 var User = require('../models/user');
 var Preference = require('../models/preference');
+var handleError = require('./utils').handleError;
 
 module.exports = {
 
@@ -9,11 +10,11 @@ module.exports = {
         var password = req.body.password;
 
         // sanitize inputs
-        if (typeof email === "object") {
+        if (typeof email === 'object') {
             email = JSON.stringify(email);
         }
 
-        if (typeof password === "object") {
+        if (typeof password === 'object') {
             password = JSON.stringify(password);
         }
 
@@ -21,14 +22,14 @@ module.exports = {
             if (err) return handleError(res, 500, err);
             if (user == null) return handleError(res, 404, 'User not found');
             
-            user.verifyPassword(password, function(err, isMatch) {
-                if (err) return handleError(res, 500, err);
+            user.verifyPassword(password, function(error, isMatch) {
+                if (error) return handleError(res, 500, error);
                 if (!isMatch) return handleError(res, 403, 'Incorrect password');
 
                 // make session
                 req.session.userId = user._id;
                 req.session.save();
-                res.json({ success:true });
+                res.json({ user: user });
             });
         });
 
@@ -50,26 +51,27 @@ module.exports = {
         var password = req.body.password;
 
         // sanitize inputs
-        if (typeof name === "object") {
+        if (typeof name === 'object') {
             name = JSON.stringify(name);
         }
 
-        if (typeof email === "object") {
+        if (typeof email === 'object') {
             email = JSON.stringify(email);
         }
 
-        if (typeof password === "object") {
+        if (typeof password === 'object') {
             password = JSON.stringify(password);
         }
 
         // create them!
         var newUser = new User({ name: name, email: email, password: password });
         newUser.save(function (err, user) {
+            if (err.code == 11000) return handleError(res, 409, 'Email already in use');
             if (err) return handleError(res, 500, err);
 
-            createPreferences(user, function(err) {
-                if (err) return handleError(res, 500, err);
-                req.session.userId = userObject.id;
+            createPreferences(user, function(error) {
+                if (error) return handleError(res, 500, err);
+                req.session.userId = user._id;
                 req.session.save();
                 res.json({ user:user });
             });
@@ -82,7 +84,7 @@ module.exports = {
         var userId = req.session.userId
 
         if (userId == undefined) {
-            return res.json();
+            return res.json({ user: undefined });
         }
 
         User.findOne({ _id: userId }, function (err, user) {

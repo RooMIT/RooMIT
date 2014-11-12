@@ -1,23 +1,23 @@
-var userId = undefined;
-
 $(document).ready(function() { 
-    var mainDiv = $('#main');
 
     // get logged in user
-    // $.get(
-    //     '/user/'
-    // ).done(function(response) {
+    $.get(
+        '/user'
+    ).done(function(response) {
+        var user = response.user;
+        clearMainDiv();
 
-    //     // user logged in
-    //     if (response.user) {
-    //         userId = response.user._id;
-    //     } else {
+        // user logged in
+        if (user) {
+            showUserProfile(user, user);
+        } else {
             // user not logged in, show login
-            mainDiv.append(Handlebars.templates['login']);
-    //     }
+            $('#main').append(Handlebars.templates['login']);
+            attachValidators();
+        }
 
-    // }).fail(function(error) {
-    //     handleError(error);
-    // });
+    }).fail(function(error) {
+        handleError(error);
+    });
 
 });
