@@ -84,6 +84,22 @@ $(document).on('click', '#submit-register', function(event) {
     });
 });
 
+// logout
+$(document).on('click', '#logout', function(event) {
+    event.preventDefault();
+
+    $.post(
+        '/logout'
+
+    ).done(function(response) {
+        loggedInUser = undefined;
+        showLogin();
+
+    }).fail(function(error) {
+        handleError(error);
+    });
+});
+
 // show a user's profile
 showUserProfile = function(user) {
     clearMainDiv();

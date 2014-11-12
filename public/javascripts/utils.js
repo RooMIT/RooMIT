@@ -19,6 +19,6 @@ function removeError() {
 // used to change the view: clear everything in the 
 // main div, and clear any errors
 function clearMainDiv() {
-    $('#main').children().remove();
+    $('#main').html('');
     removeError();
 }
