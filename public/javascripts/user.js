@@ -9,15 +9,13 @@ $(document).ready(function() {
         '/user'
     ).done(function(response) {
         loggedInUser = response.user;
-        clearMainDiv();
 
         // user logged in
         if (loggedInUser) {
             showUserProfile(loggedInUser);
         } else {
             // user not logged in, show login
-            $('#main').append(Handlebars.templates['login']);
-            attachValidators();
+            showLogin();
         }
 
     }).fail(function(error) {
@@ -28,16 +26,12 @@ $(document).ready(function() {
 
 // replace the login form with the register form
 $(document).on('click', '#toggle-register', function(event) {
-    clearMainDiv();
-    $('#main').append(Handlebars.templates['register']);
-    attachValidators();
+    showRegister();
 });
 
 // replace the register form with the login form
 $(document).on('click', '#toggle-login', function(event) {
-    clearMainDiv();
-    $('#main').append(Handlebars.templates['login']);
-    attachValidators();
+    showLogin();
 });
 
 // submit login
@@ -59,11 +53,7 @@ $(document).on('click', '#submit-login', function(event) {
         showUserProfile(loggedInUser);
 
     }).fail(function(error) {
-        if (error.status == 404) {
-            handleError('Please create an account')
-        } else {
-            handleError(error);
-        }
+        handleError(error);
     });
 
 });
@@ -90,11 +80,7 @@ $(document).on('click', '#submit-register', function(event) {
         showUserProfile(loggedInUser);
 
     }).fail(function(error) {
-        if (error.status == 409) {
-            handleError('Email already in use');
-        } else {
-            handleError(error);
-        }
+        handleError(error);
     });
 });
 
@@ -105,6 +91,18 @@ showUserProfile = function(user) {
        user: user,
        loggedInUser: loggedInUser
     }));
+}
+
+showLogin = function() {
+    clearMainDiv();
+    $('#main').append(Handlebars.templates['login']);
+    attachValidators();
+}
+
+showRegister = function() {
+    clearMainDiv();
+    $('#main').append(Handlebars.templates['register']);
+    attachValidators();
 }
 
 

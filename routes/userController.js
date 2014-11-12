@@ -20,7 +20,7 @@ module.exports = {
 
         User.findOne({ email: email }, function (err, user) {
             if (err) return handleError(res, 500, err);
-            if (user == null) return handleError(res, 404, 'User not found');
+            if (user == null) return handleError(res, 404, 'Please create an account');
             
             user.verifyPassword(password, function(error, isMatch) {
                 if (error) return handleError(res, 500, error);
