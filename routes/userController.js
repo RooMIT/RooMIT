@@ -66,7 +66,7 @@ module.exports = {
         // create them!
         var newUser = new User({ name: name, email: email, password: password });
         newUser.save(function (err, user) {
-            if (err.code == 11000) return handleError(res, 409, 'Email already in use');
+            if (err && err.code == 11000) return handleError(res, 409, 'Email already in use');
             if (err) return handleError(res, 500, err);
 
             createPreferences(user, function(error) {
