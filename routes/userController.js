@@ -1,4 +1,5 @@
 var User = require('../models/user');
+var Preference = require('../models/preference');
 
 module.exports = {
 
@@ -7,15 +8,30 @@ module.exports = {
         var email = req.body.email;
         var password = req.body.password;
 
-        // TODO: sanitize inputs
+        // sanitize inputs
+        if (typeof email === "object") {
+            email = JSON.stringify(email);
+        }
+
+        if (typeof password === "object") {
+            password = JSON.stringify(password);
+        }
 
         User.findOne({ email: email }, function (err, user) {
             if (err) return handleError(res, 500, err);
             if (user == null) return handleError(res, 404, 'User not found');
             
-            // verify password
-            // make session
+            user.verifyPassword(password, function(err, isMatch) {
+                if (err) return handleError(res, 500, err);
+                if (!isMatch) return handleError(res, 403, 'Incorrect password');
+
+                // make session
+                req.session.userId = user._id;
+                req.session.save();
+                res.json({ success:true });
+            });
         });
+
     },
 
     // logout user
@@ -33,11 +49,31 @@ module.exports = {
         var email = req.body.email;
         var password = req.body.password;
 
-        // TODO: sanitize inputs
+        // sanitize inputs
+        if (typeof name === "object") {
+            name = JSON.stringify(name);
+        }
+
+        if (typeof email === "object") {
+            email = JSON.stringify(email);
+        }
+
+        if (typeof password === "object") {
+            password = JSON.stringify(password);
+        }
 
         // create them!
-        // create prefs
-        // create session
+        var newUser = new User({ name: name, email: email, password: password });
+        newUser.save(function (err, user) {
+            if (err) return handleError(res, 500, err);
+
+            createPreferences(user, function(err) {
+                if (err) return handleError(res, 500, err);
+                req.session.userId = userObject.id;
+                req.session.save();
+                res.json({ user:user });
+            });
+        });
 
     },
 
@@ -82,4 +118,9 @@ module.exports = {
             res.json({ success:true });
         });
     }
+}
+
+var createPreferences = function(user, callback) {
+    // TODO: this
+    callback();
 }
