@@ -1,5 +1,31 @@
 var loggedInUser = undefined;
 
+// on first load, show either the logged in user's profile
+// or the login screen
+$(document).ready(function() { 
+
+    // get logged in user
+    $.get(
+        '/user'
+    ).done(function(response) {
+        loggedInUser = response.user;
+        clearMainDiv();
+
+        // user logged in
+        if (loggedInUser) {
+            showUserProfile(loggedInUser);
+        } else {
+            // user not logged in, show login
+            $('#main').append(Handlebars.templates['login']);
+            attachValidators();
+        }
+
+    }).fail(function(error) {
+        handleError(error);
+    });
+
+});
+
 // replace the login form with the register form
 $(document).on('click', '#toggle-register', function(event) {
     clearMainDiv();
@@ -30,7 +56,7 @@ $(document).on('click', '#submit-login', function(event) {
         { email: email, password: password }
     ).done(function(response) {
         loggedInUser = response.user;
-        showUserProfile(loggedInUser, loggedInUser);
+        showUserProfile(loggedInUser);
 
     }).fail(function(error) {
         if (error.status == 404) {
@@ -61,7 +87,7 @@ $(document).on('click', '#submit-register', function(event) {
 
     ).done(function(response) {
         loggedInUser = response.user;
-        showUserProfile(loggedInUser, loggedInUser);
+        showUserProfile(loggedInUser);
 
     }).fail(function(error) {
         if (error.status == 409) {
@@ -73,7 +99,7 @@ $(document).on('click', '#submit-register', function(event) {
 });
 
 // show a user's profile
-showUserProfile = function(user, loggedInUser) {
+showUserProfile = function(user) {
     clearMainDiv();
     $('#main').append(Handlebars.templates['profile']({
        user: user,
@@ -83,7 +109,7 @@ showUserProfile = function(user, loggedInUser) {
 
 
 // attach bootstrap validators to the login/register form on the page
-attachValidators = function(){
+var attachValidators = function(){
     $('.login-form').bootstrapValidator({
         feedbackIcons: {
             valid: 'glyphicon glyphicon-ok',
