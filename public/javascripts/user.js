@@ -34,54 +34,32 @@ $(document).on('click', '#toggle-login', function(event) {
     showLogin();
 });
 
+// on enter, submit login
+$(document).on('keypress', '#login-form', function (event) {
+    if (event.which == 13) { // enter
+        event.preventDefault();
+        login();
+    }
+});
+
+// on enter, submit register
+$(document).on('keypress', '#register-form', function (event) {
+    if (event.which == 13) { // enter
+        event.preventDefault();
+        register();
+    }
+});
+
 // submit login
 $(document).on('click', '#submit-login', function(event) {
     event.preventDefault();
-    removeError(); // remove previous errors
-    var email = $('#email').val();
-    var password = $('#password').val();
-
-    // ensure nonempty fields
-    if (email == '') return handleError('Please enter an email');
-    if (password == '') return handleError('Please enter a password');
-
-    $.post(
-        '/login',
-        { email: email, password: password }
-    ).done(function(response) {
-        loggedInUser = response.user;
-        showUserProfile(loggedInUser);
-
-    }).fail(function(error) {
-        handleError(error);
-    });
-
+    login();
 });
 
 // submit register
 $(document).on('click', '#submit-register', function(event) {
     event.preventDefault();
-    removeError(); // remove previous errors
-    var name = $('#name').val();
-    var email = $('#email').val();
-    var password = $('#password').val();
-
-    // ensure nonempty fields
-    if (name == '') return handleError('Please enter a name');
-    if (email == '') return handleError('Please enter an email');
-    if (password == '') return handleError('Please enter a password');
-    
-    $.post(
-        '/users',
-        { name: name, email: email, password: password }
-
-    ).done(function(response) {
-        loggedInUser = response.user;
-        showUserProfile(loggedInUser);
-
-    }).fail(function(error) {
-        handleError(error);
-    });
+    register();
 });
 
 // logout
@@ -109,18 +87,64 @@ showUserProfile = function(user) {
     }));
 }
 
+// show the login screen
 showLogin = function() {
     clearMainDiv();
     $('#main').append(Handlebars.templates['login']);
     attachValidators();
 }
 
+// show the register screen
 showRegister = function() {
     clearMainDiv();
     $('#main').append(Handlebars.templates['register']);
     attachValidators();
 }
 
+var login = function() {
+    removeError(); // remove previous errors
+    var email = $('#email').val();
+    var password = $('#password').val();
+
+    // ensure nonempty fields
+    if (email == '') return handleError('Please enter an email');
+    if (password == '') return handleError('Please enter a password');
+
+    $.post(
+        '/login',
+        { email: email, password: password }
+    ).done(function(response) {
+        loggedInUser = response.user;
+        showUserProfile(loggedInUser);
+
+    }).fail(function(error) {
+        handleError(error);
+    });
+}
+
+var register = function() {
+    removeError(); // remove previous errors
+    var name = $('#name').val();
+    var email = $('#email').val();
+    var password = $('#password').val();
+
+    // ensure nonempty fields
+    if (name == '') return handleError('Please enter a name');
+    if (email == '') return handleError('Please enter an email');
+    if (password == '') return handleError('Please enter a password');
+    
+    $.post(
+        '/users',
+        { name: name, email: email, password: password }
+
+    ).done(function(response) {
+        loggedInUser = response.user;
+        showUserProfile(loggedInUser);
+
+    }).fail(function(error) {
+        handleError(error);
+    });
+}
 
 // attach bootstrap validators to the login/register form on the page
 var attachValidators = function(){
