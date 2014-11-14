@@ -1,6 +1,7 @@
 var User = require('../models/user');
 var Preference = require('../models/preference');
 var handleError = require('./utils').handleError;
+var initPreferences = require('./preferenceController').initiliaze;
 
 module.exports = {
 
@@ -122,7 +123,6 @@ module.exports = {
     }
 }
 
-var createPreferences = function(user, callback) {
-    // TODO: this
-    callback();
+var createPreferences = function(userId) {
+    initPreferences(userId);
 }
