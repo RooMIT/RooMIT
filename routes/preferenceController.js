@@ -4,7 +4,7 @@ var handleError = require('./utils').handleError;
 module.exports = {
 
     // modify a preference
-    modify: function(req, res) {
+    update: function(req, res) {
         var preferenceId = req.params.id;
         var response = req.body.response;
 

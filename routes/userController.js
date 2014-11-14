@@ -28,7 +28,6 @@ module.exports = {
 
                 // make session
                 req.session.userId = user._id;
-                req.session.save();
                 res.json({ user: user });
             });
         });
@@ -38,10 +37,8 @@ module.exports = {
     // logout user
     logout: function(req, res) {
         // destroy session
-        req.session.destroy(function(err) {
-            if (err) handleError(res, 500, err);
-            res.json({ success:true });
-        });
+        req.session.userId = undefined;
+        res.json({ success:true });
     },
 
     // create a new user
@@ -72,7 +69,6 @@ module.exports = {
             createPreferences(user, function(error) {
                 if (error) return handleError(res, 500, err);
                 req.session.userId = user._id;
-                req.session.save();
                 res.json({ user:user });
             });
         });
@@ -95,7 +91,7 @@ module.exports = {
     },
 
     // modify a user
-    modify: function(req, res) {
+    update: function(req, res) {
         var userId = req.params.id;
         var available = req.body.available;
         var roommates = req.body.roommates;
@@ -119,6 +115,13 @@ module.exports = {
             if (err) return handleError(res, 500, err);
             res.json({ success:true });
         });
+    },
+
+    // get the logged in user's matches in { <user> : <percent>, ... } format
+    getMatches: function(req, res) {
+        var userId = req.session.userId;
+
+        // TODO: get matches
     }
 }
 
