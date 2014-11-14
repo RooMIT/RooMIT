@@ -15,10 +15,3 @@ function handleError(error) {
 function removeError() {
     $('#error').html('');
 }
-
-// used to change the view: clear everything in the 
-// main div, and clear any errors
-function clearMainDiv() {
-    $('#main').html('');
-    removeError();
-}

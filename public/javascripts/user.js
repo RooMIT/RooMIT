@@ -80,8 +80,8 @@ $(document).on('click', '#logout', function(event) {
 
 // show a user's profile
 showUserProfile = function(user) {
-    clearMainDiv();
-    $('#main').append(Handlebars.templates['profile']({
+    removeError();
+    $('#main').html(Handlebars.templates['profile']({
        user: user,
        loggedInUser: loggedInUser
     }));
@@ -89,15 +89,15 @@ showUserProfile = function(user) {
 
 // show the login screen
 showLogin = function() {
-    clearMainDiv();
-    $('#main').append(Handlebars.templates['login']);
+    removeError();
+    $('#main').html(Handlebars.templates['login']);
     attachValidators();
 }
 
 // show the register screen
 showRegister = function() {
-    clearMainDiv();
-    $('#main').append(Handlebars.templates['register']);
+    removeError();
+    $('#main').html(Handlebars.templates['register']);
     attachValidators();
 }
 

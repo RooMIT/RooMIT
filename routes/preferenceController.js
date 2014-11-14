@@ -6,13 +6,13 @@ var handleError = require('./utils').handleError;
 module.exports = {
 
     // modify a preference
-    modify: function(req, res) {
+    update: function(req, res) {
         var preferenceId = req.params.id;
         var response = req.body.response;
 
         // sanitize inputs
-        if (typeof response === 'object') {
-            response = JSON.stringify(response);
+        if (!(/^Yes|No|Don\'t Care$/).test(response)) {
+            return handleError(res, 400, 'Please enter a valid response');
         }
         
         Preference.update({ _id: preferenceId }, { response: response }, function (err) {

@@ -11,7 +11,9 @@ module.exports = function(app) {
         Logs in the user, creates session
 
         POST /login
-        Request Body: empty
+        Request Body:
+            - email: MIT email
+            - password: password
         Response:
             - user: user
             - error: error if there was one
@@ -56,11 +58,53 @@ module.exports = function(app) {
         GET /user
         Request Body: empty
         Response:
-            - user: the user
+            - user: the logged in user
             - error: error if there was one
     */
     app.get('/user', function(req, res) {
         UserController.getLoggedInUser(req, res);
+    });
+
+    /*  
+        Get all the users that match the logged in user
+        and the percentage they match
+
+        GET /matches
+        Request Body: empty
+        Response:
+            - matches: list of users and percentages { user1: .8, ...}
+            - error: error if there was one
+    */
+    app.get('/matches', function(req, res) {
+        UserController.getMatches(req, res);
+    });
+
+    /*  
+        Modify a user
+
+        POST /users/{id}
+        Request Body:
+            - available: whether or not they are available (optional)
+            - roommates: roommates list (optional)
+            - requested: list of requested users (optional)
+        Response:
+            - error: error if there was one
+    */
+    app.post('/users/:id', function(req, res) {
+        UserController.update(req, res);
+    });
+
+    /*  
+        Modify a preference
+
+        POST /preferences/{id}
+        Request Body:
+            - response: user's response to a preference
+        Response:
+            - error: error if there was one
+    */
+    app.post('/preferences/:id', function(req, res) {
+        PreferenceController.update(req, res);
     });
 
 }
