@@ -1,5 +1,13 @@
 var loggedInUser = undefined;
 
+Handlebars.registerHelper('checked', function(label, response) {
+    if (label == response) {
+        return 'checked: checked';
+    }
+
+    return '';
+});
+
 // on first load, show either the logged in user's profile
 // or the login screen
 $(document).ready(function() { 
@@ -80,23 +88,28 @@ $(document).on('click', '#logout', function(event) {
 
 // show a user's profile
 showUserProfile = function(user) {
-    removeError();
-    $('#main').html(Handlebars.templates['profile']({
-       user: user,
-       loggedInUser: loggedInUser
-    }));
+    $('#main').html(Handlebars.templates['main']);
+
+    // TODO: this is super unsafe
+    if (user._id == loggedInUser._id) {
+        $('#content').html(Handlebars.templates['my-profile']({
+           user: user
+        }));
+    } else {
+        $('#content').html(Handlebars.templates['profile']({
+           user: user
+        }));
+    }
 }
 
 // show the login screen
 showLogin = function() {
-    removeError();
     $('#main').html(Handlebars.templates['login']);
     attachValidators();
 }
 
 // show the register screen
 showRegister = function() {
-    removeError();
     $('#main').html(Handlebars.templates['register']);
     attachValidators();
 }

@@ -1,0 +1,29 @@
+<h1> {{user.name}} </h1>
+<h3> {{user.email}} </h3>
+
+<br><br>
+
+<h5>Available: </h5>
+<div id='available-group' class='btn-group' role='group'>
+    {{#if user.available}}
+        <button id='available' type='button' class='btn btn-primary'>Yes</button>
+        <button id='unavailable' type='button' class='btn btn-default'>No</button>
+    {{else}}
+        <button id='available' type='button' class='btn btn-default'>Yes</button>
+        <button id='unavailable' type='button' class='btn btn-primary'>No</button>
+    {{/if}}
+</div>
+
+<br><br>
+
+<h5>Roommates: </h5>
+{{#each user.roommates}}
+    <a id={{_id}}> {{name}} </a>
+{{/each}}
+
+<br><br>
+
+<h5>Preferences:</h5>
+{{#each user.preferences}}
+    {{> preference}}
+{{/each}}

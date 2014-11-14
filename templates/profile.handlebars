@@ -1,3 +1,26 @@
-<h1> {{ user.name }} </h1>
-<h3> {{ user.email }} </h3>
-Logged in user: {{ loggedInUser.name }}
+<h1> {{user.name}} </h1>
+<h3> {{user.email}} </h3>
+
+<br>
+
+<h4>Available: 
+{{#if user.available}}
+    Yes
+{{else}}
+    No
+{{/if}}
+</h4>
+
+<br>
+
+<h4>Roommates: </h4>
+{{#each user.roommates}}
+    <a id={{_id}}> {{name}} </a>
+{{/each}}
+
+<br>
+
+<h4>Preferences: </h4>
+{{#each user.preferences}}
+    {{description}} {{response}}
+{{/each}}
