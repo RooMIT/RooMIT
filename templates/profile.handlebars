@@ -3,13 +3,17 @@
 
 <br>
 
-<h4>Available: 
 {{#if user.available}}
-    Yes
+	{{#if requested}}
+		<button id='request-roommate' user={{user._id}} type='button' class='btn disabled'>Request Sent</button>
+	{{else}}
+		<button id='request-roommate' user={{user._id}} type='button' class='btn btn-primary'>Request Roommate</button>
+	{{/if}}
+	<br><br>
+	<h4>Available: Yes </h4>
 {{else}}
-    No
+    <h4>Available: No </h4>
 {{/if}}
-</h4>
 
 <br>
 

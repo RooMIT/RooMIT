@@ -14,3 +14,15 @@ a {
 #toolbar {
     float: right;
 }
+
+li.active a {
+    cursor: default;
+}
+
+li a {
+    cursor: pointer;
+}
+
+#available-group .btn-primary {
+    cursor: default;
+}

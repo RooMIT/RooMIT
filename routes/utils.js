@@ -4,7 +4,7 @@ module.exports = {
     handleError: function(res, code, err) {
         console.error(err);
         res.status(code).json({ error: err });
-    }
+    },
 
     getPrefs: function(){
     	return [

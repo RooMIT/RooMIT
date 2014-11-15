@@ -19,10 +19,10 @@ module.exports = {
             if (err) return handleError(res, 500, err);
             res.json({ success:true });
         });
-    }
+    },
 
     // initialize preferences for the user
-    initiliaze: function(userId){
+    initialize: function(userId){
         var prefs = [];
         getPrefs().forEach(function (desc) {
             var pref = new Preference({description: desc, response: 'Don\'t Care'});

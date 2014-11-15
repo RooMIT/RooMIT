@@ -108,6 +108,7 @@ module.exports = {
             updateFields.requested = requested;
         }
 
+        // TODO: if availability changes, change roommates availability too
         if (available) {
             updateFields.available = available == 'True' || available == 'true';
         }
