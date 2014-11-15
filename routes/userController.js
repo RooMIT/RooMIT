@@ -91,6 +91,17 @@ module.exports = {
         });
     },
 
+    // get a particular user
+    get: function(req, res) {
+        var userId = req.params.id
+
+        User.findOne({ _id: userId }, function (err, user) {
+            if (err) return handleError(res, 500, err);
+            if (user == undefined) return handleError(res, 404, 'User not found');
+            res.json({ user: user });
+        });
+    },
+
     // modify a user
     update: function(req, res) {
         var userId = req.params.id;

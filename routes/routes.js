@@ -66,6 +66,19 @@ module.exports = function(app) {
     });
 
     /*  
+        Get a particular user
+
+        GET /users/{id}
+        Request Body: empty
+        Response:
+            - user: the user
+            - error: error if there was one
+    */
+    app.get('/users/:id', function(req, res) {
+        UserController.get(req, res);
+    });
+
+    /*  
         Get all the users that match the logged in user
         and the percentage they match
 

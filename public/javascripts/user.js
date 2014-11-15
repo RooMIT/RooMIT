@@ -14,12 +14,22 @@ $(document).on('click', '#available-group .btn-default', function(event) {
 $(document).on('click', '#request-roommate.btn-primary', function(event) {
     var roommateId = $(this).attr('user');
 
-    // TODO: get id
-    // updateUser(roommateId, { requests: userId }, function() {
-        // $(this).html('Request Sent');
-        // $(this).addClass('disabled');
-    // });
+    // TODO: add request
+
+    $(this).html('Request Sent');
+    $(this).addClass('disabled');
 });
+
+// get a user 
+var getUser = function(id, callback) {
+    $.get(
+        '/users/' + id
+    ).done(function(response) {
+        callback(user);
+    }).fail(function(error) {
+        handleError(error);
+    });
+}
 
 // update the user data in the database
 var updateUser = function(id, fields, callback) {
