@@ -111,7 +111,7 @@ module.exports = {
 
     // get all specified users
     getSpecified: function(req, res) {
-        var requested = req.body.requested.split(',');
+        var requested = (req.body.requested.length > 0) ? req.body.requested.split(','): [];
 
         console.log("req.body.users:", requested);
         
@@ -126,8 +126,8 @@ module.exports = {
     update: function(req, res) {
         var userId = req.params.id;
         var available = req.body.available;
-        var roommates = req.body.roommates;
-        var requested = req.body.requested;
+        var roommates = (req.body.roommates.length > 0) ? req.body.roommates.split(','): [];
+        var requested = (req.body.requested.length > 0) ? req.body.requested.split(','): [];
 
         // all of these fields are optional, only update the ones that are defined
         var updateFields = {};

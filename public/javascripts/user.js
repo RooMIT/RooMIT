@@ -33,7 +33,6 @@ var getUser = function(id, callback) {
     
 // get specified users
 var getSpecified = function(fields, callback) {
-    console.log("fields: ", fields)
     $.post(
         '/userssome', 
         fields
