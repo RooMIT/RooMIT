@@ -33,7 +33,6 @@ module.exports = {
         });
         User.update({ _id: userId }, {preferences: prefs}, function (err){
             if (err) return handleError(res, 500, err);
-            res.json({ success:true });
         });
     }
 }

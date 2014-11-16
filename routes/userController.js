@@ -1,7 +1,7 @@
 var User = require('../models/user');
 var Preference = require('../models/preference');
 var handleError = require('./utils').handleError;
-var initPreferences = require('./preferenceController').initiliaze;
+var initPreferences = require('./preferenceController').initialize;
 
 module.exports = {
 
