@@ -3,7 +3,7 @@
 <h3> From others: </h3><br>
 {{#each requestsToUser}}
   <div id={{_id}}>
-	  <a id={{_id}}>{{name}}</a> 
+	  <span id='requestuser'><a id={{_id}}>{{name}}</a></span>
 	  <button class='btn btn-primary' id='confirm' type='button'>Confirm</button>
 	  <button class='btn btn-default' id='deny' type='button'>Deny</button>
   </div>
@@ -13,7 +13,7 @@
 {{#each requestsFromUser}}
 	{{!TODO: fix link!}}
 	<div id={{_id}}>
-		<a id={{_id}}>{{name}}</a>
+		<span id='requestuser'><a id={{_id}}>{{name}}</a></span>
 		<button class='btn btn-default' id="cancel" type="button">Cancel</button>
 	</div>
 {{/each}}

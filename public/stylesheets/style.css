@@ -26,3 +26,8 @@ li a {
 #available-group .btn-primary {
     cursor: default;
 }
+
+#requestuser { 
+	display: inline-block; 
+	width: 7%;
+}
