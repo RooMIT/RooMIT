@@ -1,10 +1,6 @@
 // shows requests page
 var showRequests = function() {
     switchActive('#requests');
-    /*
-    updateUser('546842ebb51420ff04b275ae', {requested: '54644e49c4a5062ab906604b'}, function(){
-        console.log("done");
-    });  */
 
     var requestsToUser = [];
     var requestsFromUser = [];
@@ -16,8 +12,6 @@ var showRequests = function() {
         var user = response.user;
         // user logged in
         if (user) { 
-            //var fields = {requested: user.requested.toString()};
-
             getRequested(user._id, function(response2){
                 requestsFromUser = response2.users;
 
@@ -49,7 +43,6 @@ var showRequests = function() {
 $(document).on('click', '#cancel', function(event) {
     event.preventDefault();
     var requestedID = $(this).parent()[0].id;
-    console.log(requestedID);
 
     // get logged in user
     $.get(
@@ -90,10 +83,8 @@ $(document).on('click', '#confirm', function(event) {
             var newRoommates = user.roommates;
             newRoommates.push(roommateID);
 
-            console.log(newRoommates.toString());
             var fields = {roommates: newRoommates.toString()};
 
-            console.log("first fields", fields);
             updateUser(user._id, fields, function(){
                 console.log("updated user!");
                 getUser(roommateID, function(roommate){
@@ -105,7 +96,6 @@ $(document).on('click', '#confirm', function(event) {
                     newRoommates.push(user._id);
 
                     var field = {requested: newRequested.toString(), roommates: newRoommates.toString()};
-                    console.log("last field ", field);
                     updateUser(roommateID, field, function(){
                         showRequests();
                     });
