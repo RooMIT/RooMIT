@@ -1,6 +1,6 @@
 // click the not-selected button for availability
 $(document).on('click', '#available-group .btn-default', function(event) {
-    var available = $(this).attr('id') == 'available';
+    var available = ($(this).attr('id') === 'available');
 
     // TODO: get id
     // updateUser(userId, { available : available }, function() {
@@ -68,15 +68,17 @@ var updateUser = function(id, fields, callback) {
 Handlebars.registerPartial('preference', Handlebars.templates['preference']);
 
 // show a user's profile
-showUserProfile = function(user, loggedInUser) {
+showUserProfile = function(user) {
     switchActive('#profile');
-
-    // TODO: this is super jank
-    if (user._id == loggedInUser._id) {
+    var loggedInUserID = $.cookie('user');
+    // if user is current user, show personal profile
+    if (user._id === loggedInUserID) {
         $('#content').html(Handlebars.templates['my-profile']({
            user: user
         }));
-    } else {
+    } 
+    //else show visitor profile
+    else {
         var requested = user.requested.indexOf(loggedInUser._id) > -1
         $('#content').html(Handlebars.templates['profile']({
            user: user,
