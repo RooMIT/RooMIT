@@ -3,44 +3,85 @@ var Preference = require('../models/preference');
 var handleError = require('./utils').handleError;
 var initPreferences = require('./preferenceController').initialize;
 
-module.exports = {
+var exports = {};
 
-    // login existing users
-    login: function(req, res) {
-        var email = req.body.email;
-        var password = req.body.password;
+var validateFields = function(fields) {
+    if (typeof fields.email === 'string' && !(/^[A-Z0-9._%+-]+@mit.edu$/i).test(fields.email)) {
+        return 'Please enter a valid MIT email';
+    }
+    if (typeof fields.password === 'string' && !(/^(?=\s*\S).*$/i).test(fields.password)) {
+        return 'Please enter a nonempty password';
+    }
+    if (typeof fields.name === 'string' && !(/^[a-z\s]+$/i).test(fields.name)) {
+        return 'Please enter a nonempty name with alphabetical characters and spaces only';
+    }
+    return '';
+}
 
-        // sanitize inputs
-        if (!(/^[A-Z0-9._%+-]+@mit.edu$/i).test(email)) {
-            return handleError(res, 400, 'Please enter a valid MIT email');
-        }
+exports.login = function(req, res) {
+    var errorMessage = validateFields(req.body);
+    if (errorMessage) {
+        return handleError(res, 400, errorMessage);
+    }
+    User.findOne({ email: email }, function (err, user) {
+        if (err) return handleError(res, 500, err);
+        if (!user) return handleError(res, 404, 'Please create an account');
+        user.verifyPassword(password, function(error, isMatch) {
+            if (error) return handleError(res, 500, error);
+            if (!isMatch) return handleError(res, 401, 'Incorrect password');
 
-        if (!(/^(?=\s*\S).*$/i).test(password)) {
-            return handleError(res, 400, 'Please enter a nonempty password');
-        }
-
-        User.findOne({ email: email }, function (err, user) {
-            if (err) return handleError(res, 500, err);
-            if (user == null) return handleError(res, 404, 'Please create an account');
-            
-            user.verifyPassword(password, function(error, isMatch) {
-                if (error) return handleError(res, 500, error);
-                if (!isMatch) return handleError(res, 401, 'Incorrect password');
-
-                // make session
-                req.session.userId = user._id;
-                res.json({ user: user });
-            });
+            // make session
+            req.session.userId = user._id;
+            res.json({ user: user });
         });
+    });
+};
 
-    },
+exports.create = function(req, res) {
+    var params = req.body;
+    var errorMessage = validateFields(params);
+    if (errorMessage) {
+        return handleError(res, 400, errorMessage);
+    }
+    User.createUser(params, function(err, user) {
+        if (err && err.code == 11000) return handleError(res, 400, 'Email already in use');
+        if (err) return handleError(res, 500, err);
+        initPreferences(user._id);
+    }
+    var newUser = new User({ name: params.name, email: params.email, password: params.password });
+    newUser.save(function (err, user) {
 
-    // logout user
-    logout: function(req, res) {
-        // destroy session
-        req.session.userId = undefined;
-        res.json({ success:true });
-    },
+
+        createPreferences(user, function(error) {
+            if (error) return handleError(res, 500, err);
+            req.session.userId = user._id;
+            res.json({ user:user });
+        });
+    });
+};
+
+var logout = function(req, res) {
+    delete req.session.userId;
+    res.json({ success: true });
+};
+
+var getLoggedInUser = function(req, res) {
+    var userId = req.session.userId
+
+    if (!userId) {
+        return res.json({ user: undefined });
+    }
+
+    User.findOne({ _id: userId }, function (err, user) {
+        if (err) return handleError(res, 500, err);
+        if (!user) return handleError(res, 404, 'User not found');
+        res.json({ user: user });
+    });
+};
+
+module.exports = {
+    login: login,
+    logout: logout,
 
     // create a new user
     create: function(req, res) {
@@ -77,18 +118,7 @@ module.exports = {
     },
 
     // get the logged in user
-    getLoggedInUser: function(req, res) {
-        var userId = req.session.userId
-
-        if (userId == undefined) {
-            return res.json({ user: undefined });
-        }
-
-        User.findOne({ _id: userId }, function (err, user) {
-            if (err) return handleError(res, 500, err);
-            if (user == undefined) return handleError(res, 404, 'User not found');
-            res.json({ user: user });
-        });
+    getLoggedInUser: 
     },
 
     // get a particular user
@@ -125,6 +155,7 @@ module.exports = {
         var userId = req.params.id;
         var available = req.body.available;
 
+        //TODO just use if(req.body.<param>)
         if (typeof req.body.roommates !== 'undefined') var roommates = (req.body.roommates.length > 0) ? req.body.roommates.split(','): [];
         if (typeof req.body.requested !== 'undefined') var requested = (req.body.requested.length > 0) ? req.body.requested.split(','): [];
 
