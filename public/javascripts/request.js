@@ -1,10 +1,6 @@
 // shows requests page
 var showRequests = function() {
     switchActive('#requests');
-    /*
-    updateUser('54644e49c4a5062ab906604b', {requested: '5467fae80ca084bf02172415'}, function(){
-        console.log("done");
-    }); */
 
     var requestsToUser = [];
     var requestsFromUser = [];
@@ -16,9 +12,7 @@ var showRequests = function() {
         var user = response.user;
         // user logged in
         if (user) { 
-            var fields = {requested: user.requested.toString()};
-
-            getSpecified(fields, function(response2){
+            getRequested(user._id, function(response2){
                 requestsFromUser = response2.users;
 
                 getAll(function(response3){
@@ -49,7 +43,6 @@ var showRequests = function() {
 $(document).on('click', '#cancel', function(event) {
     event.preventDefault();
     var requestedID = $(this).parent()[0].id;
-    console.log(requestedID);
 
     // get logged in user
     $.get(
@@ -63,7 +56,7 @@ $(document).on('click', '#cancel', function(event) {
             newRequested.splice(index, 1);
             var fields = {requested: newRequested.toString()};
             updateUser(user._id, fields, function(){
-                console.log("updated user!");
+                console.log("updated user!", requestedID + 'removed');
                 showRequests();
             });
         } else {
@@ -90,24 +83,55 @@ $(document).on('click', '#confirm', function(event) {
             var newRoommates = user.roommates;
             newRoommates.push(roommateID);
 
-            console.log(newRoommates.toString());
             var fields = {roommates: newRoommates.toString()};
+
             updateUser(user._id, fields, function(){
                 console.log("updated user!");
-                /*getUser(roommateID, function(roommate){
+                getUser(roommateID, function(roommate){
                     var index = roommate.requested.indexOf(user._id);
                     var newRequested = roommate.requested;
                     newRequested.splice(index, 1);
 
-                    var newRoomates = roommate.roommates;
+                    var newRoommates = roommate.roommates;
                     newRoommates.push(user._id);
 
                     var field = {requested: newRequested.toString(), roommates: newRoommates.toString()};
                     updateUser(roommateID, field, function(){
                         showRequests();
                     });
-                });    */
+                });    
             });
+        } else {
+            // user not logged in, show login
+            showLogin();
+        }
+    }).fail(function(error) {
+        handleError(error);
+    });
+});
+
+//click deny
+$(document).on('click', '#deny', function(event) {
+    event.preventDefault();
+    var deniedID = $(this).parent()[0].id;
+
+    // get logged in user
+    $.get(
+        '/user'
+    ).done(function(response) {
+        var user = response.user;
+        // user logged in
+        if (user) { 
+            getUser(deniedID, function(denied){
+                var index = denied.requested.indexOf(user._id);
+                var newRequested = denied.requested;
+                newRequested.splice(index, 1);
+
+                var field = {requested: newRequested.toString()};
+                updateUser(deniedID, field, function(){
+                    showRequests();
+                });
+            });    
         } else {
             // user not logged in, show login
             showLogin();

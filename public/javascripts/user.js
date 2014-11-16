@@ -31,11 +31,10 @@ var getUser = function(id, callback) {
     });
 }
     
-// get specified users
-var getSpecified = function(fields, callback) {
-    $.post(
-        '/userssome', 
-        fields
+// get requested users
+var getRequested = function(id, callback) {
+    $.get(
+        '/users/' + id + '/requested'
     ).done(function(response) {
         callback(response);
     }).fail(function(error) {
