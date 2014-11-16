@@ -77,8 +77,8 @@ $(document).on('click', '#logout', function(event) {
         '/logout'
 
     ).done(function(response) {
+        $.removeCookie('user');
         showLogin();
-
     }).fail(function(error) {
         handleError(error);
     });
@@ -110,8 +110,9 @@ var login = function() {
         { email: email, password: password }
     ).done(function(response) {
         var user = response.user;
+        $.cookie('user', user._id);
         $('#main').html(Handlebars.templates['main']);
-        showUserProfile(user, user);
+        showUserProfile(user);
 
     }).fail(function(error) {
         handleError(error);

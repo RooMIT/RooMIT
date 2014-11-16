@@ -1,7 +1,14 @@
 // click profile
 $(document).on('click', '#profile:not(.active) a', function(event) {
-    // TODO: figure out cookies
-    //showUserProfile();
+    var user_id = $.cookie('user');
+    if (user_id) {
+        getUser(user_id, function(user) {
+            showUserProfile(user);
+        });
+    }
+    else {
+        handleError('Please login first');
+    }
 });
 
 // click suggestions
