@@ -78,20 +78,6 @@ module.exports = function(app) {
         UserController.getAll(req, res);
     }); 
 
-    /*
-        Get all specified users
-
-        POST /userssome
-        Request Body: 
-            - requested: string of requested user ids
-        Response: 
-            - users: list of requested users
-            - error: error if there was one
-    */
-    app.post('/userssome', function(req, res) {
-        UserController.getSpecified(req, res);
-    });
-
     /*  
         Get a particular user
 
@@ -103,6 +89,19 @@ module.exports = function(app) {
     */
     app.get('/users/:id', function(req, res) {
         UserController.get(req, res);
+    });
+
+    /*
+        Get all users the particular user has under requested
+
+        GET /userssome
+        Request Body: empty
+        Response: 
+            - users: list of requested users
+            - error: error if there was one
+    */
+    app.get('/users/:id/requested', function(req, res) {
+        UserController.getRequested(req, res);
     });
 
     /*  

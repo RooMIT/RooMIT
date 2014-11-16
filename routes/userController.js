@@ -108,8 +108,8 @@ module.exports = {
             res.json({ users: users });
         })
     },
-
-    // get all specified users
+    /*
+    // get all requested users
     getSpecified: function(req, res) {
         var requested = (req.body.requested.length > 0) ? req.body.requested.split(','): [];
 
@@ -120,6 +120,17 @@ module.exports = {
             if (users == undefined) return handleError(res, 404, 'Users not found');
             res.json({ users: users }); 
         }); 
+    }, */
+
+    //get all requested users
+    getRequested: function(req, res) {
+        User.findOne({ _id: req.params.id}, function (err, user) {
+            User.find({ _id: { $in: user.requested}}, function (err, users) {
+                if (err) return handleError(res, 500, err);
+                if (users == undefined) return handleError(res, 404, 'Users not found');
+                res.json({ users: users }); 
+            });
+        });
     },
 
     // modify a user
@@ -127,8 +138,8 @@ module.exports = {
         var userId = req.params.id;
         var available = req.body.available;
 
-        var roommates = (req.body.roommates != null && req.body.roommates.length > 0) ? req.body.roommates.split(','): [];
-        var requested = (req.body.requested != null && req.body.requested.length > 0) ? req.body.requested.split(','): [];
+        if (typeof req.body.roommates !== 'undefined') var roommates = (req.body.roommates.length > 0) ? req.body.roommates.split(','): [];
+        if (typeof req.body.requested !== 'undefined') var requested = (req.body.requested.length > 0) ? req.body.requested.split(','): [];
 
         // all of these fields are optional, only update the ones that are defined
         var updateFields = {};
