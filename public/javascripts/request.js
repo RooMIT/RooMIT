@@ -8,11 +8,11 @@ var showRequests = function() {
     // get logged in user
     var user_id = $.cookie('user');
     if (user_id) {
-        getRequested(user_id, function(response2){
-            requestsFromUser = response2.users;
+        getRequested(user_id, function(res){
+            requestsFromUser = res.users;
 
-            getAll(function(response3){
-                allUsers = response3.users;
+            getAll(function(res2){
+                allUsers = res2.users;
                 for (var i = 0; i < allUsers.length; i++){
                     if (allUsers[i].requested.indexOf(user_id) >= 0) {
                         requestsToUser.push(allUsers[i]);
@@ -35,15 +35,12 @@ var showRequests = function() {
 // click cancel
 $(document).on('click', '#cancel', function(event) {
     event.preventDefault();
-    var requestedID = $(this).parent()[0].id;
+    var requestedID = $(this).attr('user');
 
     // get logged in user
-    $.get(
-        '/user'
-    ).done(function(response) {
-        var user = response.user;
-        // user logged in
-        if (user) { 
+    var user_id = $.cookie('user');
+    if (user_id) {
+        getUser(user_id, function(user){
             var newRequested = user.requested; 
             var index = newRequested.indexOf(requestedID);
             newRequested.splice(index, 1);
@@ -52,27 +49,22 @@ $(document).on('click', '#cancel', function(event) {
                 console.log("updated user!", requestedID + 'removed');
                 showRequests();
             });
-        } else {
-            // user not logged in, show login
-            showLogin();
-        }
-    }).fail(function(error) {
-        handleError(error);
-    });
+        })
+    }
+    else {
+        showLogin();
+    }
 });
 
 //click confirm
 $(document).on('click', '#confirm', function(event) {
     event.preventDefault();
-    var roommateID = $(this).parent()[0].id;
+    var roommateID = $(this).attr('user');
 
     // get logged in user
-    $.get(
-        '/user'
-    ).done(function(response) {
-        var user = response.user;
-        // user logged in
-        if (user) { 
+    var user_id = $.cookie('user');
+    if (user_id) {
+        getUser(user_id, function(user){
             var newRoommates = user.roommates;
             newRoommates.push(roommateID);
 
@@ -94,19 +86,17 @@ $(document).on('click', '#confirm', function(event) {
                     });
                 });    
             });
-        } else {
-            // user not logged in, show login
-            showLogin();
-        }
-    }).fail(function(error) {
-        handleError(error);
-    });
+        })
+    }
+    else {
+        showLogin();
+    }
 });
 
 //click deny
 $(document).on('click', '#deny', function(event) {
     event.preventDefault();
-    var deniedID = $(this).parent()[0].id;
+    var deniedID = $(this).attr('user');
 
     // get logged in user
     var user_id = $.cookie('user');

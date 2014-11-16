@@ -94,7 +94,7 @@ module.exports = function(app) {
     /*
         Get all users the particular user has under requested
 
-        GET /userssome
+        GET /users/{id}/requested
         Request Body: empty
         Response: 
             - users: list of requested users
@@ -104,6 +104,19 @@ module.exports = function(app) {
         UserController.getRequested(req, res);
     });
 
+    /*
+        Get all users who are roommates of the particular user
+
+        GET /users/{id}/roommates
+        Request Body: empty
+        Response: 
+            - users: list of roommates
+            - error: error if there was one
+    */
+    app.get('/users/:id/roommates', function(req, res) {
+        UserController.getRoommates(req, res);
+    });
+    
     /*  
         Get all the users that match the logged in user
         and the percentage they match

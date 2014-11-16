@@ -120,6 +120,17 @@ module.exports = {
         });
     },
 
+    //get all roommates
+    getRoommates: function(req, res) {
+        User.findOne({ _id: req.params.id}, function (err, user) {
+            User.find({ _id: { $in: user.roommates}}, function (err, users) {
+                if (err) return handleError(res, 500, err);
+                if (users == undefined) return handleError(res, 404, 'Users not found');
+                res.json({ users: users }); 
+            });
+        });
+    },
+
     // modify a user
     update: function(req, res) {
         var userId = req.params.id;
