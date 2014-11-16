@@ -65,6 +65,8 @@ var updateUser = function(id, fields, callback) {
     });
 }
 
+Handlebars.registerPartial('preference', Handlebars.templates['preference']);
+
 // show a user's profile
 showUserProfile = function(user, loggedInUser) {
     switchActive('#profile');
