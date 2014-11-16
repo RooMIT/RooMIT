@@ -6,37 +6,30 @@ var showRequests = function() {
     var requestsFromUser = [];
 
     // get logged in user
-    $.get(
-        '/user'
-    ).done(function(response) {
-        var user = response.user;
-        // user logged in
-        if (user) { 
-            getRequested(user._id, function(response2){
-                requestsFromUser = response2.users;
+    var user_id = $.cookie('user');
+    if (user_id) {
+        getRequested(user_id, function(response2){
+            requestsFromUser = response2.users;
 
-                getAll(function(response3){
-                    allUsers = response3.users;
-                    for (var i = 0; i < allUsers.length; i++){
-                        if (allUsers[i].requested.indexOf(user._id) >= 0) {
-                            requestsToUser.push(allUsers[i]);
-                        }
+            getAll(function(response3){
+                allUsers = response3.users;
+                for (var i = 0; i < allUsers.length; i++){
+                    if (allUsers[i].requested.indexOf(user_id) >= 0) {
+                        requestsToUser.push(allUsers[i]);
                     }
-                    console.log("requestsToUser: ", requestsToUser);
-                    console.log("requestsFromUser: ", requestsFromUser);
-                    $('#content').html(Handlebars.templates['requests']({
-                        requestsToUser: requestsToUser,
-                        requestsFromUser: requestsFromUser
-                    }));
-                });
-            });  
-        } else {
-            // user not logged in, show login
-            showLogin();
-        }
-    }).fail(function(error) {
-        handleError(error);
-    });
+                }
+                console.log('requestsToUser: ', requestsToUser, ' requestsFromUser: ', requestsFromUser);
+
+                $('#content').html(Handlebars.templates['requests']({
+                    requestsToUser: requestsToUser,
+                    requestsFromUser: requestsFromUser
+                }));
+            });
+        });  
+    }
+    else {
+        showLogin();
+    }
 }
 
 // click cancel
@@ -116,27 +109,20 @@ $(document).on('click', '#deny', function(event) {
     var deniedID = $(this).parent()[0].id;
 
     // get logged in user
-    $.get(
-        '/user'
-    ).done(function(response) {
-        var user = response.user;
-        // user logged in
-        if (user) { 
-            getUser(deniedID, function(denied){
-                var index = denied.requested.indexOf(user._id);
-                var newRequested = denied.requested;
-                newRequested.splice(index, 1);
+    var user_id = $.cookie('user');
+    if (user_id) {
+        getUser(deniedID, function(denied){
+            var index = denied.requested.indexOf(user_id);
+            var newRequested = denied.requested;
+            newRequested.splice(index, 1);
 
-                var field = {requested: newRequested.toString()};
-                updateUser(deniedID, field, function(){
-                    showRequests();
-                });
-            });    
-        } else {
-            // user not logged in, show login
-            showLogin();
-        }
-    }).fail(function(error) {
-        handleError(error);
-    });
+            var field = {requested: newRequested.toString()};
+            updateUser(deniedID, field, function(){
+                showRequests();
+            });
+        });    
+    }
+    else {
+        showLogin();
+    }
 });
