@@ -1,1 +1,12 @@
 <h1> Requests </h1>
+
+<h2> From others: </h2>
+{{#each requestsToUser}}
+  <a id={{_id}}>{{name}}</a> <button id='confirm' type='button'>Confirm</button> <button id='deny' type='button'>Deny</button>
+{{/each}}
+
+<h2> From you: </h2>
+{{#each requestsFromUser}}
+	{{!TODO: fix link!}}
+	<a id={{_id}}>{{name}}</a> <button id="cancel" type="button">Cancel</button>
+{{/each}}

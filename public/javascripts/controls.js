@@ -24,17 +24,9 @@ var showSuggestions = function() {
     }));
 }
 
-// shows requests page
-var showRequests = function() {
-    switchActive('#requests');
-    var requestsToUser = [];
-    var requestsFromUser = [];
 
-    $('#content').html(Handlebars.templates['requests']({
-       requestsToUser: requestsToUser,
-       requestsFromUser: requestsFromUser
-    }));
-}
+
+
 
 // switch the active class from the current item to a new item
 switchActive = function(newActiveSelector) {

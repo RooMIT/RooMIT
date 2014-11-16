@@ -25,7 +25,30 @@ var getUser = function(id, callback) {
     $.get(
         '/users/' + id
     ).done(function(response) {
-        callback(user);
+        callback(response.user);
+    }).fail(function(error) {
+        handleError(error);
+    });
+}
+    
+// get specified users
+var getSpecified = function(fields, callback) {
+    console.log("fields: ", fields)
+    $.post(
+        '/userssome', 
+        fields
+    ).done(function(response) {
+        callback(response);
+    }).fail(function(error) {
+        handleError(error);
+    });
+}
+
+var getAll = function(callback) {
+    $.get(
+        '/users'
+    ).done(function(response) {
+        callback(response);
     }).fail(function(error) {
         handleError(error);
     });

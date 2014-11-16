@@ -65,6 +65,33 @@ module.exports = function(app) {
         UserController.getLoggedInUser(req, res);
     });
 
+    /*
+        Get all users
+
+        GET /users
+        Request Body: empty
+        Response:
+            - users: a list of all users
+            - error: error if there was one
+    */
+    app.get('/users', function(req, res) {
+        UserController.getAll(req, res);
+    }); 
+
+    /*
+        Get all specified users
+
+        POST /userssome
+        Request Body: 
+            - requested: string of requested user ids
+        Response: 
+            - users: list of requested users
+            - error: error if there was one
+    */
+    app.post('/userssome', function(req, res) {
+        UserController.getSpecified(req, res);
+    });
+
     /*  
         Get a particular user
 

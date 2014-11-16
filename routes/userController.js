@@ -102,6 +102,26 @@ module.exports = {
         });
     },
 
+    // get all users
+    getAll: function(req, res) {
+        User.find({}, function(err, users) {
+            res.json({ users: users });
+        })
+    },
+
+    // get all specified users
+    getSpecified: function(req, res) {
+        var requested = req.body.requested.split(',');
+
+        console.log("req.body.users:", requested);
+        
+        User.find({ _id: { $in: requested}}, function (err, users) {
+            if (err) return handleError(res, 500, err);
+            if (users == undefined) return handleError(res, 404, 'Users not found');
+            res.json({ users: users }); 
+        }); 
+    },
+
     // modify a user
     update: function(req, res) {
         var userId = req.params.id;
