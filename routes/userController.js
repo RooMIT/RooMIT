@@ -126,8 +126,9 @@ module.exports = {
     update: function(req, res) {
         var userId = req.params.id;
         var available = req.body.available;
-        var roommates = (req.body.roommates.length > 0) ? req.body.roommates.split(','): [];
-        var requested = (req.body.requested.length > 0) ? req.body.requested.split(','): [];
+
+        var roommates = (req.body.roommates != null && req.body.roommates.length > 0) ? req.body.roommates.split(','): [];
+        var requested = (req.body.requested != null && req.body.requested.length > 0) ? req.body.requested.split(','): [];
 
         // all of these fields are optional, only update the ones that are defined
         var updateFields = {};

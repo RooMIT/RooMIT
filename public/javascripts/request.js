@@ -106,7 +106,7 @@ $(document).on('click', '#confirm', function(event) {
                     updateUser(roommateID, field, function(){
                         showRequests();
                     });
-                });*/
+                });    */
             });
         } else {
             // user not logged in, show login
