@@ -171,12 +171,9 @@ var showUserProfile = function(user) {
     if (user._id === loggedInUserID) {
         switchActive('#profile');
 
-        getRoommates(loggedInUserID, function(res) {
-            var roommates = res.users; 
-            $('#content').html(Handlebars.templates['my-profile']({
-               user: user, roommates: roommates
-            }));
-        });
+        $('#content').html(Handlebars.templates['my-profile']({
+           user: user, roommates: roommates
+        }));
     } 
     //else show visitor profile
     else {

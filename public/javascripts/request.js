@@ -1,32 +1,6 @@
 // click requests
 $(document).on('click', '#requests:not(.active) a', function(event) {
-    switchActive('#requests');
-
-    var requestsToUser = [];
-    var requestsFromUser = [];
-
-    // get logged in user
-    var user_id = $.cookie('user');
-    if (!user_id) return showLogin();
-
-    getRequested(user_id, function(res){
-        requestsFromUser = res.users;
-
-        getAll(function(res2){
-            allUsers = res2.users;
-            for (var i = 0; i < allUsers.length; i++){
-                if (allUsers[i].requested.indexOf(user_id) >= 0) {
-                    requestsToUser.push(allUsers[i]);
-                }
-            }
-            console.log('requestsToUser: ', requestsToUser, ' requestsFromUser: ', requestsFromUser);
-
-            $('#content').html(Handlebars.templates['requests']({
-                requestsToUser: requestsToUser,
-                requestsFromUser: requestsFromUser
-            }));
-        });
-    });
+    showRequests();
 });
 
 // click cancel
@@ -104,3 +78,33 @@ $(document).on('click', '#deny', function(event) {
         });
     });
 });
+
+var showRequests = function() {
+    switchActive('#requests');
+
+    var requestsToUser = [];
+    var requestsFromUser = [];
+
+    // get logged in user
+    var user_id = $.cookie('user');
+    if (!user_id) return showLogin();
+
+    getRequested(user_id, function(res){
+        requestsFromUser = res.users;
+
+        getAll(function(res2){
+            allUsers = res2.users;
+            for (var i = 0; i < allUsers.length; i++){
+                if (allUsers[i].requested.indexOf(user_id) >= 0) {
+                    requestsToUser.push(allUsers[i]);
+                }
+            }
+            console.log('requestsToUser: ', requestsToUser, ' requestsFromUser: ', requestsFromUser);
+
+            $('#content').html(Handlebars.templates['requests']({
+                requestsToUser: requestsToUser,
+                requestsFromUser: requestsFromUser
+            }));
+        });
+    });
+}
