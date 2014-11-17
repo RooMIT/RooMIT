@@ -78,20 +78,6 @@ module.exports = function(app) {
         UserController.getAll(req, res);
     }); 
 
-    /*
-        Get all specified users
-
-        POST /userssome
-        Request Body: 
-            - requested: string of requested user ids
-        Response: 
-            - users: list of requested users
-            - error: error if there was one
-    */
-    app.post('/userssome', function(req, res) {
-        UserController.getSpecified(req, res);
-    });
-
     /*  
         Get a particular user
 
@@ -105,6 +91,32 @@ module.exports = function(app) {
         UserController.get(req, res);
     });
 
+    /*
+        Get all users the particular user has under requested
+
+        GET /users/{id}/requested
+        Request Body: empty
+        Response: 
+            - users: list of requested users
+            - error: error if there was one
+    */
+    app.get('/users/:id/requested', function(req, res) {
+        UserController.getRequested(req, res);
+    });
+
+    /*
+        Get all users who are roommates of the particular user
+
+        GET /users/{id}/roommates
+        Request Body: empty
+        Response: 
+            - users: list of roommates
+            - error: error if there was one
+    */
+    app.get('/users/:id/roommates', function(req, res) {
+        UserController.getRoommates(req, res);
+    });
+    
     /*  
         Get all the users that match the logged in user
         and the percentage they match

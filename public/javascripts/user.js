@@ -1,6 +1,6 @@
 // click the not-selected button for availability
 $(document).on('click', '#available-group .btn-default', function(event) {
-    var available = $(this).attr('id') == 'available';
+    var available = ($(this).attr('id') === 'available');
 
     // TODO: get id
     // updateUser(userId, { available : available }, function() {
@@ -10,11 +10,27 @@ $(document).on('click', '#available-group .btn-default', function(event) {
     // });
 });
 
+// click on link to a user's profile
+$(document).on('click', '#link', function(event) {
+    event.preventDefault();
+    var id = $(this).attr('user');
+    getUser(id, function(user){
+        showUserProfile(user);
+    });
+});
+
 // click request roommate
 $(document).on('click', '#request-roommate.btn-primary', function(event) {
     var roommateId = $(this).attr('user');
+    var userID = $.cookie('user');
+    getUser(userID, function(user){
+        var newRequested = user.requested;
+        newRequested.push(roommateId);
 
-    // TODO: add request
+        updateUser(userID, {requested: newRequested.toString()}, function(){
+            console.log("request sent");
+        });
+    });
 
     $(this).html('Request Sent');
     $(this).addClass('disabled');
@@ -51,11 +67,10 @@ var getUser = function(id, callback) {
     });
 }
     
-// get specified users
-var getSpecified = function(fields, callback) {
-    $.post(
-        '/userssome', 
-        fields
+// get requested users
+var getRequested = function(id, callback) {
+    $.get(
+        '/users/' + id + '/requested'
     ).done(function(response) {
         callback(response);
     }).fail(function(error) {
@@ -63,6 +78,18 @@ var getSpecified = function(fields, callback) {
     });
 }
 
+// get roommates
+var getRoommates = function(id, callback) {
+    $.get(
+        '/users/' + id + '/roommates'
+    ).done(function(response) {
+        callback(response);
+    }).fail(function(error) {
+        handleError(error);
+    });
+}
+
+// get all users
 var getAll = function(callback) {
     $.get(
         '/users'
@@ -89,19 +116,31 @@ var updateUser = function(id, fields, callback) {
 Handlebars.registerPartial('preference', Handlebars.templates['preference']);
 
 // show a user's profile
-showUserProfile = function(user, loggedInUser) {
-    switchActive('#profile');
+showUserProfile = function(user) {
+    var loggedInUserID = $.cookie('user');
+    // if user is current user, show personal profile
+    if (user._id === loggedInUserID) {
+        switchActive('#profile');
 
-    // TODO: this is super jank
-    if (user._id == loggedInUser._id) {
-        $('#content').html(Handlebars.templates['my-profile']({
-           user: user
-        }));
-    } else {
-        var requested = user.requested.indexOf(loggedInUser._id) > -1
-        $('#content').html(Handlebars.templates['profile']({
-           user: user,
-           requested: requested
-        }));
+        getRoommates(loggedInUserID, function(res) {
+            var roommates = res.users; 
+            $('#content').html(Handlebars.templates['my-profile']({
+               user: user, roommates: roommates
+            }));
+        });
+    } 
+    //else show visitor profile
+    else {
+        $('li').removeClass('active');
+        // get logged in user
+        getUser(loggedInUserID, function(loggedInUser) {
+            getRoommates(user._id, function(res) {
+                var roommates = res.users; 
+                var requested = loggedInUser.requested.indexOf(user._id) > -1
+                $('#content').html(Handlebars.templates['profile']({
+                   user: user, roommates: roommates, requested: requested
+                }));
+            })
+        });
     }
 }

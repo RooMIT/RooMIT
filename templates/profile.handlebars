@@ -18,10 +18,9 @@
 <br>
 
 <h4>Roommates: </h4>
-{{#each user.roommates}}
-    <a id={{_id}}> {{name}} </a>
+{{#each roommates}}
+  <div><a user={{_id}} id='link'> {{name}} </a></div>
 {{/each}}
-
 <br>
 
 <h4>Preferences: </h4>

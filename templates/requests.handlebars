@@ -1,12 +1,18 @@
-<h1> Requests </h1>
+<h1> Requests </h1><br>
 
-<h2> From others: </h2>
+<h3> From others: </h3><br>
 {{#each requestsToUser}}
-  <div id={{_id}}><a id={{_id}}>{{name}}</a> <button id='confirm' type='button'>Confirm</button> <button id='deny' type='button'>Deny</button></div>
+  <div>
+	  <span id='requestuser'><a user={{_id}} id='link'>{{name}}</a></span>
+	  <button class='btn btn-primary' id='confirm' user={{_id}} type='button'>Confirm</button>
+	  <button class='btn btn-default' id='deny' user={{_id}} type='button'>Deny</button>
+  </div>
 {{/each}}
 
-<h2> From you: </h2>
+<h3> From you: </h3><br>
 {{#each requestsFromUser}}
-	{{!TODO: fix link!}}
-	<div id={{_id}}><a id={{_id}}>{{name}}</a> <button id="cancel" type="button">Cancel</button></div>
+	<div>
+		<span id='requestuser'><a user={{_id}} id='link'>{{name}}</a></span>
+		<button class='btn btn-default' id="cancel" user={{_id}} type="button">Cancel</button>
+	</div>
 {{/each}}
