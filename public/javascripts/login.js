@@ -6,6 +6,22 @@ Handlebars.registerHelper('checked', function(label, response) {
     return '';
 });
 
+// on first load, show either the logged in user's profile
+// or the login screen
+$(document).ready(function() { 
+
+    // get logged in user
+    var userID = $.cookie('user');
+    if (user_id == undefined) return showLogin();
+
+    // user logged in
+    getUser(userID, function(user) {
+        $('#main').html(Handlebars.templates['main']);
+        showUserProfile(userId);
+    });
+
+});
+
 // replace the login form with the register form
 $(document).on('click', '#toggle-register', function(event) {
     showRegister();

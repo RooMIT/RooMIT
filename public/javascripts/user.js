@@ -1,17 +1,11 @@
-// on first load, show either the logged in user's profile
-// or the login screen
-$(document).ready(function() { 
-
-    // get logged in user
-    var userID = $.cookie('user');
+// click profile
+$(document).on('click', '#profile:not(.active) a', function(event) {
+    var user_id = $.cookie('user');
     if (user_id == undefined) return showLogin();
-
-    // user logged in
-    getUser(userID, function(user) {
-        $('#main').html(Handlebars.templates['main']);
-        showUserProfile(userId);
+    
+    getUser(user_id, function(user) {
+        showUserProfile(user);
     });
-
 });
 
 // click the not-selected button for availability
@@ -110,7 +104,7 @@ $(document).on('click', '.preference-radio-inline', function(event) {
 });
 
 // get a user 
-var getUser = function(id, callback) {
+getUser = function(id, callback) {
     $.get(
         '/users/' + id
     ).done(function(response) {

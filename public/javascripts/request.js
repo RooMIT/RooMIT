@@ -1,5 +1,5 @@
-// shows requests page
-var showRequests = function() {
+// click requests
+$(document).on('click', '#requests:not(.active) a', function(event) {
     switchActive('#requests');
 
     var requestsToUser = [];
@@ -27,7 +27,7 @@ var showRequests = function() {
             }));
         });
     });
-}
+});
 
 // click cancel
 $(document).on('click', '#cancel', function(event) {

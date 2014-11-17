@@ -15,3 +15,9 @@ function handleError(error) {
 function removeError() {
     $('#error').html('');
 }
+
+// in control toolbar: switch the active class from the current item to a new item
+switchActive = function(newActiveSelector) {
+    $('li').removeClass('active');
+    $(newActiveSelector).addClass('active');
+}
