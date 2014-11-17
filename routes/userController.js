@@ -80,7 +80,7 @@ exports.get = function(req, res) {
 };
 
 exports.getAll = function(req, res) {
-    User.find({}, 'name email roommates preferences available ').populate('preferences').populate('roommates', '_id name email').exec(function(err, users) {
+    User.find({}, 'name email roommates preferences available requested').populate('preferences').populate('roommates', '_id name email').exec(function(err, users) {
         res.json({ users: users });
     });
 };
