@@ -52,19 +52,6 @@ module.exports = function(app) {
         UserController.create(req, res);
     });
 
-    /*  
-        Get the logged in user
-
-        GET /user
-        Request Body: empty
-        Response:
-            - user: the logged in user
-            - error: error if there was one
-    */
-    app.get('/user', function(req, res) {
-        UserController.getLoggedInUser(req, res);
-    });
-
     /*
         Get all users
 

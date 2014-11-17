@@ -1,5 +1,5 @@
-// shows requests page
-var showRequests = function() {
+// click requests
+$(document).on('click', '#requests:not(.active) a', function(event) {
     switchActive('#requests');
 
     var requestsToUser = [];
@@ -7,30 +7,27 @@ var showRequests = function() {
 
     // get logged in user
     var user_id = $.cookie('user');
-    if (user_id) {
-        getRequested(user_id, function(res){
-            requestsFromUser = res.users;
+    if (!user_id) return showLogin();
 
-            getAll(function(res2){
-                allUsers = res2.users;
-                for (var i = 0; i < allUsers.length; i++){
-                    if (allUsers[i].requested.indexOf(user_id) >= 0) {
-                        requestsToUser.push(allUsers[i]);
-                    }
+    getRequested(user_id, function(res){
+        requestsFromUser = res.users;
+
+        getAll(function(res2){
+            allUsers = res2.users;
+            for (var i = 0; i < allUsers.length; i++){
+                if (allUsers[i].requested.indexOf(user_id) >= 0) {
+                    requestsToUser.push(allUsers[i]);
                 }
-                console.log('requestsToUser: ', requestsToUser, ' requestsFromUser: ', requestsFromUser);
+            }
+            console.log('requestsToUser: ', requestsToUser, ' requestsFromUser: ', requestsFromUser);
 
-                $('#content').html(Handlebars.templates['requests']({
-                    requestsToUser: requestsToUser,
-                    requestsFromUser: requestsFromUser
-                }));
-            });
-        });  
-    }
-    else {
-        showLogin();
-    }
-}
+            $('#content').html(Handlebars.templates['requests']({
+                requestsToUser: requestsToUser,
+                requestsFromUser: requestsFromUser
+            }));
+        });
+    });
+});
 
 // click cancel
 $(document).on('click', '#cancel', function(event) {
@@ -39,21 +36,18 @@ $(document).on('click', '#cancel', function(event) {
 
     // get logged in user
     var user_id = $.cookie('user');
-    if (user_id) {
-        getUser(user_id, function(user){
-            var newRequested = user.requested; 
-            var index = newRequested.indexOf(requestedID);
-            newRequested.splice(index, 1);
-            var fields = {requested: newRequested.toString()};
-            updateUser(user._id, fields, function(){
-                console.log("updated user!", requestedID + 'removed');
-                showRequests();
-            });
-        })
-    }
-    else {
-        showLogin();
-    }
+    if (!user_id) return showLogin();
+
+    getUser(user_id, function(user){
+        var newRequested = user.requested; 
+        var index = newRequested.indexOf(requestedID);
+        newRequested.splice(index, 1);
+        var fields = {requested: newRequested.toString()};
+        updateUser(user._id, fields, function(){
+            console.log("updated user!", requestedID + 'removed');
+            showRequests();
+        });
+    });
 });
 
 //click confirm
@@ -63,34 +57,31 @@ $(document).on('click', '#confirm', function(event) {
 
     // get logged in user
     var user_id = $.cookie('user');
-    if (user_id) {
-        getUser(user_id, function(user){
-            var newRoommates = user.roommates;
-            newRoommates.push(roommateID);
+    if (!user_id) return showLogin();
+   
+    getUser(user_id, function(user){
+        var newRoommates = user.roommates;
+        newRoommates.push(roommateID);
 
-            var fields = {roommates: newRoommates.toString()};
+        var fields = {roommates: newRoommates.toString()};
 
-            updateUser(user._id, fields, function(){
-                console.log("updated user!");
-                getUser(roommateID, function(roommate){
-                    var index = roommate.requested.indexOf(user._id);
-                    var newRequested = roommate.requested;
-                    newRequested.splice(index, 1);
+        updateUser(user._id, fields, function(){
+            console.log("updated user!");
+            getUser(roommateID, function(roommate){
+                var index = roommate.requested.indexOf(user._id);
+                var newRequested = roommate.requested;
+                newRequested.splice(index, 1);
 
-                    var newRoommates = roommate.roommates;
-                    newRoommates.push(user._id);
+                var newRoommates = roommate.roommates;
+                newRoommates.push(user._id);
 
-                    var field = {requested: newRequested.toString(), roommates: newRoommates.toString()};
-                    updateUser(roommateID, field, function(){
-                        showRequests();
-                    });
-                });    
-            });
-        })
-    }
-    else {
-        showLogin();
-    }
+                var field = {requested: newRequested.toString(), roommates: newRoommates.toString()};
+                updateUser(roommateID, field, function(){
+                    showRequests();
+                });
+            });    
+        });
+    });
 });
 
 //click deny
@@ -100,19 +91,16 @@ $(document).on('click', '#deny', function(event) {
 
     // get logged in user
     var user_id = $.cookie('user');
-    if (user_id) {
-        getUser(deniedID, function(denied){
-            var index = denied.requested.indexOf(user_id);
-            var newRequested = denied.requested;
-            newRequested.splice(index, 1);
+    if (!user_id) return showLogin();
+    
+    getUser(deniedID, function(denied){
+        var index = denied.requested.indexOf(user_id);
+        var newRequested = denied.requested;
+        newRequested.splice(index, 1);
 
-            var field = {requested: newRequested.toString()};
-            updateUser(deniedID, field, function(){
-                showRequests();
-            });
-        });    
-    }
-    else {
-        showLogin();
-    }
+        var field = {requested: newRequested.toString()};
+        updateUser(deniedID, field, function(){
+            showRequests();
+        });
+    });
 });

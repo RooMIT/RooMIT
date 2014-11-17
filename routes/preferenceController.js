@@ -22,19 +22,21 @@ module.exports = {
     },
 
     // initialize preferences for the user
-    initialize: function(userId, res, callback){
+    initialize: function(user, callback){
         var prefs = getPrefs().map(function (desc) {
             return {description: desc, response: 'Don\'t Care'};
         });
         Preference.collection.insert(prefs, function (err, docs){
-            if (err) return handleError(res, 500, err);
-            var prefIDs = docs.map(function (pref){
-                return pref._id;
-            });
-            User.update({ _id: userId }, {preferences: prefIDs}, function (err){
-                if (err) return handleError(res, 500, err);
-                callback();
-            });
+            if (err){
+                callback(err);
+            } else {
+                var prefIDs = docs.map(function (pref){
+                    return pref._id;
+                });
+                User.update({ _id: user._id }, {preferences: prefIDs}, function (err){
+                    callback(err);
+                });
+            }
         });
     }
 }

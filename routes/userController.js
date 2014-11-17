@@ -66,33 +66,22 @@ module.exports = {
         newUser.save(function (err, user) {
             if (err && err.code == 11000) return handleError(res, 400, 'Email already in use');
             if (err) return handleError(res, 500, err);
+            // create all the user's preferences
+            initPreferences(user, function(error) {
+                if (error) return handleError(res, 500, err);
 
-            createPreferences(user._id, res, function(error) {
-                if (error) return handleError(res, 500, error);
+                // set cookies
                 req.session.userId = user._id;
+
+                // populate the user's prefs and roommates
                 User.findOne({ _id: user._id }).populate('preferences').populate('roommates', '_id name email').exec(function (err, user) {
                     if (err) return handleError(res, 500, err);
-                    if (user == undefined) return handleError(res, 404, 'User not found');
                     res.json({ user: user });
                 });
             });
+
         });
 
-    },
-
-    // get the logged in user
-    getLoggedInUser: function(req, res) {
-        var userId = req.session.userId;
-
-        if (userId == undefined) {
-            return res.json({ user: undefined });
-        }
-
-        User.findOne({ _id: userId }).populate('preferences').populate('roommates', '_id name email').exec(function (err, user) {
-            if (err) return handleError(res, 500, err);
-            if (user == undefined) return handleError(res, 404, 'User not found');
-            res.json({ user: user });
-        });
     },
 
     // get a particular user
@@ -153,14 +142,22 @@ module.exports = {
             updateFields.requested = requested;
         }
 
-        // TODO: if availability changes, change roommates availability too
         if (available) {
             updateFields.available = available == 'True' || available == 'true';
         }
         
         User.update({ _id: userId }, updateFields, function (err) {
             if (err) return handleError(res, 500, err);
-            res.json({ success:true });
+
+            // if no availability changes, just return
+            if (!available) return res.json({ success:true });
+
+            // if availability changes, change roommates availability too
+            updateRoommatesAvailability(userId, available, function(error) {
+                if (error) return handleError(res, 500, error);
+                res.json({ success:true });
+            });
+
         });
     },
 
@@ -172,6 +169,9 @@ module.exports = {
     }
 }
 
-var createPreferences = function(userId, res, callback) {
-    initPreferences(userId, res, callback);
+// update the availability of all roommates of the user
+var updateRoommatesAvailability = function(userId, available, callback) {
+    User.update({ roommates: userId }, { available: available }, function(err) {
+        callback(err);
+    });
 }

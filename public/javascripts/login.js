@@ -11,22 +11,13 @@ Handlebars.registerHelper('checked', function(label, response) {
 $(document).ready(function() { 
 
     // get logged in user
-    $.get(
-        '/user'
-    ).done(function(response) {
-        var user = response.user;
+    var user_id = $.cookie('user');
+    if (!user_id) return showLogin();
 
-        // user logged in
-        if (user) {
-            $('#main').html(Handlebars.templates['main']);
-            showUserProfile(user, user);
-        } else {
-            // user not logged in, show login
-            showLogin();
-        }
-
-    }).fail(function(error) {
-        handleError(error);
+    // user logged in
+    getUser(user_id, function(user) {
+        $('#main').html(Handlebars.templates['main']);
+        showUserProfile(user);
     });
 
 });
