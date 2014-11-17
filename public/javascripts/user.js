@@ -1,7 +1,7 @@
 // click profile
 $(document).on('click', '#profile:not(.active) a', function(event) {
     var user_id = $.cookie('user');
-    if (user_id == undefined) return showLogin();
+    if (!user_id) return showLogin();
     
     getUser(user_id, function(user) {
         showUserProfile(user);
@@ -13,7 +13,7 @@ $(document).on('click', '#available-group .btn-default', function(event) {
     var available = ($(this).attr('id') === 'available');
 
     var userID = $.cookie('user');
-    if (user_id == undefined) return showLogin();
+    if (!user_id) return showLogin();
     
     updateUser(userID, {available: available}, function(){
         console.log('updated availability');
@@ -40,7 +40,7 @@ $(document).on('click', '#link', function(event) {
 $(document).on('click', '#request-roommate.btn-primary', function(event) {
     var roommateId = $(this).attr('user');
     var userID = $.cookie('user');
-    if (user_id == undefined) return showLogin();
+    if (!user_id) return showLogin();
 
     getUser(userID, function(user){
         var newRequested = user.requested;
@@ -60,7 +60,7 @@ $(document).on('click', '#request-roommate.btn-primary', function(event) {
 $(document).on('click', '#cancel-roommate.btn-primary', function(event) {
     var roommateId = $(this).attr('user');
     var userID = $.cookie('user');
-    if (user_id == undefined) return showLogin();
+    if (!user_id) return showLogin();
 
     getUser(userID, function(user){
         var newRoommates = user.roommates;
@@ -165,7 +165,7 @@ Handlebars.registerPartial('preference', Handlebars.templates['preference']);
 // show a user's profile
 var showUserProfile = function(user) {
     var loggedInUserID = $.cookie('user');
-    if (loggedInUserID == undefined) return showLogin();
+    if (!loggedInUserID) return showLogin();
 
     // if user is current user, show personal profile
     if (user._id === loggedInUserID) {

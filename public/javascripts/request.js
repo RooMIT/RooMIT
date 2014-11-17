@@ -7,7 +7,7 @@ $(document).on('click', '#requests:not(.active) a', function(event) {
 
     // get logged in user
     var user_id = $.cookie('user');
-    if (user_id == undefined) return showLogin();
+    if (!user_id) return showLogin();
 
     getRequested(user_id, function(res){
         requestsFromUser = res.users;
@@ -36,7 +36,7 @@ $(document).on('click', '#cancel', function(event) {
 
     // get logged in user
     var user_id = $.cookie('user');
-    if (user_id == undefined) return showLogin();
+    if (!user_id) return showLogin();
 
     getUser(user_id, function(user){
         var newRequested = user.requested; 
@@ -57,7 +57,7 @@ $(document).on('click', '#confirm', function(event) {
 
     // get logged in user
     var user_id = $.cookie('user');
-    if (user_id == undefined) return showLogin();
+    if (!user_id) return showLogin();
    
     getUser(user_id, function(user){
         var newRoommates = user.roommates;
@@ -91,7 +91,7 @@ $(document).on('click', '#deny', function(event) {
 
     // get logged in user
     var user_id = $.cookie('user');
-    if (user_id == undefined) return showLogin();
+    if (!user_id) return showLogin();
     
     getUser(deniedID, function(denied){
         var index = denied.requested.indexOf(user_id);
