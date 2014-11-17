@@ -1,14 +1,11 @@
 // click profile
 $(document).on('click', '#profile:not(.active) a', function(event) {
     var user_id = $.cookie('user');
-    if (user_id) {
-        getUser(user_id, function(user) {
-            showUserProfile(user);
-        });
-    }
-    else {
-        handleError('Please login first');
-    }
+    if (user_id == undefined) return showLogin();
+    
+    getUser(user_id, function(user) {
+        showUserProfile(user);
+    });
 });
 
 // click suggestions
@@ -30,10 +27,6 @@ var showSuggestions = function() {
        suggestions: suggestions
     }));
 }
-
-
-
-
 
 // switch the active class from the current item to a new item
 switchActive = function(newActiveSelector) {
