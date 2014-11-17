@@ -6,31 +6,6 @@ Handlebars.registerHelper('checked', function(label, response) {
     return '';
 });
 
-// on first load, show either the logged in user's profile
-// or the login screen
-$(document).ready(function() { 
-
-    // get logged in user
-    $.get(
-        '/user'
-    ).done(function(response) {
-        var user = response.user;
-
-        // user logged in
-        if (user) {
-            $('#main').html(Handlebars.templates['main']);
-            showUserProfile(user, user);
-        } else {
-            // user not logged in, show login
-            showLogin();
-        }
-
-    }).fail(function(error) {
-        handleError(error);
-    });
-
-});
-
 // replace the login form with the register form
 $(document).on('click', '#toggle-register', function(event) {
     showRegister();
@@ -85,7 +60,7 @@ $(document).on('click', '#logout', function(event) {
 });
 
 // show the login screen
-var showLogin = function() {
+showLogin = function() {
     $('#main').html(Handlebars.templates['login']);
     attachValidators();
 }

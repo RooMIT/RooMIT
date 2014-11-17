@@ -80,21 +80,6 @@ module.exports = {
 
     },
 
-    // get the logged in user
-    getLoggedInUser: function(req, res) {
-        var userId = req.session.userId;
-
-        if (userId == undefined) {
-            return res.json({ user: undefined });
-        }
-
-        User.findOne({ _id: userId }).populate('preferences').populate('roommates', '_id name email').exec(function (err, user) {
-            if (err) return handleError(res, 500, err);
-            if (user == undefined) return handleError(res, 404, 'User not found');
-            res.json({ user: user });
-        });
-    },
-
     // get a particular user
     get: function(req, res) {
         var userId = req.params.id

@@ -1,3 +1,23 @@
+// on first load, show either the logged in user's profile
+// or the login screen
+$(document).ready(function() { 
+
+    // get logged in user
+    var userID = $.cookie('user');
+
+    // user logged in
+    if (userID) {
+        getUser(userID, function(user) {
+            $('#main').html(Handlebars.templates['main']);
+            showUserProfile(userId);
+        });
+    } else {
+        // user not logged in, show login
+        showLogin();
+    }
+
+});
+
 // click the not-selected button for availability
 $(document).on('click', '#available-group .btn-default', function(event) {
     var available = ($(this).attr('id') === 'available');
