@@ -1,43 +1,50 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var ObjectId = Schema.Types.ObjectId;
 var bcrypt = require('bcrypt');
-var SALT_WORK_FACTOR = 10;
 
 var UserSchema = new Schema({
     name: { type: String, required: true },
     email: { type: String, unique: true, required: true },
     password: { type: String, required: true },
     available: { type: Boolean, required: true, default: true },
-    roommates: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-    requested: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-    preferences: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Preference' }]
+    roommates: [{ type: ObjectId, ref: 'User' }],
+    requested: [{ type: ObjectId, ref: 'User' }],
+    preferences: [{ type: ObjectId, ref: 'Preference' }]
 });
 
 UserSchema.methods.verifyPassword = function (enteredPassword, callback) {
     bcrypt.compare(enteredPassword, this.password, function(err, isMatch) {
         callback(err, isMatch);
     });
-}
+};
 
-// TODO: get matches
-
-UserSchema.pre('save', function(next) {
-    var user = this;
-
-    // generate a salt
-    bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
-        if (err) return next(err);
-
-        // hash the password along with our new salt
-        bcrypt.hash(user.password, salt, function(err, hash) {
-            if (err) return next(err);
-
-            // override the cleartext password with the hashed one
-            user.password = hash;
-            next();
-        });
+UserSchema.statics.createUser = function(params, callback) {
+    var User = this;
+    bcrypt.hash(params.password, 10, function(err, hash) {
+        if (err) {
+            return callback(err);
+        }
+        var user = new User({name: params.name, email: params.email, password: hash});
+        // if user has a non-unique username, then this will fail
+        user.save(callback);
     });
-});
+};
+
+UserSchema.statics.getPopulated = function(user_id, callback) {
+    var User = this;
+    User.findOne({_id: user_id}).populate('preferences').populate('roommates', '_id name email').exec(callback);
+};
+
+UserSchema.methods.setPreferences = function(prefs, callback) {
+    var user = this;
+    user.preferences = prefs;
+    user.save(function(err, user) {
+        if (err) callback(err);
+        //TODO figure out if this can be less hacky
+        mongoose.model('User').getPopulated(user._id, callback);
+    });
+};
 
 var User = mongoose.model('User', UserSchema);
 module.exports = User;

@@ -33,10 +33,8 @@ module.exports = {
                 var prefIDs = docs.map(function (pref){
                     return pref._id;
                 });
-                User.update({ _id: user._id }, {preferences: prefIDs}, function (err){
-                    callback(err);
-                });
+                user.setPreferences(prefIDs, callback);
             }
         });
     }
-}
+};

@@ -13,7 +13,7 @@ $(document).on('click', '#available-group .btn-default', function(event) {
     var available = ($(this).attr('id') === 'available');
 
     var userID = $.cookie('user');
-    if (!user_id) return showLogin();
+    if (!userID) return showLogin();
     
     updateUser(userID, {available: available}, function(){
         console.log('updated availability');
