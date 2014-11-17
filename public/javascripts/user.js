@@ -104,7 +104,7 @@ $(document).on('click', '.preference-radio-inline', function(event) {
 });
 
 // get a user 
-getUser = function(id, callback) {
+var getUser = function(id, callback) {
     $.get(
         '/users/' + id
     ).done(function(response) {
@@ -163,7 +163,7 @@ var updateUser = function(id, fields, callback) {
 Handlebars.registerPartial('preference', Handlebars.templates['preference']);
 
 // show a user's profile
-showUserProfile = function(user) {
+var showUserProfile = function(user) {
     var loggedInUserID = $.cookie('user');
     if (loggedInUserID == undefined) return showLogin();
 

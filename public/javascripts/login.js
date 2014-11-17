@@ -76,7 +76,7 @@ $(document).on('click', '#logout', function(event) {
 });
 
 // show the login screen
-showLogin = function() {
+var showLogin = function() {
     $('#main').html(Handlebars.templates['login']);
     attachValidators();
 }
