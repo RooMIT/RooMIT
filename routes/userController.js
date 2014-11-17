@@ -155,11 +155,6 @@ exports.update = function(req, res) {
             res.json({ success:true });
         });
     });
-    
-    User.update({ _id: userId }, updateFields, function (err) {
-        if (err) return handleError(res, 500, err);
-        res.json({ success:true });
-    });
 };
 
 module.exports = exports;

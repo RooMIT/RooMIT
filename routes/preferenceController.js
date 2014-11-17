@@ -36,6 +36,5 @@ module.exports = {
                 user.setPreferences(prefIDs, callback);
             }
         });
-        user.setPreferences(prefs, callback);
     }
 };
