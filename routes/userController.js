@@ -67,15 +67,20 @@ module.exports = {
             if (err && err.code == 11000) return handleError(res, 400, 'Email already in use');
             if (err) return handleError(res, 500, err);
 
+            // create all the user's preferences
             initPreferences(user, function(error) {
                 if (error) return handleError(res, 500, err);
+
+                // set cookies
                 req.session.userId = user._id;
+
+                // populate the user's prefs and roommates
                 User.findOne({ _id: user._id }).populate('preferences').populate('roommates', '_id name email').exec(function (err, user) {
                     if (err) return handleError(res, 500, err);
-                    if (user == undefined) return handleError(res, 404, 'User not found');
                     res.json({ user: user });
                 });
             });
+
         });
 
     },
@@ -138,14 +143,22 @@ module.exports = {
             updateFields.requested = requested;
         }
 
-        // TODO: if availability changes, change roommates availability too
         if (available) {
             updateFields.available = available == 'True' || available == 'true';
         }
         
         User.update({ _id: userId }, updateFields, function (err) {
             if (err) return handleError(res, 500, err);
-            res.json({ success:true });
+
+            // if no availability changes, just return
+            if (!available) return res.json({ success:true });
+
+            // if availability changes, change roommates availability too
+            updateRoommatesAvailability(userId, available, function(error) {
+                if (error) return handleError(res, 500, error);
+                res.json({ success:true });
+            });
+
         });
     },
 
@@ -154,5 +167,12 @@ module.exports = {
         var userId = req.session.userId;
 
         // TODO: get matches
+    }
+}
+
+// update the availability of all roommates of the user
+var updateRoommatesAvailability = function(userId, available, callback) {
+    User.update({ roommates: userId }, { available: available }, function(err) {
+        callback(err);
     }
 }
