@@ -117,7 +117,7 @@ exports.update = function(req, res) {
     var updateRoommatesAvailability = function(userId, available, callback) {
         User.update({ roommates: userId }, { available: available }, function(err) {
             callback(err);
-        }
+        });
     };
 
     if (typeof req.body.roommates === 'string') {

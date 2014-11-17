@@ -33,9 +33,9 @@ module.exports = {
                 var prefIDs = docs.map(function (pref){
                     return pref._id;
                 });
-                user.setPreferences(prefs,callback);
+                user.setPreferences(prefIDs, callback);
             }
         });
         user.setPreferences(prefs, callback);
     }
-}
+};
