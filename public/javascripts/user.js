@@ -172,7 +172,7 @@ var showUserProfile = function(user) {
         switchActive('#profile');
 
         $('#content').html(Handlebars.templates['my-profile']({
-           user: user, roommates: roommates
+           user: user
         }));
     } 
     //else show visitor profile

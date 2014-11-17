@@ -79,6 +79,7 @@ $(document).on('click', '#deny', function(event) {
     });
 });
 
+// refetch all requests to/from user and display them
 var showRequests = function() {
     switchActive('#requests');
 
