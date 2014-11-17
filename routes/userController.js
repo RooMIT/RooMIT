@@ -67,8 +67,8 @@ module.exports = {
             if (err && err.code == 11000) return handleError(res, 400, 'Email already in use');
             if (err) return handleError(res, 500, err);
 
-            createPreferences(user, function(error) {
-                if (error) return handleError(res, 500, err);
+            createPreferences(user._id, res, function(error) {
+                if (error) return handleError(res, 500, error);
                 req.session.userId = user._id;
                 User.findOne({ _id: user._id }).populate('preferences').populate('roommates', '_id name email').exec(function (err, user) {
                     if (err) return handleError(res, 500, err);
@@ -172,6 +172,6 @@ module.exports = {
     }
 }
 
-var createPreferences = function(userId) {
-    initPreferences(userId);
+var createPreferences = function(userId, res, callback) {
+    initPreferences(userId, res, callback);
 }
