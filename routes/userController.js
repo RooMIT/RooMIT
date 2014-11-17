@@ -86,7 +86,7 @@ exports.getAll = function(req, res) {
 };
 
 exports.getRequested = function(req, res) {
-    if (req.params.id !== res.session.userId) return handleError(res, 400, 'Please login first');
+    if (req.params.id !== req.session.userId) return handleError(res, 400, 'Please login first');
     User.findOne({ _id: req.params.id}, function (err, user) {
         if (err) return handleError(res, 500, err);
         if (!user) return handleError(res, 404, 'User does not exist');
