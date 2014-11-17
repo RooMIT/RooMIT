@@ -1,8 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var ObjectID = Schema.Types.ObjectId;
+var ObjectId = Schema.Types.ObjectId;
 var bcrypt = require('bcrypt');
-var SALT_WORK_FACTOR = 10;
 
 var UserSchema = new Schema({
     name: { type: String, required: true },
@@ -18,7 +17,7 @@ UserSchema.methods.verifyPassword = function (enteredPassword, callback) {
     bcrypt.compare(enteredPassword, this.password, function(err, isMatch) {
         callback(err, isMatch);
     });
-}
+};
 
 UserSchema.statics.createUser = function(params, callback) {
     var User = this;
@@ -27,9 +26,25 @@ UserSchema.statics.createUser = function(params, callback) {
             return callback(err);
         }
         var user = new User({name: params.name, email: params.email, password: hash});
+        // if user has a non-unique username, then this will fail
         user.save(callback);
-    })
-}
+    });
+};
+
+UserSchema.statics.getPopulated = function(user_id, callback) {
+    var User = this;
+    User.findOne({_id: user_id}).populate('preferences').populate('roommates', '_id name email').exec(callback);
+};
+
+UserSchema.methods.setPreferences = function(prefs, callback) {
+    var user = this;
+    user.preferences = prefs;
+    user.save(function(err, user) {
+        if (err) callback(err);
+        //TODO figure out if this can be less hacky
+        mongoose.model('User').getPopulated(user._id, callback);
+    });
+};
 
 var User = mongoose.model('User', UserSchema);
 module.exports = User;

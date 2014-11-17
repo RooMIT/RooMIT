@@ -2,22 +2,70 @@
 $(document).on('click', '#available-group .btn-default', function(event) {
     var available = ($(this).attr('id') === 'available');
 
-    // TODO: get id
-    // updateUser(userId, { available : available }, function() {
-    //     // swap which is selected in the UI
-        // $('#available-group .btn-primary').removeClass('btn-primary').addClass('btn-default');
-        // $(this).removeClass('btn-default').addClass('btn-primary');
-    // });
+    var userID = $.cookie('user');
+    if (userID) {
+        updateUser(userID, {available: available}, function(){
+            console.log('updated availability');
+            // swap which is selected in the UI
+            $('#available-group .btn-primary').removeClass('btn-primary').addClass('btn-default');
+            $(this).removeClass('btn-default').addClass('btn-primary');
+            getUser(userID, function(user){
+                showUserProfile(user);
+            });
+        });
+    } else {
+        showLogin();
+    }
+});
+
+// click on link to a user's profile
+$(document).on('click', '#link', function(event) {
+    event.preventDefault();
+    var id = $(this).attr('user');
+    getUser(id, function(user){
+        showUserProfile(user);
+    });
 });
 
 // click request roommate
 $(document).on('click', '#request-roommate.btn-primary', function(event) {
     var roommateId = $(this).attr('user');
+    var userID = $.cookie('user');
+    if (userID) {
+        getUser(userID, function(user){
+            var newRequested = user.requested;
+            newRequested.push(roommateId);
 
-    // TODO: add request
+            updateUser(userID, {requested: newRequested.toString()}, function(){
+                console.log("request sent");
+            });
+        });
 
-    $(this).html('Request Sent');
-    $(this).addClass('disabled');
+        $(this).html('Request Sent');
+        $(this).addClass('disabled');
+    } else {
+        showLogin();
+    }
+});
+
+
+// Updates the preference on a click
+$(document).on('click', '.preference-radio-inline', function(event) {
+    var input = this.getElementsByTagName('input')[0];
+    var id = input.className;
+    var answer = input.value;
+    $.post(
+        '/preferences/' + id,
+        { response: answer }
+    ).done(function(response) {
+        $('.'+id).each(function() {
+            if (this.value !== answer){
+                $(this).prop('checked', false);
+            }
+        });
+    }).fail(function(error) {
+        handleError(error);
+    });
 });
 
 // get a user 
@@ -42,6 +90,18 @@ var getRequested = function(id, callback) {
     });
 }
 
+// get roommates
+var getRoommates = function(id, callback) {
+    $.get(
+        '/users/' + id + '/roommates'
+    ).done(function(response) {
+        callback(response);
+    }).fail(function(error) {
+        handleError(error);
+    });
+}
+
+// get all users
 var getAll = function(callback) {
     $.get(
         '/users'
@@ -69,20 +129,34 @@ Handlebars.registerPartial('preference', Handlebars.templates['preference']);
 
 // show a user's profile
 showUserProfile = function(user) {
-    switchActive('#profile');
     var loggedInUserID = $.cookie('user');
-    // if user is current user, show personal profile
-    if (user._id === loggedInUserID) {
-        $('#content').html(Handlebars.templates['my-profile']({
-           user: user
-        }));
-    } 
-    //else show visitor profile
-    else {
-        var requested = user.requested.indexOf(loggedInUser._id) > -1
-        $('#content').html(Handlebars.templates['profile']({
-           user: user,
-           requested: requested
-        }));
+    if (loggedInUserID) {
+        // if user is current user, show personal profile
+        if (user._id === loggedInUserID) {
+            switchActive('#profile');
+
+            getRoommates(loggedInUserID, function(res) {
+                var roommates = res.users; 
+                $('#content').html(Handlebars.templates['my-profile']({
+                   user: user, roommates: roommates
+                }));
+            });
+        } 
+        //else show visitor profile
+        else {
+            $('li').removeClass('active');
+            // get logged in user
+            getUser(loggedInUserID, function(loggedInUser) {
+                getRoommates(user._id, function(res) {
+                    var roommates = res.users; 
+                    var requested = loggedInUser.requested.indexOf(user._id) > -1
+                    $('#content').html(Handlebars.templates['profile']({
+                       user: user, roommates: roommates, requested: requested
+                    }));
+                })
+            });
+        }
+    } else {
+        showLogin();
     }
 }

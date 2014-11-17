@@ -22,17 +22,13 @@ module.exports = {
     },
 
     // initialize preferences for the user
-    initialize: function(userId){
+    initialize: function(user, callback){
         var prefs = [];
         getPrefs().forEach(function (desc) {
             var pref = new Preference({description: desc, response: 'Don\'t Care'});
             prefs.push(pref._id);
-            pref.save(function (err){
-                if (err) return handleError(res, 500, err);
-            });
+            pref.save();
         });
-        User.update({ _id: userId }, {preferences: prefs}, function (err){
-            if (err) return handleError(res, 500, err);
-        });
+        user.setPreferences(prefs, callback);
     }
 }
