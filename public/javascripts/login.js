@@ -127,9 +127,9 @@ var register = function() {
 
     ).done(function(response) {
         var user = response.user;
+        $.cookie('user', user._id);
         $('#main').html(Handlebars.templates['main']);
-        showUserProfile(user, user);
-
+        showUserProfile(user);
     }).fail(function(error) {
         handleError(error);
     });
