@@ -1,21 +1,30 @@
+// click profile
+$(document).on('click', '#profile:not(.active) a', function(event) {
+    var user_id = $.cookie('user');
+    if (!user_id) return showLogin();
+    
+    getUser(user_id, function(user) {
+        showUserProfile(user);
+    });
+});
+
 // click the not-selected button for availability
 $(document).on('click', '#available-group .btn-default', function(event) {
     var available = ($(this).attr('id') === 'available');
 
     var userID = $.cookie('user');
-    if (userID) {
-        updateUser(userID, {available: available}, function(){
-            console.log('updated availability');
-            // swap which is selected in the UI
-            $('#available-group .btn-primary').removeClass('btn-primary').addClass('btn-default');
-            $(this).removeClass('btn-default').addClass('btn-primary');
-            getUser(userID, function(user){
-                showUserProfile(user);
-            });
+    if (!user_id) return showLogin();
+    
+    updateUser(userID, {available: available}, function(){
+        console.log('updated availability');
+        // swap which is selected in the UI
+        $('#available-group .btn-primary').removeClass('btn-primary').addClass('btn-default');
+        $(this).removeClass('btn-default').addClass('btn-primary');
+        getUser(userID, function(user){
+            showUserProfile(user);
         });
-    } else {
-        showLogin();
-    }
+    });
+
 });
 
 // click on link to a user's profile
@@ -31,23 +40,49 @@ $(document).on('click', '#link', function(event) {
 $(document).on('click', '#request-roommate.btn-primary', function(event) {
     var roommateId = $(this).attr('user');
     var userID = $.cookie('user');
-    if (userID) {
-        getUser(userID, function(user){
-            var newRequested = user.requested;
-            newRequested.push(roommateId);
+    if (!user_id) return showLogin();
 
-            updateUser(userID, {requested: newRequested.toString()}, function(){
-                console.log("request sent");
-            });
+    getUser(userID, function(user){
+        var newRequested = user.requested;
+        newRequested.push(roommateId);
+
+        updateUser(userID, {requested: newRequested.toString()}, function(){
+            console.log("request sent");
         });
+    });
 
-        $(this).html('Request Sent');
-        $(this).addClass('disabled');
-    } else {
-        showLogin();
-    }
+    $(this).html('Request Sent');
+    $(this).addClass('disabled');
+
 });
 
+//click cancel roommate
+$(document).on('click', '#cancel-roommate.btn-primary', function(event) {
+    var roommateId = $(this).attr('user');
+    var userID = $.cookie('user');
+    if (!user_id) return showLogin();
+
+    getUser(userID, function(user){
+        var newRoommates = user.roommates;
+        var index = newRoommates.indexOf(roommateId);
+        newRoommates.splice(index, 1);
+
+        updateUser(userID, {roommates: newRoommates.toString()}, function(){
+            console.log("roommate canceled");
+            getUser(roommateId, function(roommate) {
+                var newRoommates = roommate.roommates;
+                var index = newRoommates.indexOf(userID);
+                newRoommates.splice(index, 1);
+
+                updateUser(roommateId, {roommates: newRoommates.toString()}, function(){
+                    console.log("roommate canceled");
+                    showUserProfile(user);
+                });
+            });
+        });
+    });
+
+});
 
 // Updates the preference on a click
 $(document).on('click', '.preference-radio-inline', function(event) {
@@ -128,35 +163,38 @@ var updateUser = function(id, fields, callback) {
 Handlebars.registerPartial('preference', Handlebars.templates['preference']);
 
 // show a user's profile
-showUserProfile = function(user) {
+var showUserProfile = function(user) {
     var loggedInUserID = $.cookie('user');
-    if (loggedInUserID) {
-        // if user is current user, show personal profile
-        if (user._id === loggedInUserID) {
-            switchActive('#profile');
+    if (!loggedInUserID) return showLogin();
 
-            getRoommates(loggedInUserID, function(res) {
+    // if user is current user, show personal profile
+    if (user._id === loggedInUserID) {
+        switchActive('#profile');
+
+        getRoommates(loggedInUserID, function(res) {
+            var roommates = res.users; 
+            $('#content').html(Handlebars.templates['my-profile']({
+               user: user, roommates: roommates
+            }));
+        });
+    } 
+    //else show visitor profile
+    else {
+        $('li').removeClass('active');
+        // get logged in user
+        getUser(loggedInUserID, function(loggedInUser) {
+            getRoommates(user._id, function(res) {
                 var roommates = res.users; 
-                $('#content').html(Handlebars.templates['my-profile']({
-                   user: user, roommates: roommates
+                var requested = loggedInUser.requested.indexOf(user._id) > -1;
+                var areRoommates = user.roommates.indexOf(loggedInUserID) > -1;
+                //TODO fix roommates!!! areRoommates = true;
+                console.log(user);
+                console.log(user.roommates.indexOf(loggedInUserID));
+                console.log(loggedInUserID);
+                $('#content').html(Handlebars.templates['profile']({
+                   user: user, roommates: roommates, requested: requested, areRoommates: areRoommates
                 }));
-            });
-        } 
-        //else show visitor profile
-        else {
-            $('li').removeClass('active');
-            // get logged in user
-            getUser(loggedInUserID, function(loggedInUser) {
-                getRoommates(user._id, function(res) {
-                    var roommates = res.users; 
-                    var requested = loggedInUser.requested.indexOf(user._id) > -1
-                    $('#content').html(Handlebars.templates['profile']({
-                       user: user, roommates: roommates, requested: requested
-                    }));
-                })
-            });
-        }
-    } else {
-        showLogin();
+            })
+        });
     }
 }

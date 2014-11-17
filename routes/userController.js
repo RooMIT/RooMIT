@@ -113,27 +113,48 @@ exports.update = function(req, res) {
     var available = req.body.available;
     var roommates;
     var requested;
+
+    var updateRoommatesAvailability = function(userId, available, callback) {
+        User.update({ roommates: userId }, { available: available }, function(err) {
+            callback(err);
+        }
+    };
+
     if (typeof req.body.roommates === 'string') {
         roommates = (req.body.roommates.length > 0) ? req.body.roommates.split(','): [];
     }
+
     if (typeof req.body.requested === 'string') {
         requested = (req.body.requested.length > 0) ? req.body.requested.split(','): [];
     }
 
     // all of these fields are optional, only update the ones that are defined
     var updateFields = {};
+
     if (roommates) {
         updateFields.roommates = roommates;
+    }
+
+    if (available) {
+        updateFields.available = available === 'True' || available === 'true';
     }
 
     if (requested) {
         updateFields.requested = requested;
     }
+    
+    User.update({ _id: userId }, updateFields, function (err) {
+        if (err) return handleError(res, 500, err);
 
-    // TODO: if availability changes, change roommates availability too
-    if (available) {
-        updateFields.available = (available === 'True' || available === 'true');
-    }
+        // if no availability changes, just return
+        if (!available) return res.json({ success:true });
+
+        // if availability changes, change roommates availability too
+        updateRoommatesAvailability(userId, available, function(error) {
+            if (error) return handleError(res, 500, error);
+            res.json({ success:true });
+        });
+    });
     
     User.update({ _id: userId }, updateFields, function (err) {
         if (err) return handleError(res, 500, err);
