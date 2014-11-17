@@ -20,6 +20,26 @@ $(document).on('click', '#request-roommate.btn-primary', function(event) {
     $(this).addClass('disabled');
 });
 
+
+// Updates the preference on a click
+$(document).on('click', '.preference-radio-inline', function(event) {
+    var input = this.getElementsByTagName('input')[0];
+    var id = input.className;
+    var answer = input.value;
+    $.post(
+        '/preferences/' + id,
+        { response: answer }
+    ).done(function(response) {
+        $('.'+id).each(function() {
+            if (this.value !== answer){
+                $(this).prop('checked', false);
+            }
+        });
+    }).fail(function(error) {
+        handleError(error);
+    });
+});
+
 // get a user 
 var getUser = function(id, callback) {
     $.get(
