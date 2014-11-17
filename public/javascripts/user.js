@@ -48,6 +48,34 @@ $(document).on('click', '#request-roommate.btn-primary', function(event) {
     }
 });
 
+//click cancel roommate
+$(document).on('click', '#cancel-roommate.btn-primary', function(event) {
+    var roommateId = $(this).attr('user');
+    var userID = $.cookie('user');
+    if (userID) {
+        getUser(userID, function(user){
+            var newRoommates = user.roommates;
+            var index = newRoommates.indexOf(roommateId);
+            newRoommates.splice(index, 1);
+
+            updateUser(userID, {roommates: newRoommates.toString()}, function(){
+                console.log("roommate canceled");
+                getUser(roommateId, function(roommate) {
+                    var newRoommates = roommate.roommates;
+                    var index = newRoommates.indexOf(userID);
+                    newRoommates.splice(index, 1);
+
+                    updateUser(roommateId, {roommates: newRoommates.toString()}, function(){
+                        console.log("roommate canceled");
+                        showUserProfile(user);
+                    });
+                });
+            });
+        });
+    } else {
+        showLogin();
+    }
+});
 
 // Updates the preference on a click
 $(document).on('click', '.preference-radio-inline', function(event) {
@@ -149,9 +177,14 @@ showUserProfile = function(user) {
             getUser(loggedInUserID, function(loggedInUser) {
                 getRoommates(user._id, function(res) {
                     var roommates = res.users; 
-                    var requested = loggedInUser.requested.indexOf(user._id) > -1
+                    var requested = loggedInUser.requested.indexOf(user._id) > -1;
+                    var areRoommates = user.roommates.indexOf(loggedInUserID) > -1;
+                    //TODO fix roommates!!! areRoommates = true;
+                    console.log(user);
+                    console.log(user.roommates.indexOf(loggedInUserID));
+                    console.log(loggedInUserID);
                     $('#content').html(Handlebars.templates['profile']({
-                       user: user, roommates: roommates, requested: requested
+                       user: user, roommates: roommates, requested: requested, areRoommates: areRoommates
                     }));
                 })
             });
