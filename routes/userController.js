@@ -92,8 +92,25 @@ exports.getRequested = function(req, res) {
         if (!user) return handleError(res, 404, 'User does not exist');
         User.find({ _id: { $in: user.requested}}, function (err, users) {
             if (err) return handleError(res, 500, err);
+<<<<<<< HEAD
             if (!users) return handleError(res, 404, 'Users not found');
             res.json({ users: users }); 
+=======
+            // create all the user's preferences
+            initPreferences(user, function(error) {
+                if (error) return handleError(res, 500, err);
+
+                // set cookies
+                req.session.userId = user._id;
+
+                // populate the user's prefs and roommates
+                User.findOne({ _id: user._id }).populate('preferences').populate('roommates', '_id name email').exec(function (err, user) {
+                    if (err) return handleError(res, 500, err);
+                    res.json({ user: user });
+                });
+            });
+
+>>>>>>> f5a490a49a1831256ded7529aa7cd8f6e53e0737
         });
     });
 };
