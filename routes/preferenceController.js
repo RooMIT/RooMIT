@@ -1,3 +1,7 @@
+/**
+ * Author: Peinan
+ */
+
 var Preference = require('../models/preference');
 var User = require('../models/user');
 var getPrefs = require('./utils').getPrefs;
