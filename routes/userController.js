@@ -250,7 +250,7 @@ exports.update = function(req, res) {
         if (err) return handleError(res, 500, err);
 
         // if no availability changes, just return
-        if (!available) return res.json({ success:true });
+        if (available == undefined) return res.json({ success:true });
 
         // if availability changes, change roommates availability too
         updateRoommatesAvailability(userId, available, function(error) {
