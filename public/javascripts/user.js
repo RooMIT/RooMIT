@@ -88,9 +88,10 @@ $(document).on('click', '.preference-radio-inline', function(event) {
     var input = this.getElementsByTagName('input')[0];
     var id = input.className;
     var answer = input.value;
-    $.post(
-        '/preferences/' + id,
-        { response: answer }
+    $.ajax({
+        url: '/preferences/' + id,
+        type: 'PUT',
+        data: { response: answer }
     ).done(function(response) {
         $('.'+id).each(function() {
             if (this.value !== answer){
@@ -148,9 +149,10 @@ var getAll = function(callback) {
 
 // update the user data in the database
 var updateUser = function(id, fields, callback) {
-    $.post(
-        '/users/' + id,
-        fields
+    $.ajax({
+        url: '/users/' + id,
+        type: 'PUT',
+        data: fields
     ).done(function(response) {
         callback();
 

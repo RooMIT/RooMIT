@@ -121,7 +121,7 @@ module.exports = function(app) {
     /*  
         Modify a user
 
-        POST /users/{id}
+        PUT /users/{id}
         Request Body:
             - available: whether or not they are available (optional)
             - roommates: roommates list (optional)
@@ -129,20 +129,20 @@ module.exports = function(app) {
         Response:
             - error: error if there was one
     */
-    app.post('/users/:id', function(req, res) {
+    app.put('/users/:id', function(req, res) {
         UserController.update(req, res);
     });
 
     /*  
         Modify a preference
 
-        POST /preferences/{id}
+        PUT /preferences/{id}
         Request Body:
             - response: user's response to a preference
         Response:
             - error: error if there was one
     */
-    app.post('/preferences/:id', function(req, res) {
+    app.put('/preferences/:id', function(req, res) {
         PreferenceController.update(req, res);
     });
 
