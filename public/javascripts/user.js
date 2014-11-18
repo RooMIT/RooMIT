@@ -12,15 +12,15 @@ $(document).on('click', '#profile:not(.active) a', function(event) {
 $(document).on('click', '#available-group .btn-default', function(event) {
     var available = ($(this).attr('id') === 'available');
 
-    var userID = $.cookie('user');
-    if (!userID) return showLogin();
+    var user_id = $.cookie('user');
+    if (!user_id) return showLogin();
     
-    updateUser(userID, {available: available}, function(){
+    updateUser(user_id, {available: available}, function(){
         console.log('updated availability');
         // swap which is selected in the UI
         $('#available-group .btn-primary').removeClass('btn-primary').addClass('btn-default');
         $(this).removeClass('btn-default').addClass('btn-primary');
-        getUser(userID, function(user){
+        getUser(user_id, function(user){
             showUserProfile(user);
         });
     });
@@ -38,31 +38,30 @@ $(document).on('click', '.user-profile', function(event) {
 
 // click request roommate
 $(document).on('click', '.request-roommate', function(event) {
-    var roommateId = $(this).val();
-    var userID = $.cookie('user');
+    var button = $(this);
+    var roommateId = button.val();
+    var user_id = $.cookie('user');
     if (!user_id) return showLogin();
 
-    getUser(userID, function(user){
+    getUser(user_id, function(user){
         var newRequested = user.requested;
         newRequested.push(roommateId);
 
-        updateUser(userID, {requested: newRequested.toString()}, function(){
-            console.log("request sent");
+        updateUser(user_id, {requested: newRequested.toString()}, function() {
+            button.removeClass('request-roommate').addClass('disabled');
+            button.html('Request Sent');
         });
     });
-
-    $(this).html('Request Sent');
-    $(this).addClass('disabled');
 
 });
 
 //click cancel roommate
 $(document).on('click', '.cancel-roommate', function(event) {
     var roommateId = $(this).val();
-    var userID = $.cookie('user');
+    var user_id = $.cookie('user');
     if (!user_id) return showLogin();
 
-    getUser(userID, function(user){
+    getUser(user_id, function(user){
         var newRoommates = user.roommates;
         var index = newRoommates.indexOf(roommateId);
         newRoommates.splice(index, 1);
@@ -71,7 +70,7 @@ $(document).on('click', '.cancel-roommate', function(event) {
             console.log("roommate canceled");
             getUser(roommateId, function(roommate) {
                 var newRoommates = roommate.roommates;
-                var index = newRoommates.indexOf(userID);
+                var index = newRoommates.indexOf(user_id);
                 newRoommates.splice(index, 1);
 
                 updateUser(roommateId, {roommates: newRoommates.toString()}, function(){
@@ -89,9 +88,10 @@ $(document).on('click', '.preference-radio-inline', function(event) {
     var input = this.getElementsByTagName('input')[0];
     var id = input.className;
     var answer = input.value;
-    $.post(
-        '/preferences/' + id,
-        { response: answer }
+    $.ajax({
+        url: '/preferences/' + id,
+        type: 'PUT',
+        data: { response: answer }
     ).done(function(response) {
         $('.'+id).each(function() {
             if (this.value !== answer){
@@ -149,9 +149,10 @@ var getAll = function(callback) {
 
 // update the user data in the database
 var updateUser = function(id, fields, callback) {
-    $.post(
-        '/users/' + id,
-        fields
+    $.ajax({
+        url: '/users/' + id,
+        type: 'PUT',
+        data: fields
     ).done(function(response) {
         callback();
 
