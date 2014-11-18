@@ -153,7 +153,7 @@ var updateUser = function(id, fields, callback) {
         url: '/users/' + id,
         type: 'PUT',
         data: fields
-    ).done(function(response) {
+    )}.done(function(response) {
         callback();
 
     }).fail(function(error) {
