@@ -61,8 +61,8 @@ $(document).on('click', '.request-roommate', function(event) {
 
 });
 
-//click cancel roommate
-$(document).on('click', '.cancel-roommate', function(event) {
+//click delete roommate
+$(document).on('click', '.delete-roommate', function(event) {
     var roommateId = $(this).attr('value');
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
@@ -72,14 +72,14 @@ $(document).on('click', '.cancel-roommate', function(event) {
         var index = newRoommates.indexOf(roommateId);
         newRoommates.splice(index, 1);
 
-        updateUser(userID, {roommates: JSON.stringify(newRoommates)}, function(){
+        updateUser(user_id, {roommates: JSON.stringify(newRoommates)}, function(){
             console.log("roommate canceled");
             getUser(roommateId, function(roommate) {
                 var newRoommates = roommate.roommates;
                 var index = newRoommates.indexOf(user_id);
                 newRoommates.splice(index, 1);
 
-                updateUser(roommateId, {roommates: newRoommates.toString()}, function(){
+                updateUser(roommateId, {roommates: JSON.stringify(newRoommates)}, function(){
                     console.log("roommate canceled");
                     showUserProfile(user);
                 });
