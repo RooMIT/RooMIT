@@ -147,6 +147,16 @@ var getAll = function(callback) {
     });
 }
 
+var getMatches = function(callback) {
+    $.get(
+        '/matches'
+    ).done(function(response) {
+        callback(response);
+    }).fail(function(error) {
+        handleError(error);
+    });
+}
+
 // update the user data in the database
 var updateUser = function(id, fields, callback) {
     $.post(
@@ -181,7 +191,9 @@ var showUserProfile = function(user) {
         // get logged in user
         getUser(loggedInUserID, function(loggedInUser) {
             getRoommates(user._id, function(res) {
-                var roommates = res.users; 
+                console.log(res);
+                console.log(user);
+                /**var roommates = res.users; 
                 var requested = loggedInUser.requested.indexOf(user._id) > -1;
                 var areRoommates = user.roommates.indexOf(loggedInUserID) > -1;
                 //TODO fix roommates!!! areRoommates = true;
@@ -190,7 +202,7 @@ var showUserProfile = function(user) {
                 console.log(loggedInUserID);
                 $('#content').html(Handlebars.templates['profile']({
                    user: user, roommates: roommates, requested: requested, areRoommates: areRoommates
-                }));
+                }));*/
             })
         });
     }

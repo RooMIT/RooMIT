@@ -79,11 +79,133 @@ exports.get = function(req, res) {
     });
 };
 
+function getAllUsers(callback) {
+
+}
+
 exports.getAll = function(req, res) {
-    User.find({}, 'name email roommates preferences available requested').populate('preferences').populate('roommates', '_id name email').exec(function(err, users) {
-        res.json({ users: users });
+    User.getAll(function(err, users) {
+        if (err) return handleError(res, 500, err);
+        res.json({users: users});
     });
 };
+
+function isDormPref(pref) {
+    return pref.description.indexOf('I would like to live in') !== -1;
+}
+
+function filterUsers(self, users) {
+    var acceptableDorms = {};
+    self.preferences.forEach(function(pref) {
+        if (isDormPref(pref) && pref.response !== 'No') {
+            acceptableDorms[pref.description] = true;
+        }
+    });
+    console.log(acceptableDorms);
+    var filtered = users.filter(function(user) {
+        //do not change to triple equals. seriously.
+        if (user._id.equals(self._id)) {
+            return false;
+        }
+        var compatible = user.preferences.filter(function(pref) {
+            console.log(typeof pref.response)
+            return pref.response !== 'No' && acceptableDorms[pref.description];
+        });
+        return compatible.length !== 0;
+    });
+    return filtered;
+}
+
+/**
+ * Completely arbitrary algorithm:
+ * if yes / yes, give +2
+ * if no / no, give +2
+ * if don't care / don't care, give +1
+ * if {yes, no} / don't care or don't care / {yes, no}, give -1
+ * if no / yes or yes / no, give -2
+ */
+function matchScore(selfPref, otherPref) {
+    if (selfPref === 'Yes') {
+        if (otherPref === 'Yes') {
+            return 2;
+        }
+        else if (otherPref === 'No') {
+            return -2;
+        }
+        return -1;
+    }
+    else if (selfPref === 'No') {
+        if (otherPref === 'No') {
+            return 2;
+        }
+        else if(otherPref === 'Yes') {
+            return -2;
+        }
+        return -1;
+    }
+    else {
+        if (otherPref === 'Yes' || otherPref === 'No') {
+            return -1;
+        }
+        return 1;
+    }
+}
+
+/**
+ * Optimal score is 2 * num of prefs, pessimal score is -2 * num of prefs
+ * So, let's just do a linear mapping. Simple, right?
+ * (Somewhere, a statistics major is crying and does not know why.)
+ */
+function convertScoreToPercentage(score, num_prefs) {
+    // convert range to 0 - 4*num_prefs
+    score += 2*num_prefs;
+
+    //normalize to a 0-1 scale
+    score = score / (4*num_prefs);
+    return score;
+}
+
+function findMatches(self, users) {
+    var matches = [];
+    var selfPrefs = {};
+    //make it easy to access self prefs by putting them in a dictionary not a list
+    self.preferences.forEach(function(pref) {
+        selfPrefs[pref.description] = pref.response;
+    });
+    users.forEach(function(user) {
+        var match = {};
+        match.id = user._id;
+        match.name = user.name;
+        match.email = user.email;
+        match.fullUser = user;
+        match.value = 0;
+        user.preferences.forEach(function(pref) {
+            var selfPref = selfPrefs[pref.description];
+            var otherPref = pref.response;
+            match.value += matchScore(selfPref, otherPref);
+        });
+        match.value = convertScoreToPercentage(match.value, user.preferences.length);
+        matches.push(match);
+    });
+    return matches.sort(function(a,b) {
+        return a.value - b.value;
+    });
+}
+
+exports.getMatches = function(req, res) {
+    var logged_in_id = req.session.userId;
+    if (!logged_in_id) return handleError(res, 400, 'User not logged in');
+    User.getPopulated(logged_in_id, function(err, self) {
+        if (err) return handleError(res, 500, err);
+        if (!self) return handleError(res, 400, 'User does not exist');
+        User.getAll(function(err, users) {
+            if (err) return handleError(res, 500, err);
+            var compatible = filterUsers(self, users);
+            var matches = findMatches(self, compatible);
+            res.json({matches: matches});
+        })
+    });
+}
 
 exports.getRequested = function(req, res) {
     if (req.params.id !== req.session.userId) return handleError(res, 400, 'Please login first');

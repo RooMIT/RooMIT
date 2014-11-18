@@ -36,6 +36,13 @@ UserSchema.statics.getPopulated = function(user_id, callback) {
     User.findOne({_id: user_id}).populate('preferences').populate('roommates', '_id name email').exec(callback);
 };
 
+UserSchema.statics.getAll = function(callback) {
+    var User = this;
+    User.find({}, '_id name email roommates preferences available requested').populate('preferences').populate('roommates', '_id name email').exec(function(err, users) {
+        callback(err, users);
+    });
+}
+
 UserSchema.methods.setPreferences = function(prefs, callback) {
     var user = this;
     user.preferences = prefs;

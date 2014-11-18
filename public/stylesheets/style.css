@@ -27,7 +27,7 @@ li a {
     cursor: default;
 }
 
-#requestuser { 
+.requestuser { 
 	display: inline-block; 
 	width: 7%;
 }
