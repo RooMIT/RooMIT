@@ -24,12 +24,9 @@ module.exports = {
 			'I would like to live in Next House',
 			'I would like to live in Random House',
 			'I am good with noise during the night',
-			'I am good with noise during the day',
 			'I am a morning person',
-			'I like holding room parties',
 			'I like inviting my friends over',
 			'I sleep before midnight',
-			'I sleep elsewhere fairly frequently',
 			'I like to keep my room organized',
 			'I care a lot about my personal hygiene'
     	];
