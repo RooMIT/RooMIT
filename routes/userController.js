@@ -101,14 +101,13 @@ function filterUsers(self, users) {
             acceptableDorms[pref.description] = true;
         }
     });
-    console.log(acceptableDorms);
+
     var filtered = users.filter(function(user) {
         //do not change to triple equals. seriously.
         if (user._id.equals(self._id)) {
             return false;
         }
         var compatible = user.preferences.filter(function(pref) {
-            console.log(typeof pref.response)
             return pref.response !== 'No' && acceptableDorms[pref.description];
         });
         return compatible.length !== 0;

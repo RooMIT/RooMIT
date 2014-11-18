@@ -1,3 +1,8 @@
+// takes .88888333 in and returns 89
+Handlebars.registerHelper('percent', function(num) {
+    return Math.round(num * 100);
+});
+
 // click suggestions
 $(document).on('click', '#suggestions:not(.active) a', function(event) {
     event.preventDefault();
@@ -9,9 +14,20 @@ $(document).on('click', '#suggestions:not(.active) a', function(event) {
 // shows suggestions page
 var showSuggestions = function() {
     switchActive('#suggestions');
-    getMatches(function(suggestions) {
+    getMatches(function(matches) {
         $('#content').html(Handlebars.templates['suggestions']({
-            suggestions: suggestions
+            suggestions: matches
         }));
+    });
+}
+
+// get the matches (suggestions) for the logged in user
+var getMatches = function(callback) {
+    $.get(
+        '/matches'
+    ).done(function(response) {
+        callback(response.matches);
+    }).fail(function(error) {
+        handleError(error);
     });
 }

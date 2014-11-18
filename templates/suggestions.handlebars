@@ -1,6 +1,6 @@
 <h1> Suggestions </h1>
 {{#each suggestions}}
-    <div class='match' value='{{suggestion.id}}'>
-        <p> {{name}} </p>
-    </div>
+    <p>
+    	<a href='#' class='user-profile' user-id={{id}}> {{name}}</a> - {{email}} : {{percent value}}% match
+    </p>
 {{/each}}

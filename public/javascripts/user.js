@@ -28,9 +28,9 @@ $(document).on('click', '#available-group .btn-default', function(event) {
 });
 
 // click on link to a user's profile
-$(document).on('click', '#link', function(event) {
+$(document).on('click', '.user-profile', function(event) {
     event.preventDefault();
-    var id = $(this).attr('user');
+    var id = $(this).attr('user-id');
     getUser(id, function(user){
         showUserProfile(user);
     });
@@ -147,16 +147,6 @@ var getAll = function(callback) {
     });
 }
 
-var getMatches = function(callback) {
-    $.get(
-        '/matches'
-    ).done(function(response) {
-        callback(response);
-    }).fail(function(error) {
-        handleError(error);
-    });
-}
-
 // update the user data in the database
 var updateUser = function(id, fields, callback) {
     $.post(
@@ -191,18 +181,12 @@ var showUserProfile = function(user) {
         // get logged in user
         getUser(loggedInUserID, function(loggedInUser) {
             getRoommates(user._id, function(res) {
-                console.log(res);
-                console.log(user);
-                /**var roommates = res.users; 
+                var roommates = res.users;
                 var requested = loggedInUser.requested.indexOf(user._id) > -1;
                 var areRoommates = user.roommates.indexOf(loggedInUserID) > -1;
-                //TODO fix roommates!!! areRoommates = true;
-                console.log(user);
-                console.log(user.roommates.indexOf(loggedInUserID));
-                console.log(loggedInUserID);
                 $('#content').html(Handlebars.templates['profile']({
                    user: user, roommates: roommates, requested: requested, areRoommates: areRoommates
-                }));*/
+                }));
             })
         });
     }
