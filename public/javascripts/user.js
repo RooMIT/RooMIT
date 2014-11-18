@@ -1,4 +1,6 @@
-// click profile
+/**
+ * Authors: Alec, Olga, Peinan, Rujia
+ */
 $(document).on('click', '#profile:not(.active) a', function(event) {
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
