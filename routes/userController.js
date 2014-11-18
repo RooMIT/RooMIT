@@ -4,6 +4,7 @@ var initPreferences = require('./preferenceController').initialize;
 
 var exports = {};
 
+// validate login fields
 var validateFields = function(fields) {
     if (typeof fields.email === 'string' && !(/^[A-Z0-9._%+-]+@mit.edu$/i).test(fields.email)) {
         return 'Please enter a valid MIT email';
@@ -17,15 +18,16 @@ var validateFields = function(fields) {
     return '';
 };
 
+// login user and set session
 exports.login = function(req, res) {
     var params = req.body;
     var errorMessage = validateFields(params);
-    if (errorMessage) {
-        return handleError(res, 400, errorMessage);
-    }
+    if (errorMessage) return handleError(res, 400, errorMessage);
+
     User.findOne({ email: params.email }).populate('preferences').populate('roommates', '_id name email').exec(function(err, user) {
         if (err) return handleError(res, 500, err);
         if (!user) return handleError(res, 404, 'Please create an account');
+        
         user.verifyPassword(params.password, function(err, isMatch) {
             if (err) return handleError(res, 500, err);
             if (!isMatch) return handleError(res, 401, 'Incorrect password');
@@ -35,15 +37,16 @@ exports.login = function(req, res) {
     });
 };
 
+// create a new user (with prefs), log them in, set session
 exports.create = function(req, res) {
     var params = req.body;
     var errorMessage = validateFields(params);
-    if (errorMessage) {
-        return handleError(res, 400, errorMessage);
-    }
+    if (errorMessage) return handleError(res, 400, errorMessage);
+    
     User.createUser(params, function(err, user) {
         if (err && err.code == 11000) return handleError(res, 400, 'Email already in use');
         if (err) return handleError(res, 500, err);
+        
         initPreferences(user, function(error, user) {
             if (error) return handleError(res, 500, err);
             if (!user) return handleError(res, 404, 'User not found');
@@ -58,18 +61,6 @@ exports.logout = function(req, res) {
     res.json({ success: true });
 };
 
-exports.getLoggedInUser = function(req, res) {
-    var userId = req.session.userId;
-    if (!userId) {
-        return res.json({ user: undefined });
-    }
-    User.getPopulated(userId, function(err, user) {
-        if (err) return handleError(res, 500, err);
-        if (!user) return handleError(res, 404, 'User not found');
-        res.json({user: user});
-    });
-};
-
 exports.get = function(req, res) {
     var userId = req.params.id;
     User.getPopulated(userId, function(err, user) {
@@ -78,10 +69,6 @@ exports.get = function(req, res) {
         res.json({user: user});
     });
 };
-
-function getAllUsers(callback) {
-
-}
 
 exports.getAll = function(req, res) {
     User.getAll(function(err, users) {
@@ -94,6 +81,7 @@ function isDormPref(pref) {
     return pref.description.indexOf('I would like to live in') !== -1;
 }
 
+// filter out all users that don't share any housing preferences
 function filterUsers(self, users) {
     var acceptableDorms = {};
     self.preferences.forEach(function(pref) {
@@ -235,11 +223,7 @@ exports.update = function(req, res) {
     var roommates;
     var requested;
 
-    var updateRoommatesAvailability = function(userId, available, callback) {
-        User.update({ roommates: userId }, { available: available }, function(err) {
-            callback(err);
-        });
-    };
+    console.log(requested);
 
     if (typeof req.body.roommates === 'string') {
         roommates = (req.body.roommates.length > 0) ? req.body.roommates.split(','): [];
@@ -277,5 +261,14 @@ exports.update = function(req, res) {
         });
     });
 };
+
+
+// if availability has changed, change roommates' availability
+var updateRoommatesAvailability = function(userId, available, callback) {
+    User.update({ roommates: userId }, { available: available }, function(err) {
+        callback(err);
+    });
+};
+
 
 module.exports = exports;
