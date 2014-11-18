@@ -4,9 +4,9 @@ $(document).on('click', '#requests:not(.active) a', function(event) {
 });
 
 // click cancel
-$(document).on('click', '#cancel', function(event) {
+$(document).on('click', '.cancel', function(event) {
     event.preventDefault();
-    var requestedID = $(this).attr('user');
+    var requestedID = $(this).attr('value');
 
     // get logged in user
     var user_id = $.cookie('user');
@@ -16,7 +16,7 @@ $(document).on('click', '#cancel', function(event) {
         var newRequested = user.requested; 
         var index = newRequested.indexOf(requestedID);
         newRequested.splice(index, 1);
-        var fields = {requested: newRequested.toString()};
+        var fields = {requested: JSON.stringify(newRequested)};
         updateUser(user._id, fields, function(){
             console.log("updated user!", requestedID + 'removed');
             showRequests();
@@ -25,9 +25,9 @@ $(document).on('click', '#cancel', function(event) {
 });
 
 //click confirm
-$(document).on('click', '#confirm', function(event) {
+$(document).on('click', '.confirm', function(event) {
     event.preventDefault();
-    var roommateID = $(this).attr('user');
+    var roommateID = $(this).attr('value');
 
     // get logged in user
     var user_id = $.cookie('user');
@@ -37,10 +37,9 @@ $(document).on('click', '#confirm', function(event) {
         var newRoommates = user.roommates;
         newRoommates.push(roommateID);
 
-        var fields = {roommates: newRoommates.toString()};
+        var fields = {roommates: JSON.stringify(newRoommates)};
 
-        updateUser(user._id, fields, function(){
-            console.log("updated user!");
+        updateUser(user._id, fields, function() {
             getUser(roommateID, function(roommate){
                 var index = roommate.requested.indexOf(user._id);
                 var newRequested = roommate.requested;
@@ -49,7 +48,7 @@ $(document).on('click', '#confirm', function(event) {
                 var newRoommates = roommate.roommates;
                 newRoommates.push(user._id);
 
-                var field = {requested: newRequested.toString(), roommates: newRoommates.toString()};
+                var field = {requested: JSON.stringify(newRequested), roommates: JSON.stringify(newRoommates)};
                 updateUser(roommateID, field, function(){
                     showRequests();
                 });
@@ -59,9 +58,9 @@ $(document).on('click', '#confirm', function(event) {
 });
 
 //click deny
-$(document).on('click', '#deny', function(event) {
+$(document).on('click', '.deny', function(event) {
     event.preventDefault();
-    var deniedID = $(this).attr('user');
+    var deniedID = $(this).attr('value');
 
     // get logged in user
     var user_id = $.cookie('user');
@@ -72,7 +71,7 @@ $(document).on('click', '#deny', function(event) {
         var newRequested = denied.requested;
         newRequested.splice(index, 1);
 
-        var field = {requested: newRequested.toString()};
+        var field = {requested: JSON.stringify(newRequested)};
         updateUser(deniedID, field, function(){
             showRequests();
         });

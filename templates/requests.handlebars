@@ -3,16 +3,16 @@
 <h3> From others: </h3><br>
 {{#each requestsToUser}}
   <div>
-	  <span class='requestuser'><a value='{{_id}}' class='link' href='#'>{{name}}</a></span>
-	  <button class='btn btn-primary' class='confirm' value='{{_id}}' type='button'>Confirm</button>
-	  <button class='btn btn-default' class='deny' value='{{_id}}' type='button'>Deny</button>
+	  <span class='requestuser'><a value='{{_id}}' class='user-profile' href='#'>{{name}}</a></span>
+	  <button class='btn btn-primary confirm' value='{{_id}}' type='button'>Confirm</button>
+	  <button class='btn btn-default deny' value='{{_id}}' type='button'>Deny</button>
   </div>
 {{/each}}
 
 <h3> From you: </h3><br>
 {{#each requestsFromUser}}
 	<div>
-		<span class='requestuser'><a value='{{_id}}' class='link' href='#'>{{name}}</a></span>
-		<button class='btn btn-default' class="cancel" value='{{_id}}' type="button">Cancel</button>
+		<span class='requestuser'><a value='{{_id}}' class='user-profile' href='#'>{{name}}</a></span>
+		<button class='btn btn-default cancel' value='{{_id}}' type='button'>Cancel</button>
 	</div>
 {{/each}}
