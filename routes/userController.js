@@ -92,7 +92,7 @@ function filterUsers(self, users) {
 
     var filtered = users.filter(function(user) {
         //do not change to triple equals. seriously.
-        if (user._id.equals(self._id)) {
+        if (user._id.equals(self._id) || !user.available) {
             return false;
         }
         var compatible = user.preferences.filter(function(pref) {
@@ -175,7 +175,7 @@ function findMatches(self, users) {
         matches.push(match);
     });
     return matches.sort(function(a,b) {
-        return a.value - b.value;
+        return b.value - a.value;
     });
 }
 
