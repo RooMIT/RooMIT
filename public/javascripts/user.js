@@ -17,8 +17,7 @@ $(document).on('click', '#available-group .btn-default', function(event) {
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
     
-    updateUser(user_id, {available: available}, function(){
-        console.log('updated availability');
+    updateUser(user_id, {available: available}, function() {
         // swap which is selected in the UI
         $('#available-group .btn-primary').removeClass('btn-primary').addClass('btn-default');
         $(this).removeClass('btn-default').addClass('btn-primary');
@@ -32,9 +31,7 @@ $(document).on('click', '#available-group .btn-default', function(event) {
 // click on link to a user's profile
 $(document).on('click', '.user-profile', function(event) {
     event.preventDefault();
-    console.log(this);
     var id = $(this).attr('value');
-    console.log(id);
     getUser(id, function(user){
         showUserProfile(user);
     });
@@ -50,8 +47,6 @@ $(document).on('click', '.request-roommate', function(event) {
     getUser(user_id, function(user) {
         var newRequested = user.requested;
         newRequested.push(roommateId);
-
-        console.log(user);
 
         updateUser(user_id, {requested: JSON.stringify(newRequested)}, function() {
             button.removeClass('request-roommate').addClass('disabled');
@@ -180,6 +175,7 @@ var showUserProfile = function(user) {
 
         $('#content').html(Handlebars.templates['my-profile']({
            user: user
+           hasRoommate: user.roommates.length > 0
         }));
     } 
     //else show visitor profile
@@ -191,8 +187,12 @@ var showUserProfile = function(user) {
                 var roommates = res.users;
                 var requested = loggedInUser.requested.indexOf(user._id) > -1;
                 var areRoommates = user.roommates.indexOf(loggedInUserID) > -1;
+                console.log(areRoommates);
                 $('#content').html(Handlebars.templates['profile']({
-                   user: user, roommates: roommates, requested: requested, areRoommates: areRoommates
+                   user: user, 
+                   roommates: roommates, 
+                   requested: requested, 
+                   areRoommates: areRoommates
                 }));
             })
         });
