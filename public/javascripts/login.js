@@ -1,3 +1,7 @@
+/** 
+ * Author: Olga
+ */
+
 Handlebars.registerHelper('checked', function(label, response) {
     if (label == response) {
         return 'checked: checked';

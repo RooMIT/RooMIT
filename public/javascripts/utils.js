@@ -1,5 +1,6 @@
-// handles either human-readable text
-// or server-given error objects
+/** 
+ * Author: Olga
+ */
 function handleError(error) {
     // not human readable error
     if (typeof error === 'object') {

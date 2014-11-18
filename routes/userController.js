@@ -1,3 +1,7 @@
+/**
+ * Author: Alec, Rujia
+ */
+
 var User = require('../models/user');
 var handleError = require('./utils').handleError;
 var initPreferences = require('./preferenceController').initialize;

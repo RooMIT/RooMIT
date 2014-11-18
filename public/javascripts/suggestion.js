@@ -1,4 +1,6 @@
-// takes .88888333 in and returns 89
+ /** 
+  * Author: Alec
+  */
 Handlebars.registerHelper('percent', function(num) {
     return Math.round(num * 100);
 });

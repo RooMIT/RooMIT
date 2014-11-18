@@ -1,4 +1,7 @@
-// click requests
+/** 
+ * Author: Rujia
+ */
+
 $(document).on('click', '#requests:not(.active) a', function(event) {
     showRequests();
 });

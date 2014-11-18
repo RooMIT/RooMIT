@@ -1,3 +1,7 @@
+/**
+ * Author: Olga
+ */
+
 var UserController = require('./userController');
 var PreferenceController = require('./preferenceController');
 
