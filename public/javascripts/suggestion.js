@@ -10,6 +10,7 @@ $(document).on('click', '#suggestions:not(.active) a', function(event) {
 var showSuggestions = function() {
     switchActive('#suggestions');
     getMatches(function(suggestions) {
+        console.log(suggestions);
         $('#content').html(Handlebars.templates['suggestions']({
             suggestions: suggestions
         }));

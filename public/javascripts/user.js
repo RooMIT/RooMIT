@@ -28,17 +28,17 @@ $(document).on('click', '#available-group .btn-default', function(event) {
 });
 
 // click on link to a user's profile
-$(document).on('click', '#link', function(event) {
+$(document).on('click', '.link', function(event) {
     event.preventDefault();
-    var id = $(this).attr('user');
+    var id = $(this).val();
     getUser(id, function(user){
         showUserProfile(user);
     });
 });
 
 // click request roommate
-$(document).on('click', '#request-roommate.btn-primary', function(event) {
-    var roommateId = $(this).attr('user');
+$(document).on('click', '.request-roommate', function(event) {
+    var roommateId = $(this).val();
     var userID = $.cookie('user');
     if (!user_id) return showLogin();
 
@@ -57,8 +57,8 @@ $(document).on('click', '#request-roommate.btn-primary', function(event) {
 });
 
 //click cancel roommate
-$(document).on('click', '#cancel-roommate.btn-primary', function(event) {
-    var roommateId = $(this).attr('user');
+$(document).on('click', '.cancel-roommate', function(event) {
+    var roommateId = $(this).val();
     var userID = $.cookie('user');
     if (!user_id) return showLogin();
 
@@ -151,7 +151,7 @@ var getMatches = function(callback) {
     $.get(
         '/matches'
     ).done(function(response) {
-        callback(response);
+        callback(response.matches);
     }).fail(function(error) {
         handleError(error);
     });
