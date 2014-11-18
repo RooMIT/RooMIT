@@ -13,12 +13,11 @@ $(document).on('click', '.cancel', function(event) {
     if (!user_id) return showLogin();
 
     getUser(user_id, function(user){
-        var newRequested = user.requested; 
+        var newRequested = user.requested;
         var index = newRequested.indexOf(requestedID);
         newRequested.splice(index, 1);
         var fields = {requested: JSON.stringify(newRequested)};
         updateUser(user._id, fields, function(){
-            console.log("updated user!", requestedID + 'removed');
             showRequests();
         });
     });
@@ -37,7 +36,7 @@ $(document).on('click', '.confirm', function(event) {
         var newRoommates = user.roommates;
         newRoommates.push(roommateID);
 
-        var fields = {roommates: JSON.stringify(newRoommates)};
+        var fields = {roommates: JSON.stringify(newRoommates), available: 'False'};
 
         updateUser(user._id, fields, function() {
             getUser(roommateID, function(roommate){
@@ -48,7 +47,9 @@ $(document).on('click', '.confirm', function(event) {
                 var newRoommates = roommate.roommates;
                 newRoommates.push(user._id);
 
-                var field = {requested: JSON.stringify(newRequested), roommates: JSON.stringify(newRoommates)};
+                var field = {requested: JSON.stringify(newRequested), 
+                                roommates: JSON.stringify(newRoommates), 
+                                available: 'False'};
                 updateUser(roommateID, field, function(){
                     showRequests();
                 });
@@ -99,7 +100,6 @@ var showRequests = function() {
                     requestsToUser.push(allUsers[i]);
                 }
             }
-            console.log('requestsToUser: ', requestsToUser, ' requestsFromUser: ', requestsFromUser);
 
             $('#content').html(Handlebars.templates['requests']({
                 requestsToUser: requestsToUser,
