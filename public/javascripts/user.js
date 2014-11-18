@@ -37,8 +37,8 @@ $(document).on('click', '.user-profile', function(event) {
 });
 
 // click request roommate
-$(document).on('click', '#request-roommate.btn-primary', function(event) {
-    var roommateId = $(this).attr('user');
+$(document).on('click', '.request-roommate', function(event) {
+    var roommateId = $(this).val();
     var userID = $.cookie('user');
     if (!user_id) return showLogin();
 
@@ -57,8 +57,8 @@ $(document).on('click', '#request-roommate.btn-primary', function(event) {
 });
 
 //click cancel roommate
-$(document).on('click', '#cancel-roommate.btn-primary', function(event) {
-    var roommateId = $(this).attr('user');
+$(document).on('click', '.cancel-roommate', function(event) {
+    var roommateId = $(this).val();
     var userID = $.cookie('user');
     if (!user_id) return showLogin();
 
