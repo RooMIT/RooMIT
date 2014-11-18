@@ -223,8 +223,6 @@ exports.update = function(req, res) {
     var roommates;
     var requested;
 
-    console.log("ASADS", requested);
-
     if (typeof req.body.roommates === 'string') {
         roommates = (req.body.roommates.length > 0) ? req.body.roommates.split(','): [];
     }

@@ -30,7 +30,9 @@ $(document).on('click', '#available-group .btn-default', function(event) {
 // click on link to a user's profile
 $(document).on('click', '.user-profile', function(event) {
     event.preventDefault();
-    var id = $(this).attr('user-id');
+    console.log(this);
+    var id = $(this).attr('value');
+    console.log(id);
     getUser(id, function(user){
         showUserProfile(user);
     });
@@ -39,15 +41,17 @@ $(document).on('click', '.user-profile', function(event) {
 // click request roommate
 $(document).on('click', '.request-roommate', function(event) {
     var button = $(this);
-    var roommateId = button.val();
+    var roommateId = button.attr('value');
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
 
-    getUser(user_id, function(user){
+    getUser(user_id, function(user) {
         var newRequested = user.requested;
         newRequested.push(roommateId);
 
-        updateUser(user_id, {requested: newRequested.toString()}, function() {
+        console.log(user);
+
+        updateUser(user_id, {requested: JSON.stringify(newRequested)}, function() {
             button.removeClass('request-roommate').addClass('disabled');
             button.html('Request Sent');
         });
@@ -57,7 +61,7 @@ $(document).on('click', '.request-roommate', function(event) {
 
 //click cancel roommate
 $(document).on('click', '.cancel-roommate', function(event) {
-    var roommateId = $(this).val();
+    var roommateId = $(this).attr('value');
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
 
