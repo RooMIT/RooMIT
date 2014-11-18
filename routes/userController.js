@@ -211,7 +211,7 @@ exports.getRoommates = function(req, res) {
     User.findOne({ _id: req.params.id}, function (err, user) {
         User.find({ _id: { $in: user.roommates}}, function (err, users) {
             if (err) return handleError(res, 500, err);
-            if (users === undefined) return handleError(res, 404, 'Users not found');
+            if (!users) return handleError(res, 404, 'Users not found');
             res.json({ users: users }); 
         });
     });
@@ -223,14 +223,12 @@ exports.update = function(req, res) {
     var roommates;
     var requested;
 
-    console.log("ASADS", requested);
-
-    if (typeof req.body.roommates === 'string') {
-        roommates = (req.body.roommates.length > 0) ? req.body.roommates.split(','): [];
+    if (req.body.roommates) {
+        roommates = JSON.parse(req.body.roommates);
     }
 
-    if (typeof req.body.requested === 'string') {
-        requested = (req.body.requested.length > 0) ? req.body.requested.split(','): [];
+    if (req.body.requested) {
+        requested = JSON.parse(req.body.requested);
     }
 
     // all of these fields are optional, only update the ones that are defined
