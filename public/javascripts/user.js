@@ -65,15 +65,13 @@ $(document).on('click', '.delete-roommate', function(event) {
         var index = newRoommates.indexOf(roommateId);
         newRoommates.splice(index, 1);
 
-        updateUser(user_id, {roommates: JSON.stringify(newRoommates)}, function(){
-            console.log("roommate canceled");
+        updateUser(user_id, {roommates: JSON.stringify(newRoommates), available: 'True'}, function(){
             getUser(roommateId, function(roommate) {
                 var newRoommates = roommate.roommates;
                 var index = newRoommates.indexOf(user_id);
                 newRoommates.splice(index, 1);
 
-                updateUser(roommateId, {roommates: JSON.stringify(newRoommates)}, function(){
-                    console.log("roommate canceled");
+                updateUser(roommateId, {roommates: JSON.stringify(newRoommates), available: 'True'}, function(){
                     showUserProfile(user);
                 });
             });
@@ -172,7 +170,7 @@ var showUserProfile = function(user) {
         switchActive('#profile');
 
         $('#content').html(Handlebars.templates['my-profile']({
-           user: user
+           user: user,
            hasRoommate: user.roommates.length > 0
         }));
     } 
