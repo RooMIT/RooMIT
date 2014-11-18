@@ -67,7 +67,7 @@ $(document).on('click', '.cancel-roommate', function(event) {
         var index = newRoommates.indexOf(roommateId);
         newRoommates.splice(index, 1);
 
-        updateUser(userID, {roommates: newRoommates.toString()}, function(){
+        updateUser(userID, {roommates: JSON.stringify(newRoommates)}, function(){
             console.log("roommate canceled");
             getUser(roommateId, function(roommate) {
                 var newRoommates = roommate.roommates;
