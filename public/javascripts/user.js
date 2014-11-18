@@ -92,7 +92,7 @@ $(document).on('click', '.preference-radio-inline', function(event) {
         url: '/preferences/' + id,
         type: 'PUT',
         data: { response: answer }
-    ).done(function(response) {
+    }).done(function(response) {
         $('.'+id).each(function() {
             if (this.value !== answer){
                 $(this).prop('checked', false);
@@ -153,7 +153,7 @@ var updateUser = function(id, fields, callback) {
         url: '/users/' + id,
         type: 'PUT',
         data: fields
-    )}.done(function(response) {
+    }).done(function(response) {
         callback();
 
     }).fail(function(error) {
