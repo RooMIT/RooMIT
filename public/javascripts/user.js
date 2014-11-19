@@ -187,7 +187,7 @@ var showUserProfile = function(user) {
                 var areRoommates = user.roommates.filter(function(elem) {
                     return elem._id === loggedInUserID;
                 }).length > 0;
-                console.log(areRoommates);
+                
                 $('#content').html(Handlebars.templates['profile']({
                    user: user, 
                    roommates: roommates, 

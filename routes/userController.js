@@ -246,20 +246,18 @@ exports.update = function(req, res) {
         updateFields.available = available === 'True' || available === 'true';
     }
 
-    console.log(updateFields.available);
-
     if (requested) {
         updateFields.requested = requested;
     }
-    
+
     User.update({ _id: userId }, updateFields, function (err) {
         if (err) return handleError(res, 500, err);
 
         // if no availability changes, just return
-        if (available == undefined) return res.json({ success:true });
+        if (updateFields.requested == undefined) return res.json({ success:true });
 
         // if availability changes, change roommates availability too
-        updateRoommatesAvailability(userId, available, function(error) {
+        updateRoommatesAvailability(userId, updateFields.requested, function(error) {
             if (error) return handleError(res, 500, error);
             res.json({ success:true });
         });
