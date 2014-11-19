@@ -3,10 +3,15 @@
  */
 
 $(document).on('click', '#requests:not(.active) a', function(event) {
-    showRequests();
+     var user_id = $.cookie('user');
+    if (!user_id) return showLogin();
+
+    getUser(user_id, function(user) {
+        showRequests(user.available);
+    });
 });
 
-// click cancel
+// click cancel request
 $(document).on('click', '.cancel', function(event) {
     event.preventDefault();
     var requestedID = $(this).attr('value');
@@ -15,13 +20,14 @@ $(document).on('click', '.cancel', function(event) {
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
 
-    getUser(user_id, function(user){
+    // delete the request
+    getUser(user_id, function(user) {
         var newRequested = user.requested;
         var index = newRequested.indexOf(requestedID);
         newRequested.splice(index, 1);
         var fields = {requested: JSON.stringify(newRequested)};
         updateUser(user._id, fields, function(){
-            showRequests();
+            showRequests(user.available);
         });
     });
 });
@@ -57,14 +63,14 @@ $(document).on('click', '.confirm', function(event) {
                                 roommates: JSON.stringify(newRoommates), 
                                 available: 'False'};
                 updateUser(roommateID, fields, function(){
-                    showRequests();
+                    showRequests(false);
                 });
             });    
         });
     });
 });
 
-//click deny
+// click deny
 $(document).on('click', '.deny', function(event) {
     event.preventDefault();
     var deniedID = $(this).attr('value');
@@ -73,32 +79,44 @@ $(document).on('click', '.deny', function(event) {
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
     
-    getUser(deniedID, function(denied){
+    // delete the request
+    getUser(deniedID, function(denied) {
         var index = denied.requested.indexOf(user_id);
         var newRequested = denied.requested;
         newRequested.splice(index, 1);
 
         var field = {requested: JSON.stringify(newRequested)};
-        updateUser(deniedID, field, function(){
-            showRequests();
+        updateUser(deniedID, field, function() {
+            showRequests(user.available);
         });
     });
 });
 
 // refetch all requests to/from user and display them
-var showRequests = function() {
+var showRequests = function(available) {
     switchActive('#requests');
 
     var requestsToUser = [];
     var requestsFromUser = [];
 
+    // if user not available, don't show any requests
+    if (!available) {
+        $('#content').html(Handlebars.templates['requests']({
+            requestsToUser: requestsToUser,
+            requestsFromUser: requestsFromUser
+        }));
+        return;
+    }
+
     // get logged in user
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
 
+    // requests from user
     getRequested(user_id, function(res){
         requestsFromUser = res.users;
 
+        // requests to user
         getAll(function(res2){
             allUsers = res2.users;
             for (var i = 0; i < allUsers.length; i++){

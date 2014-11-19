@@ -198,6 +198,7 @@ exports.getMatches = function(req, res) {
     });
 }
 
+// get the requests the user made (to other users)
 exports.getRequested = function(req, res) {
     if (req.params.id !== req.session.userId) return handleError(res, 400, 'Please login first');
     User.findOne({ _id: req.params.id}, function (err, user) {
@@ -221,6 +222,7 @@ exports.getRoommates = function(req, res) {
     });
 };
 
+// update any/all fields of the user object
 exports.update = function(req, res) {
     var userId = req.params.id;
     var available = req.body.available;
@@ -244,7 +246,7 @@ exports.update = function(req, res) {
         updateFields.roommates = roommates;
     }
 
-    if (available) {
+    if (available) { // strings do not work, this must be a boolean!!
         updateFields.available = available === 'True' || available === 'true';
     }
 

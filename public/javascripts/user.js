@@ -56,18 +56,21 @@ $(document).on('click', '.request-roommate', function(event) {
 
 });
 
-//click delete roommate
+// click delete roommate, deletes roomates from both, makes availability for both true
 $(document).on('click', '.delete-roommate', function(event) {
     var roommateId = $(this).attr('value');
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
 
+    // delete the roommate from the user
     getUser(user_id, function(user){
         var newRoommates = user.roommates;
         var index = newRoommates.indexOf(roommateId);
         newRoommates.splice(index, 1);
 
         updateUser(user_id, {roommates: JSON.stringify(newRoommates), available: 'True'}, function(){
+            
+            // delete the user from the roommate
             getUser(roommateId, function(roommate) {
                 var newRoommates = roommate.roommates;
                 var index = newRoommates.indexOf(user_id);
@@ -92,6 +95,7 @@ $(document).on('click', '.preference-radio-inline', function(event) {
         type: 'PUT',
         data: { response: answer }
     }).done(function(response) {
+        // update the ui accodingly
         $('.'+id).each(function() {
             if (this.value !== answer){
                 $(this).prop('checked', false);
