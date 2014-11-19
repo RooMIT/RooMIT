@@ -5,10 +5,10 @@
 
 <br><br>
 
-<h5>Available: </h5>
 {{#if hasRoommate}}
     <h4>Available: No </h4>
 {{else}}
+    <h5>Available: </h5>
     <div id='available-group' class='btn-group' role='group'>
         {{#if user.available}}
             <button id='available' type='button' class='btn btn-primary'>Yes</button>

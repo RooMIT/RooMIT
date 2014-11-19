@@ -246,6 +246,8 @@ exports.update = function(req, res) {
         updateFields.available = available === 'True' || available === 'true';
     }
 
+    console.log(updateFields.available);
+
     if (requested) {
         updateFields.requested = requested;
     }

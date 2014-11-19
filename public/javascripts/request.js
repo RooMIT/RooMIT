@@ -26,7 +26,7 @@ $(document).on('click', '.cancel', function(event) {
     });
 });
 
-//click confirm
+// click confirm, remove the request and make the users roommates (as well as unavailable)
 $(document).on('click', '.confirm', function(event) {
     event.preventDefault();
     var roommateID = $(this).attr('value');
@@ -34,14 +34,16 @@ $(document).on('click', '.confirm', function(event) {
     // get logged in user
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
-   
+    
+    // update the logged in user
     getUser(user_id, function(user){
         var newRoommates = user.roommates;
         newRoommates.push(roommateID);
-
         var fields = {roommates: JSON.stringify(newRoommates), available: 'False'};
 
         updateUser(user._id, fields, function() {
+
+            // update other user
             getUser(roommateID, function(roommate){
                 var index = roommate.requested.indexOf(user._id);
                 var newRequested = roommate.requested;
@@ -50,10 +52,10 @@ $(document).on('click', '.confirm', function(event) {
                 var newRoommates = roommate.roommates;
                 newRoommates.push(user._id);
 
-                var field = {requested: JSON.stringify(newRequested), 
+                var fields = {requested: JSON.stringify(newRequested), 
                                 roommates: JSON.stringify(newRoommates), 
                                 available: 'False'};
-                updateUser(roommateID, field, function(){
+                updateUser(roommateID, fields, function(){
                     showRequests();
                 });
             });    
