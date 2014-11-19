@@ -231,8 +231,10 @@ exports.update = function(req, res) {
         roommates = JSON.parse(req.body.roommates);
     }
 
+    console.log(req.body.requested);
     if (req.body.requested) {
         requested = JSON.parse(req.body.requested);
+        console.log(requested);
     }
 
     // all of these fields are optional, only update the ones that are defined

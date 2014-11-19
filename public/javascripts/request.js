@@ -39,15 +39,16 @@ $(document).on('click', '.confirm', function(event) {
     getUser(user_id, function(user){
         var newRoommates = user.roommates;
         newRoommates.push(roommateID);
-        var fields = {roommates: JSON.stringify(newRoommates), available: 'False'};
+        var fields = {requested: JSON.stringify([]), roommates: JSON.stringify(newRoommates), available: 'False'};
 
         updateUser(user_id, fields, function() {
 
             // update other user
             getUser(roommateID, function(roommate){
                 var index = roommate.requested.indexOf(user._id);
-                var newRequested = roommate.requested;
-                newRequested.splice(index, 1);
+                //var newRequested = roommate.requested;
+                //newRequested.splice(index, 1);
+                newRequested = [];
 
                 var newRoommates = roommate.roommates;
                 newRoommates.push(user._id);
