@@ -35,3 +35,8 @@ li a {
 	display: inline-block; 
 	width: 7%;
 }
+
+.space {
+  display: inline-block;
+  width: 30%;
+}
