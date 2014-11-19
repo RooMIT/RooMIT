@@ -96,7 +96,7 @@ function filterUsers(self, users) {
 
     var filtered = users.filter(function(user) {
         //do not change to triple equals. seriously.
-        if (user._id.equals(self._id) || !user.available) {
+        if (user._id.equals(self._id) || !user.available || !self.available) {
             return false;
         }
         var compatible = user.preferences.filter(function(pref) {
