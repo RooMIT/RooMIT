@@ -41,7 +41,7 @@ $(document).on('click', '.confirm', function(event) {
         newRoommates.push(roommateID);
         var fields = {roommates: JSON.stringify(newRoommates), available: 'False'};
 
-        updateUser(user._id, fields, function() {
+        updateUser(user_id, fields, function() {
 
             // update other user
             getUser(roommateID, function(roommate){
