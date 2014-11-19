@@ -254,10 +254,10 @@ exports.update = function(req, res) {
         if (err) return handleError(res, 500, err);
 
         // if no availability changes, just return
-        if (updateFields.requested == undefined) return res.json({ success:true });
+        if (updateFields.available == undefined) return res.json({ success:true });
 
         // if availability changes, change roommates availability too
-        updateRoommatesAvailability(userId, updateFields.requested, function(error) {
+        updateRoommatesAvailability(userId, updateFields.available, function(error) {
             if (error) return handleError(res, 500, error);
             res.json({ success:true });
         });
