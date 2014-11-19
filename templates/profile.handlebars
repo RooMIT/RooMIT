@@ -6,13 +6,13 @@
 <br>
 
 {{#if areRoommates}}
-    <button class='btn btn-default cancel-roommate' value={{user._id}} type='button' class='btn btn-primary'>Cancel Roommate</button>
+    <button class='btn btn-default delete-roommate' value={{user._id}} type='button'>Delete Roommate</button>
 {{else}}
     {{#if user.available}}
         {{#if requested}}
-            <button class='btn btn-primary disabled' value={{user._id}} type='button' class='btn disabled'>Request Sent</button>
+            <button class='btn btn-primary disabled' value={{user._id}} type='button'>Request Sent</button>
         {{else}}
-            <button class='btn btn-primary request-roommate' value={{user._id}} type='button' class='btn btn-primary'>Request Roommate</button>
+            <button class='btn btn-primary request-roommate' value={{user._id}} type='button'>Request Roommate</button>
         {{/if}}
         <br><br>
         <h4>Available: Yes </h4>
