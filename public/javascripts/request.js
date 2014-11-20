@@ -6,9 +6,7 @@ $(document).on('click', '#requests:not(.active) a', function(event) {
      var user_id = $.cookie('user');
     if (!user_id) return showLogin();
 
-    getUser(user_id, function(user) {
-        showRequests(user.available);
-    });
+    showRequests();
 });
 
 // click cancel request
@@ -27,7 +25,7 @@ $(document).on('click', '.cancel', function(event) {
         newRequested.splice(index, 1);
         var fields = {requested: JSON.stringify(newRequested)};
         updateUser(user._id, fields, function(){
-            showRequests(user.available);
+            showRequests();
         });
     });
 });
@@ -63,7 +61,7 @@ $(document).on('click', '.confirm', function(event) {
                                 roommates: JSON.stringify(newRoommates), 
                                 available: 'False'};
                 updateUser(roommateID, fields, function(){
-                    showRequests(false);
+                    showRequests();
                 });
             });    
         });
@@ -87,30 +85,33 @@ $(document).on('click', '.deny', function(event) {
 
         var field = {requested: JSON.stringify(newRequested)};
         updateUser(deniedID, field, function() {
-            showRequests(user.available);
+            showRequests();
         });
     });
 });
 
 // refetch all requests to/from user and display them
-var showRequests = function(available) {
+var showRequests = function() {
     switchActive('#requests');
-
-    var requestsToUser = [];
-    var requestsFromUser = [];
-
-    // if user not available, don't show any requests
-    if (!available) {
-        $('#content').html(Handlebars.templates['requests']({
-            requestsToUser: requestsToUser,
-            requestsFromUser: requestsFromUser
-        }));
-        return;
-    }
 
     // get logged in user
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
+
+    var requestsToUser = [];
+    var requestsFromUser = [];
+
+    // get logged in user
+    getUser(user_id, function(user) {
+        // if user not available, don't show any requests
+        if (!user.available) {
+            $('#content').html(Handlebars.templates['requests']({
+                requestsToUser: requestsToUser,
+                requestsFromUser: requestsFromUser
+            }));
+            return;
+        }
+    });
 
     // requests from user
     getRequested(user_id, function(res){
