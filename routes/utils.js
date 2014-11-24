@@ -7,7 +7,7 @@ module.exports = {
 	// makes it easy to debug
     handleError: function(res, code, err) {
         console.error(err);
-        res.status(code).json({ error: err });
+        res.status(code).json(err);
     },
 
     getPrefs: function(){

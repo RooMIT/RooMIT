@@ -10,6 +10,13 @@ Handlebars.registerHelper('checked', function(label, response) {
     return '';
 });
 
+$.ajaxPrefilter(function(options, _, xhr) {
+    if (!xhr.crossDomain) {
+        var token = $('meta[name="csrf-token"]').attr('content');
+        xhr.setRequestHeader('X-CSRF-Token', token);
+    }
+  });
+
 // on first load, show either the logged in user's profile
 // or the login screen
 $(document).ready(function() { 

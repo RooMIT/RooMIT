@@ -8,6 +8,7 @@ var PreferenceController = require('./preferenceController');
 module.exports = function(app) {
 
     app.get('/', function(req, res) {
+        res.locals.token = req.csrfToken();
         res.render('index');
     });
 
