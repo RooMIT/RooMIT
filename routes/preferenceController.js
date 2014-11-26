@@ -28,17 +28,16 @@ module.exports = {
     // initialize preferences for the user
     initialize: function(user, callback){
         var prefs = getPrefs().map(function (desc) {
-            return {description: desc, response: 'Don\'t Care'};
+            return { description: desc, response: 'Don\'t Care' };
         });
-        Preference.collection.insert(prefs, function (err, docs){
-            if (err){
-                callback(err);
-            } else {
-                var prefIDs = docs.map(function (pref){
-                    return pref._id;
-                });
-                user.setPreferences(prefIDs, callback);
-            }
+
+        Preference.collection.insert(prefs, function (err, docs) {
+            if (err) return callback(err);
+            var prefIDs = docs.map(function (pref) {
+                return pref._id;
+            });
+
+            user.setPreferences(prefIDs, callback);
         });
     }
 };

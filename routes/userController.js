@@ -66,6 +66,7 @@ exports.logout = function(req, res) {
 };
 
 exports.get = function(req, res) {
+    if (!req.session.userId) return handleError(res, 400, 'Please login first');
     var userId = req.params.id;
     User.getPopulated(userId, function(err, user) {
         if (err) return handleError(res, 500, err);
@@ -75,6 +76,7 @@ exports.get = function(req, res) {
 };
 
 exports.getAll = function(req, res) {
+    if (!req.session.userId) return handleError(res, 400, 'Please login first');
     User.getAll(function(err, users) {
         if (err) return handleError(res, 500, err);
         res.json({users: users});
@@ -185,7 +187,7 @@ function findMatches(self, users) {
 
 exports.getMatches = function(req, res) {
     var logged_in_id = req.session.userId;
-    if (!logged_in_id) return handleError(res, 400, 'User not logged in');
+    if (!logged_in_id) return handleError(res, 400, 'Please login first');
     User.getPopulated(logged_in_id, function(err, self) {
         if (err) return handleError(res, 500, err);
         if (!self) return handleError(res, 400, 'User does not exist');
@@ -200,6 +202,7 @@ exports.getMatches = function(req, res) {
 
 // get the requests the user made (to other users)
 exports.getRequested = function(req, res) {
+    if (!req.session.userId) return handleError(res, 400, 'Please login first');
     if (req.params.id !== req.session.userId) return handleError(res, 400, 'Please login first');
     User.findOne({ _id: req.params.id}, function (err, user) {
         if (err) return handleError(res, 500, err);
@@ -213,6 +216,7 @@ exports.getRequested = function(req, res) {
 };
 
 exports.getRoommates = function(req, res) {
+    if (!req.session.userId) return handleError(res, 400, 'Please login first');
     User.findOne({ _id: req.params.id}, function (err, user) {
         User.find({ _id: { $in: user.roommates}}, function (err, users) {
             if (err) return handleError(res, 500, err);
@@ -224,6 +228,7 @@ exports.getRoommates = function(req, res) {
 
 // update any/all fields of the user object
 exports.update = function(req, res) {
+    if (!req.session.userId) return handleError(res, 400, 'Please login first');
     var userId = req.params.id;
     var available = req.body.available;
     var roommates;
