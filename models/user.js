@@ -23,20 +23,21 @@ UserSchema.methods.verifyPassword = function (enteredPassword, callback) {
     });
 };
 
-UserSchema.methods.getRequestsTo = function(callback) {
+// get requests to and from the user
+UserSchema.methods.getRequests = function(callback) {
     var user = this;
-    Request.find({ to: this._id }).populate('from', '_id name email preferences available group').exec(callback);
-};
-
-UserSchema.methods.getRequestsFrom = function(callback) {
-    var user = this;
-    Request.find({ from: this._id }).populate('to', '_id name email preferences available group').exec(callback);
+    Request.find({ from: this._id }).populate('to', '_id name email preferences available group').exec(function(err, reqFrom) {
+        if (err) return callback(err);
+        Request.find({ to: this._id }).populate('from', '_id name email preferences available group').exec(function(error, reqTo) {
+            callback(err, { requestsFrom: reqFrom, requestsTo: reqTo });
+        });
+    });
 };
 
 UserSchema.methods.getRoommates = function(callback) {
     var user = this;
     // FIXME: this gives all including user
-    User.find({ group: this.group }, '_id name email preferences available group').exec(callback);
+    User.find({ group: this.group }, '_id name email preferences available group').exec(callback(err, users));
 };
 
 
@@ -62,7 +63,7 @@ UserSchema.methods.setPreferences = function(prefs, callback) {
     user.save(function(err, user) {
         if (err) callback(err);
 
-        User.findOne({_id: user_id}).populate('preferences').exec(callback);
+        User.findOne({_id: user_id}).populate('preferences').exec(callback(err, user));
     });
 };
 

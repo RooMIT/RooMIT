@@ -37,7 +37,6 @@ $(document).on('click', '.user-profile', function(event) {
     });
 });
 
-// TODO: fix this
 // click request roommate
 $(document).on('click', '.request-roommate', function(event) {
     var button = $(this);
@@ -45,14 +44,10 @@ $(document).on('click', '.request-roommate', function(event) {
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
 
-    getUser(user_id, function(user) {
-        var newRequested = user.requested;
-        newRequested.push(roommateId);
-
-        updateUser(user_id, {requested: JSON.stringify(newRequested)}, function() {
-            button.removeClass('request-roommate').addClass('disabled');
-            button.html('Request Sent');
-        });
+    // create the request
+    createRequest(roommateId, function() {
+        button.removeClass('request-roommate').addClass('disabled');
+        button.html('Request Sent');
     });
 
 });
