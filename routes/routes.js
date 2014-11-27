@@ -4,6 +4,7 @@
 
 var UserController = require('./userController');
 var PreferenceController = require('./preferenceController');
+var RequestController = require('./requestController');
 
 module.exports = function(app) {
 
@@ -83,32 +84,6 @@ module.exports = function(app) {
         UserController.get(req, res);
     });
 
-    /*
-        Get all users the particular user has under requested
-
-        GET /users/{id}/requested
-        Request Body: empty
-        Response: 
-            - users: list of requested users
-            - error: error if there was one
-    */
-    app.get('/users/:id/requested', function(req, res) {
-        UserController.getRequested(req, res);
-    });
-
-    /*
-        Get all users who are roommates of the particular user
-
-        GET /users/{id}/roommates
-        Request Body: empty
-        Response: 
-            - users: list of roommates
-            - error: error if there was one
-    */
-    app.get('/users/:id/roommates', function(req, res) {
-        UserController.getRoommates(req, res);
-    });
-    
     /*  
         Get all the users that match the logged in user
         and the percentage they match
@@ -124,18 +99,29 @@ module.exports = function(app) {
     });
 
     /*  
-        Modify a user
+        Modify a user's availability 
+        (and thus all their roommates' availability)
 
         PUT /users/{id}
         Request Body:
-            - available: whether or not they are available (optional)
-            - roommates: roommates list (optional)
-            - requested: list of requested users (optional)
+            - available: whether or not they are available
         Response:
             - error: error if there was one
     */
     app.put('/users/:id', function(req, res) {
         UserController.update(req, res);
+    });
+
+    /*  
+        Create all the preferences (should only be done once)
+
+        POST /preferences/
+        Request Body:
+        Response:
+            - error: error if there was one
+    */
+    app.post('/preferences/', function(req, res) {
+        PreferenceController.create(req, res);
     });
 
     /*  
@@ -149,6 +135,31 @@ module.exports = function(app) {
     */
     app.put('/preferences/:id', function(req, res) {
         PreferenceController.update(req, res);
+    });
+
+    /*  
+        Create a request
+
+        POST /requests/
+        Request Body:
+            - toId: id of user to whom the logged in user is making a request
+        Response:
+            - error: error if there was one
+    */
+    app.post('/requests/', function(req, res) {
+        RequestController.create(req, res);
+    });
+
+    /*  
+        Delete a request
+
+        DELETE /requests/{id}
+        Request Body:
+        Response:
+            - error: error if there was one
+    */
+    app.delete('/requests/:id', function(req, res) {
+        RequestController.delete(req, res);
     });
 
 }

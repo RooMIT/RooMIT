@@ -37,6 +37,7 @@ $(document).on('click', '.user-profile', function(event) {
     });
 });
 
+// TODO: fix this
 // click request roommate
 $(document).on('click', '.request-roommate', function(event) {
     var button = $(this);
@@ -56,6 +57,7 @@ $(document).on('click', '.request-roommate', function(event) {
 
 });
 
+// TODO: fix this
 // click delete roommate, deletes roomates from both, makes availability for both true
 $(document).on('click', '.delete-roommate', function(event) {
     var roommateId = $(this).attr('value');
@@ -116,28 +118,6 @@ var getUser = function(id, callback) {
         handleError(error);
     });
 }
-    
-// get requested users
-var getRequested = function(id, callback) {
-    $.get(
-        '/users/' + id + '/requested'
-    ).done(function(response) {
-        callback(response);
-    }).fail(function(error) {
-        handleError(error);
-    });
-}
-
-// get roommates
-var getRoommates = function(id, callback) {
-    $.get(
-        '/users/' + id + '/roommates'
-    ).done(function(response) {
-        callback(response);
-    }).fail(function(error) {
-        handleError(error);
-    });
-}
 
 // get all users
 var getAll = function(callback) {
@@ -150,7 +130,7 @@ var getAll = function(callback) {
     });
 }
 
-// update the user data in the database
+// update the user's availability
 var updateUser = function(id, fields, callback) {
     $.ajax({
         url: '/users/' + id,
@@ -175,27 +155,26 @@ var showUserProfile = function(user) {
     if (user._id === loggedInUserID) {
         switchActive('#profile');
 
+        // TODO: this will not get roommates
         $('#content').html(Handlebars.templates['my-profile']({
-           user: user,
-           hasRoommate: user.roommates.length > 0
+           user: user
         }));
     } 
-    //else show visitor profile
+    // else show visitor profile
     else {
         $('li').removeClass('active');
         // get logged in user
         getUser(loggedInUserID, function(loggedInUser) {
-            getRoommates(user._id, function(res) {
-                var roommates = res.users;
-                var requested = loggedInUser.requested.indexOf(user._id) > -1;
-                var areRoommates = user.roommates.filter(function(elem) {
-                    return elem._id === loggedInUserID;
-                }).length > 0;
+            loggedInUser.getRoommates(function(err, users) {
+                var roommates = users;
+                // TODO get whether or not the logged in user has requested this dude
+                // var requested = loggedInUser.requested.indexOf(user._id) > -1;
+                var areRoommates = user.group === loggedInUser.group;
                 
                 $('#content').html(Handlebars.templates['profile']({
                    user: user, 
                    roommates: roommates, 
-                   requested: requested, 
+                   requested: false, 
                    areRoommates: areRoommates
                 }));
             })

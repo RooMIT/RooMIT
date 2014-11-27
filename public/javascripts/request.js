@@ -3,11 +3,21 @@
  */
 
 $(document).on('click', '#requests:not(.active) a', function(event) {
-     var user_id = $.cookie('user');
+    var user_id = $.cookie('user');
     if (!user_id) return showLogin();
 
     showRequests();
 });
+
+
+
+
+
+// TODO: fix all of these things, attach requestIds to requests
+
+
+
+
 
 // click cancel request
 $(document).on('click', '.cancel', function(event) {

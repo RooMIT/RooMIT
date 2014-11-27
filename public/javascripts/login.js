@@ -10,6 +10,7 @@ Handlebars.registerHelper('checked', function(label, response) {
     return '';
 });
 
+// set the CSRF token in each request
 $.ajaxPrefilter(function(options, _, xhr) {
     if (!xhr.crossDomain) {
         var token = $('meta[name="csrf-token"]').attr('content');

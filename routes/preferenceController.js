@@ -9,6 +9,11 @@ var handleError = require('./utils').handleError;
 
 module.exports = {
 
+    // create all preferences
+    create: function(req, res) {
+        // TODO
+    },
+
     // modify a preference
     update: function(req, res) {
         var preferenceId = req.params.id;
@@ -27,8 +32,9 @@ module.exports = {
 
     // initialize preferences for the user
     initialize: function(user, callback){
+        // FIXME
         var prefs = getPrefs().map(function (desc) {
-            return { description: desc, response: 'Don\'t Care' };
+            return { description: desc };
         });
 
         Preference.collection.insert(prefs, function (err, docs) {

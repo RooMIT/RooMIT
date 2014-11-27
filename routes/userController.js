@@ -28,7 +28,7 @@ exports.login = function(req, res) {
     var errorMessage = validateFields(params);
     if (errorMessage) return handleError(res, 400, errorMessage);
 
-    User.findOne({ email: params.email }).populate('preferences').populate('roommates', '_id name email').exec(function(err, user) {
+    User.findOne({ email: params.email }).populate('preferences').exec(function(err, user) {
         if (err) return handleError(res, 500, err);
         if (!user) return handleError(res, 404, 'Please create an account');
         
@@ -47,7 +47,8 @@ exports.create = function(req, res) {
     var errorMessage = validateFields(params);
     if (errorMessage) return handleError(res, 400, errorMessage);
     
-    User.createUser(params, function(err, user) {
+    var newUser = new User({ name: params.name, email: params.email, password: param.password });
+    User.save(params, function(err, user) {
         if (err && err.code == 11000) return handleError(res, 400, 'Email already in use');
         if (err) return handleError(res, 500, err);
         
@@ -77,21 +78,17 @@ exports.get = function(req, res) {
 
 exports.getAll = function(req, res) {
     if (!req.session.userId) return handleError(res, 400, 'Please login first');
-    User.getAll(function(err, users) {
+    User.find({}, '_id name email preferences available group').populate('preferences').exec(function(err, users) {
         if (err) return handleError(res, 500, err);
         res.json({users: users});
     });
 };
 
-function isDormPref(pref) {
-    return pref.description.indexOf('I would like to live in') !== -1;
-}
-
 // filter out all users that don't share any housing preferences
 function filterUsers(self, users) {
     var acceptableDorms = {};
     self.preferences.forEach(function(pref) {
-        if (isDormPref(pref) && pref.response !== 'No') {
+        if (pref.isDormPreference && pref.response !== 'No') {
             acceptableDorms[pref.description] = true;
         }
     });
@@ -200,86 +197,20 @@ exports.getMatches = function(req, res) {
     });
 }
 
-// get the requests the user made (to other users)
-exports.getRequested = function(req, res) {
-    if (!req.session.userId) return handleError(res, 400, 'Please login first');
-    if (req.params.id !== req.session.userId) return handleError(res, 400, 'Please login first');
-    User.findOne({ _id: req.params.id}, function (err, user) {
-        if (err) return handleError(res, 500, err);
-        if (!user) return handleError(res, 404, 'User does not exist');
-        User.find({ _id: { $in: user.requested}}, function (err, users) {
-            if (err) return handleError(res, 500, err);
-            if (!users) return handleError(res, 404, 'Users not found');
-            res.json({ users: users }); 
-        });
-    });
-};
-
-exports.getRoommates = function(req, res) {
-    if (!req.session.userId) return handleError(res, 400, 'Please login first');
-    User.findOne({ _id: req.params.id}, function (err, user) {
-        User.find({ _id: { $in: user.roommates}}, function (err, users) {
-            if (err) return handleError(res, 500, err);
-            if (!users) return handleError(res, 404, 'Users not found');
-            res.json({ users: users }); 
-        });
-    });
-};
-
-// update any/all fields of the user object
+// update the availability of the user
 exports.update = function(req, res) {
     if (!req.session.userId) return handleError(res, 400, 'Please login first');
     var userId = req.params.id;
     var available = req.body.available;
-    var roommates;
-    var requested;
 
-    if (req.body.roommates) {
-        roommates = JSON.parse(req.body.roommates);
-    }
+    // nothing to update
+    if (!available) return res.json({ success:true });
 
-    console.log(req.body.requested);
-    if (req.body.requested) {
-        requested = JSON.parse(req.body.requested);
-        console.log(requested);
-    }
-
-    // all of these fields are optional, only update the ones that are defined
-    var updateFields = {};
-
-    if (roommates) {
-        updateFields.roommates = roommates;
-    }
-
-    if (available) { // strings do not work, this must be a boolean!!
-        updateFields.available = available === 'True' || available === 'true';
-    }
-
-    if (requested) {
-        updateFields.requested = requested;
-    }
-
-    User.update({ _id: userId }, updateFields, function (err) {
+    // find the user
+    User.updateAvailability(userId, function (err, user) {
         if (err) return handleError(res, 500, err);
-
-        // if no availability changes, just return
-        if (updateFields.available == undefined) return res.json({ success:true });
-
-        // if availability changes, change roommates availability too
-        updateRoommatesAvailability(userId, updateFields.available, function(error) {
-            if (error) return handleError(res, 500, error);
-            res.json({ success:true });
-        });
+        res.json({ success:true });
     });
 };
-
-
-// if availability has changed, change roommates' availability
-var updateRoommatesAvailability = function(userId, available, callback) {
-    User.update({ roommates: userId }, { available: available }, function(err) {
-        callback(err);
-    });
-};
-
 
 module.exports = exports;
