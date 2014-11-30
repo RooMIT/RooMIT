@@ -7,6 +7,7 @@ var Schema = mongoose.Schema;
 var ObjectId = Schema.Types.ObjectId;
 var bcrypt = require('bcrypt');
 var Request = require('./request');
+var User = require('../models/Group');
 
 var UserSchema = new Schema({
     name: { type: String, required: true },
@@ -16,6 +17,53 @@ var UserSchema = new Schema({
     group: { type: ObjectId, ref: 'Group' },
     preferences: [{ type: ObjectId, ref: 'Preference' }]
 });
+
+UserSchema.methods.addRoommate = function (roommateID, callback){
+    User.findOne({ _id: roommateID }, function (err, roommate){
+        if (err) return callback(err);
+        if (!roommate) return callback('Roommate not found');
+
+        if (user.group != undefined){
+            User.update({_id: roommateID}, {group: this.group}, function (err){
+                callback(err);
+            });
+        } else if (roommate.group != undefined){
+            User.update({_id: this._id}, {group: roommate.group}, function (err){
+                callback(err);
+            });
+        } else {
+            var group = new Group();
+            group.save(function (err){
+                if (err) return callback(err);
+                User.update({_id: this._id}, {group: group._id}, function (err){
+                    if (err) return callback(err);
+                    User.update({_id: roommateID}, {group: group._id}, function (err){
+                        callback(err);
+                    });
+                });
+            });
+        }
+    });
+};
+
+UserSchema.methods.leaveGroup = function (callback){
+    var group = this.group;
+    User.update({_id: this._id}, {group: undefined}, function (err){
+        if (err) return callback(err);
+        User.find({group: group}, function (err, users){
+            if (users.length > 1){
+                return callback(err);
+            } else {
+                User.update({group: group}, {group: undefined}, function (err){
+                    if (err) return callback(err);
+                    Group.remove({_id: group}, function (err){
+                        callback(err);
+                    });
+                });
+            }
+        });
+    });
+};
 
 UserSchema.methods.verifyPassword = function (enteredPassword, callback) {
     bcrypt.compare(enteredPassword, this.password, function(err, isMatch) {
