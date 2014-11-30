@@ -61,7 +61,7 @@ module.exports = {
             return { description: desc };
         });
 
-        Preference.find(response: 'Don\'t Care', function (err, docs)){
+        Preference.find({response: 'Don\'t Care'}, function (err, docs){
             if (err) return callback(err);
             var prefIDs = docs.map(function (pref) {
                 return pref._id;
