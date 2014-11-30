@@ -87,10 +87,11 @@ $(document).on('click', '.preference-radio-inline', function(event) {
     var input = this.getElementsByTagName('input')[0];
     var id = input.className;
     var answer = input.value;
+    var desc = this.prev('.space').innerHTML;
     $.ajax({
         url: '/preferences/' + id,
         type: 'PUT',
-        data: { response: answer }
+        data: {description: desc,  response: answer}
     }).done(function(response) {
         // update the ui accodingly
         $('.'+id).each(function() {

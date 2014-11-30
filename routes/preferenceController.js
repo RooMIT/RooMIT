@@ -34,10 +34,10 @@ module.exports = {
     // modify a preference. requires several more inputs now
     update: function(req, res) {
         var oldPrefId = req.params.id;
-        var response = req.body.response;
-        var userID = req.body.userID;
         var description = req.body.description;
-
+        var response = req.body.response;
+        var userID = req.session.userId;
+        
         // sanitize inputs
         if (!(/^Yes|No|Don\'t Care$/).test(response)) {
             return handleError(res, 400, 'Please enter a valid response');
