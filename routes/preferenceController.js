@@ -57,10 +57,6 @@ module.exports = {
 
     // initialize preferences for the user
     initialize: function(user, callback){
-        var prefs = getPrefs().map(function (desc) {
-            return { description: desc };
-        });
-
         Preference.find({response: 'Don\'t Care'}, function (err, docs){
             if (err) return callback(err);
             var prefIDs = docs.map(function (pref) {
