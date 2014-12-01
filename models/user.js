@@ -26,30 +26,43 @@ UserSchema.methods.verifyPassword = function (enteredPassword, callback) {
 // get requests to and from the user
 UserSchema.methods.getRequests = function(callback) {
     var user = this;
-    Request.find({ from: this._id }).populate('to', '_id name email preferences available group').exec(function(err, reqFrom) {
+    Request.findFrom(user._id, function(err, from) {
         if (err) return callback(err);
-        Request.find({ to: this._id }).populate('from', '_id name email preferences available group').exec(function(error, reqTo) {
-            callback(err, { requestsFrom: reqFrom, requestsTo: reqTo });
-        });
-    });
+        Request.findTo(user._id, callback);
+    })
 };
 
 UserSchema.methods.getRoommates = function(callback) {
     var user = this;
-    // FIXME: this gives all including user
-    User.find({ group: this.group }, '_id name email preferences available group').exec(callback(err, users));
+    // Slight hack: we need to get the current model for User but this is only available at runtime
+    //var User = mongoose.model('User');
+    User.find({ group: user.group }, '_id name email preferences available group').exec(function(err, users) {
+        if (err) return callback(err);
+        users = users.filter(function(other) {
+            return user._id !== other._id;
+        });
+        callback(err, users);
+    });
 };
 
+UserSchema.statics.getUser = function(userId, callback) {
+    User.findOne({_id: userId}, function(callback);
+}
 
-UserSchema.methods.updateAvailability = function(userId, callback) {
-    // find the user
-    User.findOne({ _id: userId }, function (err, user) {
+UserSchema.statics.updateAvailability = function(userId, available, callback) {
+    var User = this;
+    User.getUser(userId, function(err, user) {
         if (err) return callback(err);
-        if (!user) return callback('User not found');
+        user.updateAvailability(available, callback);
+    }
+}
 
+UserSchema.methods.updateAvailability = function(available, callback) {
+        var user = this;
         var groupId = user.group;
         var availableBoolean = available === 'True' || available === 'true';
 
+        var User = mongoose.model('User');
         // update the availability of everyone in the user's group
         User.update({ group: groupId }, { available: availableBoolean }, function(error) {
             callback(error);
@@ -62,8 +75,8 @@ UserSchema.methods.setPreferences = function(prefs, callback) {
     user.preferences = prefs;
     user.save(function(err, user) {
         if (err) callback(err);
-
-        User.findOne({_id: user_id}).populate('preferences').exec(callback(err, user));
+        //var User = mongoose.model('User');
+        User.findOne({_id: user_id}).populate('preferences').exec(callback);
     });
 };
 

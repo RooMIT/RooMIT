@@ -12,5 +12,11 @@ var PreferenceSchema = new Schema({
     isRoommateNumberPreference: { type: Boolean, required: true, default: false }
 });
 
+PreferenceSchema.statics.findPreference = function(description, response, callback) {
+    var Preference = this;
+    Preference.findOne({description: description, response: response}, callback);
+}
+
+PreferenceSchema.createPreference = function()
 var Preference = mongoose.model('Preference', PreferenceSchema);
 module.exports = Preference;
