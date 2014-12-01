@@ -23,18 +23,19 @@ $(document).on('click', '.cancel', function(event) {
     deleteRequest(requestID, function() {
         //TODO: check if person has roommates
             //if yes, then remove requests to person's roommates
-        getUser(requestedUserID, function(user){
+        getUser(requestedUserID, function(res){
+            var user = res.user
             getRoommmateIDs(user, function(roommateIDs) {
                 if (roommateIDs.length === 0) showRequests();
                 else {
-                    getRequests(user_id, roommateIDs, function(requests){
+                    getRequests([user_id], roommateIDs, function(requests){
                         if (requests.length === 0) showRequests();
                         else {
                             var index = 0;
                             var recurseDelete = function(){
                                 if (index < requests.length-1) {
                                     index++;
-                                    deleteRequest(requests[index]);
+                                    deleteRequest(requests[index], recurseDelete);
                                 }
                                 else {
                                     showRequests();
@@ -68,18 +69,19 @@ $(document).on('click', '.deny', function(event) {
         //check if user has group 
             //if yes, then remove all requests from person to user's roommates
             //else nothing
-        getUser(user_id, function(user) {
+        getUser(user_id, function(res) {
+            var user = res.user;
             getRoommmateIDs(user, function(roommateIDs) {
                 if (roommateIDs.length === 0) showRequests();
                 else {
-                    getRequests(requestingUserID, roommateIDs, function(requests) {
+                    getRequests([requestingUserID], roommateIDs, function(requests) {
                         if (requests.length === 0) showRequests();
                         else {
                             var index = 0;
                             var recurseDelete = function(){
                                 if (index < requests.length-1) {
                                     index++;
-                                    deleteRequest(requests[index]);
+                                    deleteRequest(requests[index], recurseDelete);
                                 }
                                 else {
                                     showRequests();
@@ -120,39 +122,69 @@ $(document).on('click', '.confirm', function(event) {
         // NOTE: if user got a new roommate, then add requests to user to requests to user's new roommate, and add 
         //requests to new roommate to requests to user and roommates. 
 
-        getUser(user_id, function(user) {
+        getUser(user_id, function(res) {
+            var user = res.user;
             getRoommmateIDs(user, function(roommateIDs) {
                 if (roommateIDs.length === 0) {
-                    //TODO 
-                    getUser(requestingUserID, function(user) {
+                    getUser(requestingUserID, function(res) {
+                        var user = res.user;
                         getRoommmateIDs(user, function(roommateIDs) {
                             if (roommateIDs.length===0) {
-                                //TODO: make group between user and person 
+                                //make group for user and person
+                                updateUser(user_id, {newRoommate: requestingUserID}, function() {
+                                    showRequests();
+                                }
                             }
                             else {
-                                //TODO send requests from user to roommates 
+                                //send requests from user to roommates
+                                var index = 0;
+                                var recurseCreate = function(){
+                                    if (index < roommateIDs.length-1) {
+                                        index++;
+                                        createRequest(roommateIDs[index], recurseCreate);
+                                    }
+                                    else {
+                                        showRequests();
+                                    }
+                                });
+                                createRequest(roommateIDs[index], recurseCreate); 
                             }
                         });
                     });
-                    showRequests();
                 }
                 else {
-                    getRequests(requestingUserID, roommateIDs, function(requests){
+                    getRequests([requestingUserID], roommateIDs, function(requests){
                         if (requests.length === 0) showRequests();
                         else {
-                            //TODO add requestingUserID to user's group
-                            //add requests to user to requests to user's new roommate, and add 
-                            //requests to new roommate to requests to user and roommates.
+                            //add requestingUserID to user's group
+                            updateUser(user_id, {newRoommate: requestingUserID}, function(){
+                                //add {requests to user} to {requests to user's new roommate}, and add 
+                                //{requests to new roommate} to {requests to user and roommates}.
+                                //TODO: NOT DONE
+
+                                /*
+                                var index = 0;
+                                var recurseCreate = function(){
+                                    if (index < roommateIDs.length-1) {
+                                        index++;
+                                        createRequest(roommateIDs[index], recurseCreate);
+                                    }
+                                    else {
+                                        showRequests();
+                                    }
+                                });
+                                createRequest(roommateIDs[index], recurseCreate); */
+                            });
                         }
                     });
                 }
             });
         });
     });
-    //We need functions to: 
+    //need functions to: 
         //get roommate ids
         //get requests from id, to group of id's
-        //TODO: create requests from id to group of id's 
+        //create requests from group of ids to id
 });
 
 // delete request
@@ -190,12 +222,13 @@ var getRequestAll = function(callback) {
     });
 }
 
+//get requests from a list of specified users to a list of specified users
 var getRequests = function(from, to, callback) {
     getRequestsAll(function(res){
         var requests = res.requests;
         var newRequests = [];
         for (var i = 0; i<requests.length; i++){
-            if (requests[i].from === from && to.indexOf(requests[i].to) > -1 ) {
+            if (from.indexOf(requests[i].from) > -1 && to.indexOf(requests[i].to) > -1 ) {
                 newRequests.push(requests[i]._id);
             }
         }
@@ -204,7 +237,6 @@ var getRequests = function(from, to, callback) {
 }
 
 // refetch all requests to/from user and display them
-//TODO: fix. getRequests no longer exists. 
 var showRequests = function() {
     switchActive('#requests');
 
@@ -216,7 +248,8 @@ var showRequests = function() {
     var requestsFromUser = [];
 
     // get logged in user
-    getUser(user_id, function(user) {
+    getUser(user_id, function(res) {
+        var user = res.user;
         // if user not available, don't show any requests
         if (!user.available) {
             $('#content').html(Handlebars.templates['requests']({
@@ -225,18 +258,14 @@ var showRequests = function() {
             }));
             return;
         }
+       
+        requestsToUser = res.requestsTo;
+        requestsFromUser = res.requestsFrom;
 
-        // get requests to and from
-        user.getRequests(function(err, reqs) {
-            requestsToUser = reqs.requestsTo;
-            requestsFromUser = reqs.requestsFrom;
-
-            $('#content').html(Handlebars.templates['requests']({
-                requestsToUser: requestsToUser,
-                requestsFromUser: requestsFromUser
-            }));
-
-        });
+        $('#content').html(Handlebars.templates['requests']({
+            requestsToUser: requestsToUser,
+            requestsFromUser: requestsFromUser
+        }));
     });
 
 }

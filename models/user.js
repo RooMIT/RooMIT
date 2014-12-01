@@ -7,7 +7,7 @@ var Schema = mongoose.Schema;
 var ObjectId = Schema.Types.ObjectId;
 var bcrypt = require('bcrypt');
 var Request = require('./request');
-var User = require('../models/Group');
+var Group = require('../models/Group');
 
 var UserSchema = new Schema({
     name: { type: String, required: true },
@@ -19,6 +19,7 @@ var UserSchema = new Schema({
 });
 
 UserSchema.methods.addRoommate = function (roommateID, callback){
+    var user = this;
     User.findOne({ _id: roommateID }, function (err, roommate){
         if (err) return callback(err);
         if (!roommate) return callback('Roommate not found');

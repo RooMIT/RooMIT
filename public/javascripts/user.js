@@ -5,7 +5,8 @@ $(document).on('click', '#profile:not(.active) a', function(event) {
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
     
-    getUser(user_id, function(user) {
+    getUser(user_id, function(res) {
+        var user = res.user;
         showUserProfile(user);
     });
 });
@@ -21,7 +22,8 @@ $(document).on('click', '#available-group .btn-default', function(event) {
         // swap which is selected in the UI
         $('#available-group .btn-primary').removeClass('btn-primary').addClass('btn-default');
         $(this).removeClass('btn-default').addClass('btn-primary');
-        getUser(user_id, function(user){
+        getUser(user_id, function(res){
+            var user = res.user;
             showUserProfile(user);
         });
     });
@@ -32,7 +34,8 @@ $(document).on('click', '#available-group .btn-default', function(event) {
 $(document).on('click', '.user-profile', function(event) {
     event.preventDefault();
     var id = $(this).attr('value');
-    getUser(id, function(user){
+    getUser(id, function(res){
+        var user = res.user;
         showUserProfile(user);
     });
 });
@@ -64,7 +67,8 @@ $(document).on('click', '.delete-roommate', function(event) {
     if (!user_id) return showLogin();
 
     // delete the roommate from the user
-    getUser(user_id, function(user){
+    getUser(user_id, function(res){
+        var user = res.user;
         var newRoommates = user.roommates;
         var index = newRoommates.indexOf(roommateId);
         newRoommates.splice(index, 1);
@@ -72,7 +76,8 @@ $(document).on('click', '.delete-roommate', function(event) {
         updateUser(user_id, {roommates: JSON.stringify(newRoommates), available: 'True'}, function(){
             
             // delete the user from the roommate
-            getUser(roommateId, function(roommate) {
+            getUser(roommateId, function(res) {
+                var roommate = res.user;
                 var newRoommates = roommate.roommates;
                 var index = newRoommates.indexOf(user_id);
                 newRoommates.splice(index, 1);
@@ -113,7 +118,7 @@ var getUser = function(id, callback) {
     $.get(
         '/users/' + id
     ).done(function(response) {
-        callback(response.user);
+        callback(response);
     }).fail(function(error) {
         handleError(error);
     });
@@ -130,7 +135,7 @@ var getAll = function(callback) {
     });
 }
 
-// update the user's availability
+// update the user's availability and group
 var updateUser = function(id, fields, callback) {
     $.ajax({
         url: '/users/' + id,
@@ -184,7 +189,8 @@ var showUserProfile = function(user) {
     else {
         $('li').removeClass('active');
         // get logged in user
-        getUser(loggedInUserID, function(loggedInUser) {
+        getUser(loggedInUserID, function(res) {
+            var loggedInUser = res.user;
             loggedInUser.getRoommates(function(err, users) {
                 var roommates = users;
                 // TODO get whether or not the logged in user has requested this dude
