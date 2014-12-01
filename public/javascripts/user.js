@@ -5,7 +5,8 @@ $(document).on('click', '#profile:not(.active) a', function(event) {
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
     
-    getUser(user_id, function(user) {
+    getUser(user_id, function(res) {
+        var user = res.user;
         showUserProfile(user);
     });
 });
@@ -21,7 +22,8 @@ $(document).on('click', '#available-group .btn-default', function(event) {
         // swap which is selected in the UI
         $('#available-group .btn-primary').removeClass('btn-primary').addClass('btn-default');
         $(this).removeClass('btn-default').addClass('btn-primary');
-        getUser(user_id, function(user){
+        getUser(user_id, function(res){
+            var user = res.user;
             showUserProfile(user);
         });
     });
@@ -32,7 +34,8 @@ $(document).on('click', '#available-group .btn-default', function(event) {
 $(document).on('click', '.user-profile', function(event) {
     event.preventDefault();
     var id = $(this).attr('value');
-    getUser(id, function(user){
+    getUser(id, function(res){
+        var user = res.user;
         showUserProfile(user);
     });
 });
@@ -46,6 +49,7 @@ $(document).on('click', '.request-roommate', function(event) {
 
     // create the request
     createRequest(roommateId, function() {
+        //TODO: if person has roommates, then also send requests to person's roommates. 
         button.removeClass('request-roommate').addClass('disabled');
         button.html('Request Sent');
     });
@@ -53,6 +57,9 @@ $(document).on('click', '.request-roommate', function(event) {
 });
 
 // TODO: fix this
+// you should only be able to remove yourself from group. Also adjust requests. 
+    //Easiest design choice: just keep requests the way they are.
+
 // click delete roommate, deletes roomates from both, makes availability for both true
 $(document).on('click', '.delete-roommate', function(event) {
     var roommateId = $(this).attr('value');
@@ -60,7 +67,8 @@ $(document).on('click', '.delete-roommate', function(event) {
     if (!user_id) return showLogin();
 
     // delete the roommate from the user
-    getUser(user_id, function(user){
+    getUser(user_id, function(res){
+        var user = res.user;
         var newRoommates = user.roommates;
         var index = newRoommates.indexOf(roommateId);
         newRoommates.splice(index, 1);
@@ -68,7 +76,8 @@ $(document).on('click', '.delete-roommate', function(event) {
         updateUser(user_id, {roommates: JSON.stringify(newRoommates), available: 'True'}, function(){
             
             // delete the user from the roommate
-            getUser(roommateId, function(roommate) {
+            getUser(roommateId, function(res) {
+                var roommate = res.user;
                 var newRoommates = roommate.roommates;
                 var index = newRoommates.indexOf(user_id);
                 newRoommates.splice(index, 1);
@@ -109,7 +118,7 @@ var getUser = function(id, callback) {
     $.get(
         '/users/' + id
     ).done(function(response) {
-        callback(response.user);
+        callback(response);
     }).fail(function(error) {
         handleError(error);
     });
@@ -126,7 +135,7 @@ var getAll = function(callback) {
     });
 }
 
-// update the user's availability
+// update the user's availability and group
 var updateUser = function(id, fields, callback) {
     $.ajax({
         url: '/users/' + id,
@@ -138,6 +147,26 @@ var updateUser = function(id, fields, callback) {
     }).fail(function(error) {
         handleError(error);
     });
+}
+
+//get ids of roommates of user
+var getRoommateIDs = function(user, callback) {
+    if (user.group != undefined) {
+        var userGroup = user.group; 
+        getAll(function(res){
+            var users = res.users;
+            var roommateIDs = [];
+            for (var i = 0; i < users.length; i++){
+                if (users[i].group === userGroup && users[i]._id !== user._id) {
+                    roommateIDs.push(users[i]._id); 
+                }
+            }
+            callback(roommateIDs);
+        });
+    }
+    else {
+        callback([]);
+    }
 }
 
 Handlebars.registerPartial('preference', Handlebars.templates['preference']);
@@ -160,7 +189,8 @@ var showUserProfile = function(user) {
     else {
         $('li').removeClass('active');
         // get logged in user
-        getUser(loggedInUserID, function(loggedInUser) {
+        getUser(loggedInUserID, function(res) {
+            var loggedInUser = res.user;
             loggedInUser.getRoommates(function(err, users) {
                 var roommates = users;
                 // TODO get whether or not the logged in user has requested this dude

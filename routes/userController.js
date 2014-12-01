@@ -72,7 +72,11 @@ exports.get = function(req, res) {
     User.getPopulated(userId, function(err, user) {
         if (err) return handleError(res, 500, err);
         if (!user) return handleError(res, 404, 'User not found');
-        res.json({user: user});
+        User.getRequests(function(err, res){
+            if (err) return handleError(res, 500, err);
+            if (!res) return handleError(res, 404, 'Requests not found');
+            res.json({user: user, requestsFrom: res.requestsFrom, requestsTo: res.requestsTo});
+        });
     });
 };
 
@@ -202,15 +206,25 @@ exports.update = function(req, res) {
     if (!req.session.userId) return handleError(res, 400, 'Please login first');
     var userId = req.params.id;
     var available = req.body.available;
+    var newRoommate = req.body.newRoommate;
+
+    if (newRoommate) {
+        User.addRoommate(newRoommate, function (err) {
+            if (err) return handleError(res, 500, err);
+            res.json({ success:true });
+        });
+    }
+
+    if (available) {
+        // find the user
+        User.updateAvailability(userId, function (err, user) {
+            if (err) return handleError(res, 500, err);
+            res.json({ success:true });
+        });
+    }
 
     // nothing to update
-    if (!available) return res.json({ success:true });
-
-    // find the user
-    User.updateAvailability(userId, function (err, user) {
-        if (err) return handleError(res, 500, err);
-        res.json({ success:true });
-    });
+    if (!available && !newRoommate) return res.json({ success:true });
 };
 
 module.exports = exports;

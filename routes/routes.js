@@ -99,12 +99,13 @@ module.exports = function(app) {
     });
 
     /*  
-        Modify a user's availability 
+        Modify a user's availability and group 
         (and thus all their roommates' availability)
 
         PUT /users/{id}
         Request Body:
             - available: whether or not they are available
+            - newRoommate: user id of new roommate 
         Response:
             - error: error if there was one
     */
@@ -135,6 +136,19 @@ module.exports = function(app) {
     */
     app.put('/preferences/:id', function(req, res) {
         PreferenceController.update(req, res);
+    });
+
+    /*
+        Get all requests
+
+        GET /requests/
+        Request Body: empty
+        Response:
+            - requests: list of all requests
+            - error: error if there was one
+    */
+    app.get('/requests/', function(req, res) {
+        RequestController.getAll(req, res);
     });
 
     /*  

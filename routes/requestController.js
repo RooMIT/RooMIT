@@ -23,7 +23,7 @@ module.exports = {
     },
 
     // delete a request
-    delete: function(user, callback){
+    delete: function(req, res) {
         var requestId = req.params.id;
         
         if (!req.session.userId) return handleError(res, 400, 'Please login first');
@@ -33,4 +33,13 @@ module.exports = {
             res.json({ success:true });
         });
     }
+
+    // get all requests
+    getAll: function(req, res) {
+        Request.find({}, function(err, requests){
+            if (err) return handleError(res, 500, err);
+            res.json({ requests: requests}); 
+        });
+    }
+
 };
