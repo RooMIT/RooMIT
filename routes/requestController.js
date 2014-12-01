@@ -9,11 +9,10 @@ module.exports = {
 
     // create a request
     create: function(req, res) {
-        var fromId = req.session.userId;
-        var toId = req.body.toId;
+        var fromId = req.params.id;
+        var toId = req.body.to;
 
-        if (!fromId) return handleError(res, 400, 'Please login first');
-        if (!toId) return handleError(res, 400, 'Requested user does not exist');
+        if (!toId || !fromId) return handleError(res, 400, 'User does not exist');
         
         var newRequest = new Request({ from: fromId, to: toId });
         newRequest.save(function (err, request) {
@@ -34,11 +33,13 @@ module.exports = {
         });
     }
 
-    // get all requests
-    getAll: function(req, res) {
-        Request.find({}, function(err, requests){
+    // get all requests to/from a user
+    get: function(req, res) {
+        var userId = req.params.id;
+
+        Request.getRequests(userId, function(err, result){
             if (err) return handleError(res, 500, err);
-            res.json({ requests: requests}); 
+            res.json({ requestsTo: result.requestsTo, requestsFrom: result.requestsFrom }); 
         });
     }
 

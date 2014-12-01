@@ -6,7 +6,6 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var ObjectId = Schema.Types.ObjectId;
 var bcrypt = require('bcrypt');
-var Request = require('./request');
 var Group = require('../models/Group');
 
 var UserSchema = new Schema({
@@ -73,7 +72,8 @@ UserSchema.methods.verifyPassword = function (enteredPassword, callback) {
 };
 
 
-UserSchema.methods.updateAvailability = function(userId, callback) {
+// update availability of the user and their roommates
+UserSchema.methods.updateAvailability = function(userId, available, callback) {
     // find the user
     User.findOne({ _id: userId }, function (err, user) {
         if (err) return callback(err);
@@ -89,9 +89,12 @@ UserSchema.methods.updateAvailability = function(userId, callback) {
     });
 };
 
+// set all of the user's preferences and return the new user object
 UserSchema.methods.setPreferences = function(prefs, callback) {
     var user = this;
-    User.findOneAndUpdate({ id: user._id }, { preferences : prefs }).populate().exec(function(err, updatedUser) {
+    User.findOneAndUpdate({ id: user._id }, { preferences : prefs }, 
+                    '_id name email preferences available group')
+                    .populate('preferences').exec(function(err, updatedUser) {
         callback(err, updatedUser);
     });
 };

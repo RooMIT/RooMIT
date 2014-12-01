@@ -197,30 +197,30 @@ exports.getMatches = function(req, res) {
     });
 }
 
-// update the availability of the user
+// update the user's availability or group
 exports.update = function(req, res) {
     if (!req.session.userId) return handleError(res, 400, 'Please login first');
     var userId = req.params.id;
     var available = req.body.available;
     var newRoommate = req.body.newRoommate;
 
+    // nothing to update
+    if (!available && !newRoommate) return res.json({ success:true });
+
     if (newRoommate) {
         User.addRoommate(newRoommate, function (err) {
             if (err) return handleError(res, 500, err);
-            res.json({ success:true });
+            return res.json({ success:true });
         });
     }
 
     if (available) {
         // find the user
-        User.updateAvailability(userId, function (err, user) {
+        User.updateAvailability(userId, available, function (err, user) {
             if (err) return handleError(res, 500, err);
-            res.json({ success:true });
+            return res.json({ success:true });
         });
     }
-
-    // nothing to update
-    if (!available && !newRoommate) return res.json({ success:true });
 };
 
 module.exports = exports;

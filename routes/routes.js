@@ -99,13 +99,13 @@ module.exports = function(app) {
     });
 
     /*  
-        Modify a user's availability and group 
+        Modify a user's availability or group 
         (and thus all their roommates' availability)
 
         PUT /users/{id}
         Request Body:
-            - available: whether or not they are available
-            - newRoommate: user id of new roommate 
+            - available: whether or not they are available (optional)
+            - newRoommate: user id of new roommate (optional)
         Response:
             - error: error if there was one
     */
@@ -139,28 +139,29 @@ module.exports = function(app) {
     });
 
     /*
-        Get all requests
+        Get all requests to/from a user
 
-        GET /requests/
+        GET /user/{id}/requests/
         Request Body: empty
         Response:
-            - requests: list of all requests
+            - requestsTo: list of all requests to the user
+            - requestsFrom: list of all requests from the user
             - error: error if there was one
     */
-    app.get('/requests/', function(req, res) {
+    app.get('/users/:id/requests/', function(req, res) {
         RequestController.getAll(req, res);
     });
 
     /*  
-        Create a request
+        Create a request from the specified user
 
-        POST /requests/
+        POST /users/{id}requests/
         Request Body:
-            - toId: id of user to whom the logged in user is making a request
+            - to: id of user to whom the request is made
         Response:
             - error: error if there was one
     */
-    app.post('/requests/', function(req, res) {
+    app.post('/users/{id}/requests/', function(req, res) {
         RequestController.create(req, res);
     });
 

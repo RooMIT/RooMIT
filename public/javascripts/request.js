@@ -199,11 +199,11 @@ var deleteRequest = function(id, callback) {
     });
 }
 
-// create a new request from the logged in user to a specified id
-var createRequest = function(toId, callback) {
+// create a new request
+var createRequest = function(fromId, toId, callback) {
     $.post(
-        '/requests/',
-        { toId: toId }
+        '/users/' + fromId + '/requests/',
+        { to: toId }
     ).done(function(response) {
         callback(response);
     }).fail(function(error) {
@@ -211,10 +211,10 @@ var createRequest = function(toId, callback) {
     });
 }
 
-// get all requests
-var getRequestAll = function(callback) {
+// get all requests to/from a user
+var getRequest = function(userId, callback) {
     $.get(
-        '/requests/'
+        '/users/' + userId + '/requests/'
     ).done(function(response) {
         callback(response);
     }).fail(function(error) {
@@ -250,6 +250,7 @@ var showRequests = function() {
     // get logged in user
     getUser(user_id, function(res) {
         var user = res.user;
+        // TODO: DO WE NEED THIS???
         // if user not available, don't show any requests
         if (!user.available) {
             $('#content').html(Handlebars.templates['requests']({
@@ -258,14 +259,18 @@ var showRequests = function() {
             }));
             return;
         }
-       
-        requestsToUser = res.requestsTo;
-        requestsFromUser = res.requestsFrom;
+        
+        // fetch requests
+        getRequest(user_id, function(err, result) {
+            requestsToUser = result.requestsTo;
+            requestsFromUser = result.requestsFrom;
 
-        $('#content').html(Handlebars.templates['requests']({
-            requestsToUser: requestsToUser,
-            requestsFromUser: requestsFromUser
-        }));
+            $('#content').html(Handlebars.templates['requests']({
+                requestsToUser: requestsToUser,
+                requestsFromUser: requestsFromUser
+            }));
+        });
+
     });
 
 }
