@@ -46,20 +46,24 @@ UserSchema.methods.addRoommate = function (roommateID, callback){
     });
 };
 
+var deleteGroup = function(user, callback) {
+    //TODO figure out whether this actually caches group or whether group is deleted
+    var group = user.group;
+    User.update({group: group}, {group: undefined}, function(err) {
+        if (err) return callback(err);
+        var Group = mongoose.model('Group');
+        Group.remove({_id: group}, callback);
+    }
+}
+
 UserSchema.methods.leaveGroup = function (callback){
-    var group = this.group;
-    User.update({_id: this._id}, {group: undefined}, function (err){
+    var user = this;
+    User.update({_id: user._id}, {group: undefined}, function (err){
         if (err) return callback(err);
         User.find({group: group}, function (err, users){
-            if (users.length > 1){
-                return callback(err);
-            } else {
-                User.update({group: group}, {group: undefined}, function (err){
-                    if (err) return callback(err);
-                    Group.remove({_id: group}, function (err){
-                        callback(err);
-                    });
-                });
+            if (users.length > 1) return callback(err);
+            var user = users[0];
+            deleteGroup(user, callback);
             }
         });
     });
@@ -71,17 +75,31 @@ UserSchema.methods.verifyPassword = function (enteredPassword, callback) {
     });
 };
 
+// get requests to and from the user
+UserSchema.methods.getRequests = function(callback) {
+    var user = this;
+    Request.getRequests(user._id, callback);
+};
+
+UserSchema.statics.getUser = function(userId, callback) {
+    User.findOne({_id: userId}, function(callback);
+}
 
 // update availability of the user and their roommates
 UserSchema.methods.updateAvailability = function(userId, available, callback) {
     // find the user
     User.findOne({ _id: userId }, function (err, user) {
         if (err) return callback(err);
-        if (!user) return callback('User not found');
+        user.updateAvailability(available, callback);
+    }
+}
 
+UserSchema.methods.updateAvailability = function(available, callback) {
+        var user = this;
         var groupId = user.group;
         var availableBoolean = available === 'True' || available === 'true';
 
+        var User = mongoose.model('User');
         // update the availability of everyone in the user's group
         User.update({ group: groupId }, { available: availableBoolean }, function(error) {
             callback(error);
@@ -103,17 +121,12 @@ UserSchema.methods.setPreferences = function(prefs, callback) {
 UserSchema.methods.getRoommates = function(user, callback) {
     User.find({ group: user.group }, '_id name email preferences available group', function(err, users) {
         if (err) return callback(err);
-        if (!users) return callback('Roommates not found');
 
-        var roommates = users;
+        var roommates = users.filter(function(other) {
+            return user._id !== other._id;
+        });
 
-        // remove the user (you are not your own roommate)
-        var index = roommates.indexOf(user._id);
-        if (index > -1) {
-            roommates.splice(index, 1);
-        }
-
-        callback(undefined, roommates);
+        callback(err, roommates);
     });
 };
 

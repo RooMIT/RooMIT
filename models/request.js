@@ -11,14 +11,23 @@ var RequestSchema = new Schema({
     to: { type: ObjectId, ref: 'User', required: true }
 });
 
+RequestSchema.statics.findFrom = function(userId, callback) {
+    this.find({ from: userId }).populate('to', '_id name email preferences available group').exec(callback);
+}
+
+RequestSchema.statics.findTo = function(userId, callback) {
+    this.find({ to: userId }).populate('from', '_id name email preferences available group').exec(callback);
+}
+
 // get requests to and from the user
 RequestSchema.statics.getRequests = function(userId, callback) {
-    Request.find({ from: userId }).populate('to', '_id name email preferences available group').exec(function(err, reqFrom) {
+    var Request = this;
+    Request.findFrom(userId, function(err, from) {
         if (err) return callback(err);
-        Request.find({ to: userId }).populate('from', '_id name email preferences available group').exec(function(error, reqTo) {
-            callback(err, { requestsFrom: reqFrom, requestsTo: reqTo });
-        });
-    });
+        Request.findTo(userId, function(err, to) {
+            callback(err, {requestsFrom: from, requestsTo: to});
+        });;
+    })
 };
 
 var Request = mongoose.model('Request', RequestSchema);
