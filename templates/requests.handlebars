@@ -4,8 +4,8 @@
 
 <h3> From others: </h3><br>
 {{#each requestsToUser}}
-  <div>
-	  <span class='requestuser' request-id={{_id}} user-id={{from._id}}><a value='{{from._id}}' class='user-profile' href='#'>{{from.name}}</a></span>
+  <div request-id={{_id}} user-id={{from._id}}>
+	  <span class='requestuser'><a value='{{from._id}}' class='user-profile' href='#'>{{from.name}}</a></span>
 	  <button class='btn btn-primary confirm' type='button'>Confirm</button>
 	  <button class='btn btn-default deny' type='button'>Deny</button>
   </div><br>
@@ -13,8 +13,8 @@
 
 <h3> From you: </h3><br>
 {{#each requestsFromUser}}
-	<div>
-		<span class='requestuser' request-id={{_id}} user-id={{to._id}}><a value='{{to._id}}' class='user-profile' href='#'>{{to.name}}</a></span>
+	<div request-id={{_id}} user-id={{to._id}}>
+		<span class='requestuser'><a value='{{to._id}}' class='user-profile' href='#'>{{to.name}}</a></span>
 		<button class='btn btn-default cancel' type='button'>Cancel</button>
 	</div><br>
 {{/each}}

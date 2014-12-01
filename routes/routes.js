@@ -137,6 +137,19 @@ module.exports = function(app) {
         PreferenceController.update(req, res);
     });
 
+    /*
+        Get all requests
+
+        GET /requests/
+        Request Body: empty
+        Response:
+            - requests: list of all requests
+            - error: error if there was one
+    */
+    app.get('/requests/', function(req, res) {
+        RequestController.getAll(req, res);
+    });
+
     /*  
         Create a request
 

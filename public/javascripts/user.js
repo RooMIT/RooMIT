@@ -46,6 +46,7 @@ $(document).on('click', '.request-roommate', function(event) {
 
     // create the request
     createRequest(roommateId, function() {
+        //TODO: if person has roommates, then also send requests to person's roommates. 
         button.removeClass('request-roommate').addClass('disabled');
         button.html('Request Sent');
     });
@@ -53,6 +54,9 @@ $(document).on('click', '.request-roommate', function(event) {
 });
 
 // TODO: fix this
+// you should only be able to remove yourself from group. Also adjust requests. 
+    //Easiest design choice: just keep requests the way they are.
+
 // click delete roommate, deletes roomates from both, makes availability for both true
 $(document).on('click', '.delete-roommate', function(event) {
     var roommateId = $(this).attr('value');
@@ -138,6 +142,26 @@ var updateUser = function(id, fields, callback) {
     }).fail(function(error) {
         handleError(error);
     });
+}
+
+//get ids of roommates of user
+var getRoommateIDs = function(user, callback) {
+    if (user.group != undefined) {
+        var userGroup = user.group; 
+        getAll(function(res){
+            var users = res.users;
+            var roommateIDs = [];
+            for (var i = 0; i < users.length; i++){
+                if (users[i].group === userGroup && users[i]._id !== user._id) {
+                    roommateIDs.push(users[i]._id); 
+                }
+            }
+            callback(roommateIDs);
+        });
+    }
+    else {
+        callback([]);
+    }
 }
 
 Handlebars.registerPartial('preference', Handlebars.templates['preference']);
