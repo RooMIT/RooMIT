@@ -19,5 +19,16 @@ RequestSchema.statics.findTo = function(userId, callback) {
     this.find({ to: userId }).populate('from', '_id name email preferences available group').exec(callback);
 }
 
-var Request = mongoose.model('Preference', RequestSchema);
+// get requests to and from the user
+RequestSchema.statics.getRequests = function(userId, callback) {
+    var Request = this;
+    Request.findFrom(userId, function(err, from) {
+        if (err) return callback(err);
+        Request.findTo(userId, function(err, to) {
+            callback(err, {requestsFrom: from, requestsTo: to});
+        });;
+    })
+};
+
+var Request = mongoose.model('Request', RequestSchema);
 module.exports = Request;

@@ -47,20 +47,24 @@ UserSchema.methods.addRoommate = function (roommateID, callback){
     });
 };
 
+var deleteGroup = function(user, callback) {
+    //TODO figure out whether this actually caches group or whether group is deleted
+    var group = user.group;
+    User.update({group: group}, {group: undefined}, function(err) {
+        if (err) return callback(err);
+        var Group = mongoose.model('Group');
+        Group.remove({_id: group}, callback);
+    }
+}
+
 UserSchema.methods.leaveGroup = function (callback){
-    var group = this.group;
-    User.update({_id: this._id}, {group: undefined}, function (err){
+    var user = this;
+    User.update({_id: user._id}, {group: undefined}, function (err){
         if (err) return callback(err);
         User.find({group: group}, function (err, users){
-            if (users.length > 1){
-                return callback(err);
-            } else {
-                User.update({group: group}, {group: undefined}, function (err){
-                    if (err) return callback(err);
-                    Group.remove({_id: group}, function (err){
-                        callback(err);
-                    });
-                });
+            if (users.length > 1) return callback(err);
+            var user = users[0];
+            deleteGroup(user, callback);
             }
         });
     });
@@ -75,23 +79,7 @@ UserSchema.methods.verifyPassword = function (enteredPassword, callback) {
 // get requests to and from the user
 UserSchema.methods.getRequests = function(callback) {
     var user = this;
-    Request.findFrom(user._id, function(err, from) {
-        if (err) return callback(err);
-        Request.findTo(user._id, callback);
-    })
-};
-
-UserSchema.methods.getRoommates = function(callback) {
-    var user = this;
-    // Slight hack: we need to get the current model for User but this is only available at runtime
-    //var User = mongoose.model('User');
-    User.find({ group: user.group }, '_id name email preferences available group').exec(function(err, users) {
-        if (err) return callback(err);
-        users = users.filter(function(other) {
-            return user._id !== other._id;
-        });
-        callback(err, users);
-    });
+    Request.getRequests(user._id, callback);
 };
 
 UserSchema.statics.getUser = function(userId, callback) {
@@ -121,11 +109,24 @@ UserSchema.methods.updateAvailability = function(available, callback) {
 
 UserSchema.methods.setPreferences = function(prefs, callback) {
     var user = this;
-    user.preferences = prefs;
-    user.save(function(err, user) {
-        if (err) callback(err);
-        //var User = mongoose.model('User');
-        User.findOne({_id: user_id}).populate('preferences').exec(callback);
+    //FIXME don't we need to put something in populate?
+    User.findOneAndUpdate({ id: user._id }, { preferences : prefs }).populate().exec(function(err, updatedUser) {
+        callback(err, updatedUser);
+    });
+};
+
+// get the roommates of the user
+UserSchema.methods.getRoommates = function(user, callback) {
+    User.find({ group: user.group }, '_id name email preferences available group', function(err, users) {
+        if (err) return callback(err);
+        //FIXME this is a useless call, roommates will always find the user
+        if (!users) return callback('Roommates not found');
+
+        var roommates = users.filter(function(other) {
+            return user._id !== other._id;
+        });
+
+        callback(err, roommates);
     });
 };
 
