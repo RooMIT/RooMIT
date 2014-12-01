@@ -11,5 +11,5 @@ var RequestSchema = new Schema({
     to: { type: ObjectId, ref: 'User', required: true }
 });
 
-var Request = mongoose.model('Preference', RequestSchema);
+var Request = mongoose.model('Request', RequestSchema);
 module.exports = Request;
