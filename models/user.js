@@ -72,23 +72,6 @@ UserSchema.methods.verifyPassword = function (enteredPassword, callback) {
     });
 };
 
-// get requests to and from the user
-UserSchema.methods.getRequests = function(callback) {
-    var user = this;
-    Request.find({ from: this._id }).populate('to', '_id name email preferences available group').exec(function(err, reqFrom) {
-        if (err) return callback(err);
-        Request.find({ to: this._id }).populate('from', '_id name email preferences available group').exec(function(error, reqTo) {
-            callback(err, { requestsFrom: reqFrom, requestsTo: reqTo });
-        });
-    });
-};
-
-UserSchema.methods.getRoommates = function(callback) {
-    var user = this;
-    // FIXME: this gives all including user
-    User.find({ group: this.group }, '_id name email preferences available group').exec(callback(err, users));
-};
-
 
 UserSchema.methods.updateAvailability = function(userId, callback) {
     // find the user
@@ -108,11 +91,26 @@ UserSchema.methods.updateAvailability = function(userId, callback) {
 
 UserSchema.methods.setPreferences = function(prefs, callback) {
     var user = this;
-    user.preferences = prefs;
-    user.save(function(err, user) {
-        if (err) callback(err);
+    User.findOneAndUpdate({ id: user._id }, { preferences : prefs }).populate().exec(function(err, updatedUser) {
+        callback(err, updatedUser);
+    });
+};
 
-        User.findOne({_id: user_id}).populate('preferences').exec(callback(err, user));
+// get the roommates of the user
+UserSchema.methods.getRoommates = function(user, callback) {
+    User.find({ group: user.group }, '_id name email preferences available group', function(err, users) {
+        if (err) return callback(err);
+        if (!users) return callback('Roommates not found');
+
+        var roommates = users;
+
+        // remove the user (you are not your own roommate)
+        var index = roommates.indexOf(user._id);
+        if (index > -1) {
+            roommates.splice(index, 1);
+        }
+
+        callback(undefined, roommates);
     });
 };
 

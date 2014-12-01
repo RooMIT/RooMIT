@@ -69,14 +69,10 @@ exports.logout = function(req, res) {
 exports.get = function(req, res) {
     if (!req.session.userId) return handleError(res, 400, 'Please login first');
     var userId = req.params.id;
-    User.getPopulated(userId, function(err, user) {
+    User.findOne({ id: userId }, '_id name email preferences available group').populate('preferences').exec(function(err, user) {
         if (err) return handleError(res, 500, err);
         if (!user) return handleError(res, 404, 'User not found');
-        User.getRequests(function(err, res){
-            if (err) return handleError(res, 500, err);
-            if (!res) return handleError(res, 404, 'Requests not found');
-            res.json({user: user, requestsFrom: res.requestsFrom, requestsTo: res.requestsTo});
-        });
+        res.json({ user: user });
     });
 };
 
