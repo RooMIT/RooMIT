@@ -7,30 +7,52 @@ var handleError = require('./utils').handleError;
 
 module.exports = {
 
-    // create a request
+    // create requests
     create: function(req, res) {
-        var fromId = req.params.id;
-        var toId = req.body.to;
-
+        var userId = req.params.id;
         if (!req.session.userId) return handleError(res, 400, 'Please login first');
-        if (!toId || !fromId) return handleError(res, 400, 'User does not exist');
-        
-        var newRequest = new Request({ from: fromId, to: toId });
-        newRequest.save(function (err, request) {
+        if (!toIds.length && !fromIds.length) return handleError(res, 400, 'Users do not exist');
+
+        var toIds = req.body.to;
+        var requests = [];
+        if (toIds.length) {
+            toIds = toIds.split(',');
+            requests = toIds.map(function(elem){
+                return new Request({ from: userId, to: elem });
+            });
+        }
+
+        var fromIds = req.body.from;
+        var requests2 = [];
+        if (fromIds.length) {
+            fromIds = fromIds.split(',');
+            var requests2 = fromIds.map(function(elem){
+                return new Request({ from: elem, to: userId });
+            });
+        }        
+
+        var allRequests = requests.concat(requests2);
+
+        allRequests.forEach(function(request) {
+            request.save(function (err, res) {
             if (err) return handleError(res, 500, err);
             res.json({ success:true });
         });
     },
 
-    // delete a request
+    // delete requests
     delete: function(req, res) {
-        var requestId = req.params.id;
-        
+        var deleteRequests = req.body.deleteRequests;
         if (!req.session.userId) return handleError(res, 400, 'Please login first');
+        if (!deleteRequests.length) return handleError(res, 400, 'Requests do not exist');
 
-        Request.findByIdAndRemove(requestId, function(err) {
-            if (err) return handleError(res, 500, err);
-            res.json({ success:true });
+        deleteRequests = deleteRequests.split(',');
+        
+        deleteRequests.forEach(function(requestId) {
+            Request.findByIdAndRemove(requestId, function(err) {
+                if (err) return handleError(res, 500, err);
+                res.json({ success:true });
+            });
         });
     }
 

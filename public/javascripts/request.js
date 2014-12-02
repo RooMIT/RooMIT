@@ -31,17 +31,9 @@ $(document).on('click', '.cancel', function(event) {
                     getRequestsTo(user_id, roommateIDs, function(requests){
                         if (!requests.length) showRequests();
                         else {
-                            var index = 0;
-                            var recurseDelete = function(){
-                                if (index < requests.length-1) {
-                                    index++;
-                                    deleteRequest(requests[index], recurseDelete);
-                                }
-                                else {
-                                    showRequests();
-                                }
+                            deleteRequest(requests, function(){
+                                showRequests();
                             });
-                            deleteRequest(requests[index], recurseDelete);
                         }
                     });
                 }
@@ -73,17 +65,9 @@ $(document).on('click', '.deny', function(event) {
                     getRequestsTo(requestingUserID, roommateIDs, function(requests) {
                         if (!requests.length) showRequests();
                         else {
-                            var index = 0;
-                            var recurseDelete = function(){
-                                if (index < requests.length-1) {
-                                    index++;
-                                    deleteRequest(requests[index], recurseDelete);
-                                }
-                                else {
-                                    showRequests();
-                                }
+                            deleteRequest(requests, function(){
+                                showRequests();
                             });
-                            deleteRequest(requests[index], recurseDelete);
                         }
                     });
                 }
@@ -104,20 +88,18 @@ $(document).on('click', '.confirm', function(event) {
     
     // delete the request
     deleteRequest(requestID, function() {
-        //SUMMARY OF TODOS:
-        // update the user's group: 
 
         // check if user has group 
-            //if yes, then check if user's group has accepted, aka if there are any more requests from person to user's roommates
+            //if yes, then check if user's group has accepted, as in if there are any more requests from 
+            //person to user's roommates
                 //if there are, then do not add person to user's group
                 //else: add person to user's group
             //if no, check if person has roommates. 
                 //if person has roommates, send requests from user to roommates. 
-                //else: create group between user and person
+                //else: create group for user and person
 
-        // NOTE: if user got a new roommate, then add requests to user to requests to user's new roommate, and add 
-        //requests to new roommate to requests to user and roommates. 
-
+        // NOTE: if user got this new roommate, then add requests to user to requests to user's new roommate,
+        // and add requests to new roommate to requests to user and roommates. 
         getUser(user_id, function(res) {
             var user = res.user;
             getRoommmateIDs(user, function(roommateIDs) {
@@ -132,18 +114,10 @@ $(document).on('click', '.confirm', function(event) {
                                 }
                             }
                             else {
-                                //send requests from user to roommates
-                                var index = 0;
-                                var recurseCreate = function(){
-                                    if (index < roommateIDs.length-1) {
-                                        index++;
-                                        createRequest(roommateIDs[index], recurseCreate);
-                                    }
-                                    else {
-                                        showRequests();
-                                    }
+                                //send requests from user to roommates 
+                                createRequest(user_id, [], roommateIDs, function(){
+                                    showRequests();
                                 });
-                                createRequest(roommateIDs[index], recurseCreate); 
                             }
                         });
                     });
@@ -160,33 +134,32 @@ $(document).on('click', '.confirm', function(event) {
                                     var requestsTo = res.requestsTo;
 
                                     //list of ids of users that have sent requests to logged in user
-                                    //TODO: create requests from these users to requestingUserID
                                     var requestsToUser = requestsTo.map(function(elem) {
                                         return elem.from._id;
                                     });
-                                    
-                                    getRequest(requestingUserID, function(res) {
-                                        var requestsTo = res.requestsTo;
+                                    //create requests from these users to requestingUserID
+                                    createRequest(requestingUserID, requestsToUser, [] , function(){
+                                        getRequest(requestingUserID, function(res) {
+                                            var requestsTo = res.requestsTo;
 
-                                        //list of ids of users that requested new roommate
-                                        //TODO: create requests from these users to the user and existing roommates
-                                        var requestsToNewRoommate = requestsTo.map(function(elem) {
-                                            return elem.from._id;
+                                            //list of ids of users that requested new roommate
+                                            var requestsToNewRoommate = requestsTo.map(function(elem) {
+                                                return elem.from._id;
+                                            });
+                                            //create requests from these users to the user and existing roommates
+                                            createRequest(user_id, requestsToNewRoommate, [], function(){
+                                                createRequest(roommateIDs[0], requestsToNewRoommate, [], function(){
+                                                    if (!roommateIDs[1]) showRequests();
+                                                    else {
+                                                        createRequest(roommateIDs[1], requestsToNewRoommate, [], function(){
+                                                            showRequests();
+                                                        });
+                                                    }
+                                                });
+                                            });
                                         });
                                     });
                                 });
-                                /*
-                                var index = 0;
-                                var recurseCreate = function(){
-                                    if (index < roommateIDs.length-1) {
-                                        index++;
-                                        createRequest(roommateIDs[index], recurseCreate);
-                                    }
-                                    else {
-                                        showRequests();
-                                    }
-                                });
-                                createRequest(roommateIDs[index], recurseCreate); */
                             });
                         }
                     });
@@ -196,11 +169,13 @@ $(document).on('click', '.confirm', function(event) {
     });
 });
 
-// delete request
-var deleteRequest = function(id, callback) {
+// delete requests
+// deleteRequests: list of request id to be deleted
+var deleteRequest = function(deleteRequests, callback) {
     $.ajax({
-        url: '/requests/' + id,
-        type: 'DELETE'
+        url: '/requests/',
+        type: 'DELETE', 
+        data: {deleteRequests: deleteRequests.toString()}
     }).done(function(response) {
         callback();
     }).fail(function(error) {
@@ -208,11 +183,13 @@ var deleteRequest = function(id, callback) {
     });
 }
 
-// create a new request
-var createRequest = function(fromId, toId, callback) {
+// create new requests regarding the user with userId
+// fromIds: array of ids of users requesting the user with userId
+// toIds: array of ids of user the user with userId wants to request
+var createRequest = function(userId, fromIds, toIds, callback) {
     $.post(
-        '/users/' + fromId + '/requests/',
-        { to: toId }
+        '/users/' + userId + '/requests/',
+        { to: toIds.toString() , from: fromIds.toString()}
     ).done(function(response) {
         callback(response);
     }).fail(function(error) {

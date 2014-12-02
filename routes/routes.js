@@ -153,11 +153,12 @@ module.exports = function(app) {
     });
 
     /*  
-        Create a request from the specified user
+        Create requests regarding the specified user
 
         POST /users/{id}/requests/
         Request Body:
-            - to: id of user to whom the request is made
+            - to: list of ids of users to whom the request is made by the specified user
+            - from: list of ids of users making a request to the specified user
         Response:
             - error: error if there was one
     */
@@ -166,14 +167,15 @@ module.exports = function(app) {
     });
 
     /*  
-        Delete a request
+        Delete requests specified by the body
 
-        DELETE /requests/{id}
-        Request Body:
+        DELETE /requests/
+        Request Body: 
+            - deleteRequests: list of requests to be deleted
         Response:
             - error: error if there was one
     */
-    app.delete('/requests/:id', function(req, res) {
+    app.delete('/requests/', function(req, res) {
         RequestController.delete(req, res);
     });
 
