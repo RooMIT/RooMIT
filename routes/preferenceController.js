@@ -11,24 +11,9 @@ module.exports = {
 
     // create all preferences. should only be called once.
     create: function(req, res) {
-        var responses = ['Yes', 'No', 'Don\'t Care'];
-        getPrefs().forEach(function (desc) {
-            var isDorm = (desc.indexOf('would like to live in') != -1);
-            var isRoommate = (desc.indexOf('would like to live with') != -1);
-            response.forEach(function (response){
-                // setOnInsert and upsert makes it so that it only inserts
-                // if the preference doesn't exist yet
-                Preference.update({description: desc, response: response},
-                    {$setOnInsert: {description: desc, 
-                        response: response, 
-                        isDormPreference: isDorm, 
-                        isRoommateNumberPreference: isRoommate}},
-                    {upsert: true},
-                    function (err) {
-                        if (err) return handleError(res, 500, err);
-                        res.json({ success:true });
-                });
-            });
+        Preference.createPreferences(function(err) 
+            if (err) return handleError(res, 500, err);
+            res.json({ success:true });{
         });
     },
 

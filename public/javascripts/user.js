@@ -33,6 +33,9 @@ $(document).on('click', '#available-group .btn-default', function(event) {
 // click on link to a user's profile
 $(document).on('click', '.user-profile', function(event) {
     event.preventDefault();
+    var user_id = $.cookie('user');
+    if (!user_id) return showLogin();
+
     var id = $(this).attr('value');
     getUser(id, function(res){
         var user = res.user;
@@ -93,10 +96,14 @@ $(document).on('click', '.delete-roommate', function(event) {
 
 // Updates the preference on a click
 $(document).on('click', '.preference-radio-inline', function(event) {
+    var user_id = $.cookie('user');
+    if (!user_id) return showLogin();
+
     var input = this.getElementsByTagName('input')[0];
     var id = input.className;
     var answer = input.value;
     var desc = this.prev('.space').innerHTML;
+    
     $.ajax({
         url: '/preferences/' + id,
         type: 'PUT',
