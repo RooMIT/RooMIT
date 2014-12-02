@@ -9,7 +9,7 @@ var handleError = require('./utils').handleError;
 
 module.exports = {
 
-    // create all preferences. should only be called once.
+    
     create: function(req, res) {
         Preference.createPreferences(function(err) {
             if (err) return handleError(res, 500, err);
@@ -45,14 +45,18 @@ module.exports = {
 
     // initialize preferences for the user
     initialize: function(user, callback){
-        // initially user only has don't cares
-        Preference.find({response: 'Don\'t Care'}, function (err, docs){
-            if (err) return callback(err);
-            var prefIDs = docs.map(function (pref) {
-                return pref._id;
-            });
+        // Creates preferences if they don't exist
+        Preference.createPreferences(function (err) {
+            if (err) return handleError(res, 500, err);
+            // initially user only has don't cares
+            Preference.find({response: 'Don\'t Care'}, function (err, docs){
+                if (err) return callback(err);
+                var prefIDs = docs.map(function (pref) {
+                    return pref._id;
+                });
 
-            user.setPreferences(prefIDs, callback);
+                user.setPreferences(prefIDs, callback);
+            });
         });
     }
 };
