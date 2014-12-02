@@ -161,36 +161,39 @@ var showUserProfile = function(userId) {
     if (!loggedInUserID) return showLogin();
 
     // get the most updated info
-    getUser(userId, function(res) {
-        var user = res.user;
+    getUser(loggedInUserID, function (res1){
+        var loggedInUser = res1.user;
+        getUser(userId, function(res) {
+            var user = res.user;
 
-        // get roommates
-        getRoommates(user._id, function(res2) {
-            user.roommates = res2.roommates;
+            // get roommates
+            getRoommates(user._id, function(res2) {
+                user.roommates = res2.roommates;
 
-            // if user is current user, show personal profile
-            if (userId === loggedInUserID) {
-                switchActive('#profile');
-                $('#content').html(Handlebars.templates['my-profile']({
-                    hasRoommates: user.roommates.length > 0,
-                    user: user
-                }));
+                // if user is current user, show personal profile
+                if (userId === loggedInUserID) {
+                    switchActive('#profile');
+                    $('#content').html(Handlebars.templates['my-profile']({
+                        hasRoommates: user.roommates.length > 0,
+                        user: user
+                    }));
 
-            } else {
-                // else show visitor profile
-                $('li').removeClass('active');
-                // TODO get whether or not the logged in user has requested this dude
-                // var requested = loggedInUser.requested.indexOf(user._id) > -1;
-                var areRoommates = user.group === loggedInUser.group;
-                
-                $('#content').html(Handlebars.templates['profile']({
-                   user: user,
-                   requested: false, 
-                   areRoommates: areRoommates
-                }));
-            }
+                } else {
+                    // else show visitor profile
+                    $('li').removeClass('active');
+                    // TODO get whether or not the logged in user has requested this dude
+                    // var requested = loggedInUser.requested.indexOf(user._id) > -1;
+                    var areRoommates = user.group === loggedInUser.group;
+                    
+                    $('#content').html(Handlebars.templates['profile']({
+                       user: user,
+                       requested: false, 
+                       areRoommates: areRoommates
+                    }));
+                }
+
+            });
 
         });
-
     });
 }
