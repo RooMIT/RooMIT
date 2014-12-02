@@ -170,8 +170,8 @@ module.exports = function(app) {
         GET /user/{id}/requests/
         Request Body: empty
         Response:
-            - requestsTo: list of all requests to the user
-            - requestsFrom: list of all requests from the user
+            - requestsTo: list of all requests to the user (ids)
+            - requestsFrom: list of all requests from the user (ids)
             - error: error if there was one
     */
     app.get('/users/:id/requests/', function(req, res) {
