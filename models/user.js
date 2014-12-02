@@ -139,8 +139,15 @@ UserSchema.methods.setPreferences = function(prefs, callback) {
 // get the roommates of the user
 UserSchema.statics.getRoommates = function(userId, callback) {
     User.findOne({ _id: userId }, 'group', function(err, user) {
-        User.find({ group: user.group }, '_id name email preferences available group', function(err, users) {
-            if (err) return callback(err);
+        if (err) return callback(err);
+
+        // if no group, no roommates
+        if (!user.group) {
+            return callback(undefined, []);
+        }
+
+        User.find({ group: user.group }, '_id name email preferences available group', function(error, users) {
+            if (error) return callback(err);
 
             // filter out the user from roommates
             var roommates = users.filter(function(other) {
@@ -148,7 +155,7 @@ UserSchema.statics.getRoommates = function(userId, callback) {
                 return user._id !== other._id;
             });
 
-            callback(err, roommates);
+            callback(undefined, roommates);
         });
     });
     

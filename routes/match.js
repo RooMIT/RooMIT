@@ -1,23 +1,52 @@
-// filter out all users that don't share any housing preferences
-function filterUsers(self, users) {
-    var acceptableDorms = {};
-    self.preferences.forEach(function(pref) {
-        if (pref.isDormPreference && pref.response !== 'No') {
-            acceptableDorms[pref.description] = true;
-        }
-    });
-
-    var filtered = users.filter(function(user) {
-        //do not change to triple equals. seriously.
-        if (user._id.equals(self._id) || !user.available || !self.available) {
-            return false;
-        }
-        var compatible = user.preferences.filter(function(pref) {
-            return pref.response !== 'No' && acceptableDorms[pref.description];
+ module.exports = {
+    // filter out all users that don't share any housing preferences
+    filterUsers: function(self, users) {
+        var acceptableDorms = {};
+        self.preferences.forEach(function(pref) {
+            if (pref.isDormPreference && pref.response !== 'No') {
+                acceptableDorms[pref.description] = true;
+            }
         });
-        return compatible.length !== 0;
-    });
-    return filtered;
+
+        var filtered = users.filter(function(user) {
+            //do not change to triple equals. seriously.
+            if (user._id.equals(self._id) || !user.available || !self.available) {
+                return false;
+            }
+            var compatible = user.preferences.filter(function(pref) {
+                return pref.response !== 'No' && acceptableDorms[pref.description];
+            });
+            return compatible.length !== 0;
+        });
+        return filtered;
+    },
+
+    findMatches: function(self, users) {
+        var matches = [];
+        var selfPrefs = {};
+        //make it easy to access self prefs by putting them in a dictionary not a list
+        self.preferences.forEach(function(pref) {
+            selfPrefs[pref.description] = pref.response;
+        });
+        users.forEach(function(user) {
+            var match = {};
+            match.id = user._id;
+            match.name = user.name;
+            match.email = user.email;
+            match.fullUser = user;
+            match.value = 0;
+            user.preferences.forEach(function(pref) {
+                var selfPref = selfPrefs[pref.description];
+                var otherPref = pref.response;
+                match.value += matchScore(selfPref, otherPref);
+            });
+            match.value = convertScoreToPercentage(match.value, user.preferences.length);
+            matches.push(match);
+        });
+        return matches.sort(function(a,b) {
+            return b.value - a.value;
+        });
+    }
 }
 
 /**
@@ -69,29 +98,3 @@ function convertScoreToPercentage(score, num_prefs) {
     return score;
 }
 
-function findMatches(self, users) {
-    var matches = [];
-    var selfPrefs = {};
-    //make it easy to access self prefs by putting them in a dictionary not a list
-    self.preferences.forEach(function(pref) {
-        selfPrefs[pref.description] = pref.response;
-    });
-    users.forEach(function(user) {
-        var match = {};
-        match.id = user._id;
-        match.name = user.name;
-        match.email = user.email;
-        match.fullUser = user;
-        match.value = 0;
-        user.preferences.forEach(function(pref) {
-            var selfPref = selfPrefs[pref.description];
-            var otherPref = pref.response;
-            match.value += matchScore(selfPref, otherPref);
-        });
-        match.value = convertScoreToPercentage(match.value, user.preferences.length);
-        matches.push(match);
-    });
-    return matches.sort(function(a,b) {
-        return b.value - a.value;
-    });
-}

@@ -247,7 +247,6 @@ var showRequests = function() {
     // get logged in user
     getUser(user_id, function(res) {
         var user = res.user;
-        // TODO: DO WE NEED THIS???
         // if user not available, don't show any requests
         if (!user.available) {
             $('#content').html(Handlebars.templates['requests']({
@@ -258,13 +257,11 @@ var showRequests = function() {
         }
         
         // fetch requests
-        getRequest(user_id, function(err, result) {
-            requestsToUser = result.requestsTo;
-            requestsFromUser = result.requestsFrom;
+        getRequest(user_id, function(result) {
 
             $('#content').html(Handlebars.templates['requests']({
-                requestsToUser: requestsToUser,
-                requestsFromUser: requestsFromUser
+                requestsToUser: result.requestsTo,
+                requestsFromUser: result.requestsFrom
             }));
         });
 
