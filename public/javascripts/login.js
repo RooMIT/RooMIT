@@ -27,10 +27,8 @@ $(document).ready(function() {
     if (!user_id) return showLogin();
 
     // user logged in
-    getUser(user_id, function(user) {
-        $('#main').html(Handlebars.templates['main']);
-        showUserProfile(user);
-    });
+    $('#main').html(Handlebars.templates['main']);
+    showUserProfile(user_id);
 
 });
 
@@ -115,7 +113,7 @@ var login = function() {
         var user = response.user;
         $.cookie('user', user._id);
         $('#main').html(Handlebars.templates['main']);
-        showUserProfile(user);
+        showUserProfile(user._id);
 
     }).fail(function(error) {
         handleError(error);
@@ -141,7 +139,7 @@ var register = function() {
         var user = response.user;
         $.cookie('user', user._id);
         $('#main').html(Handlebars.templates['main']);
-        showUserProfile(user);
+        showUserProfile(user._id);
     }).fail(function(error) {
         handleError(error);
     });

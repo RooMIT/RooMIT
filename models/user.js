@@ -139,7 +139,7 @@ UserSchema.methods.setPreferences = function(prefs, callback) {
 };
 
 // get the roommates of the user
-UserSchema.methods.getRoommates = function(userId, callback) {
+UserSchema.statics.getRoommates = function(userId, callback) {
     User.findOne({ _id: userId }, 'group', function(err, user) {
         User.find({ group: user.group }, '_id name email preferences available group', function(err, users) {
             if (err) return callback(err);

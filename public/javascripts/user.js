@@ -134,7 +134,7 @@ var updateUser = function(id, fields, callback) {
 // adds a roommate to the user
 var addRoommate = function(id, roommateId, callback) {
     $.ajax({
-        url: '/users/' + id + 'roommates',
+        url: '/users/' + id + '/roommates',
         type: 'PUT',
         data: { roommateId: roommateId }
     }).done(function(response) {
@@ -148,7 +148,7 @@ var addRoommate = function(id, roommateId, callback) {
 // get roommates of a user
 var getRoommates = function(userId, callback) {
     $.get(
-        '/users/' + userId + 'roommates'
+        '/users/' + userId + '/roommates'
     ).done(function(response) {
         callback(response);
     }).fail(function(error) {
