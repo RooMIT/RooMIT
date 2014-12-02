@@ -90,6 +90,26 @@ UserSchema.statics.getUser = function(userId, callback) {
                 .populate('preferences').exec(callback);
 }
 
+// get all of the populated (with preferences) users
+UserSchema.statics.getAllUsers = function(callback) {
+    User.find({}, '_id name email preferences available group')
+                .populate('preferences').exec(callback);
+}
+
+// find the user and validate their password
+UserSchema.statics.login = function(email, password, callback) {
+ User.findOne({ email: email }, '_id name email preferences available group')
+                            .populate('preferences').exec(function(err, user) {
+        if (err) return callback(err);
+        if (!user) return callback('Please create an account');
+        
+        user.verifyPassword(password, function(error, isMatch) {
+            if (!isMatch) return callback('Incorrect password');
+            callback(error, user);
+        });
+    });
+}
+
 // update availability of the user and their roommates
 UserSchema.methods.updateAvailability = function(userId, available, callback) {
     // find the user
