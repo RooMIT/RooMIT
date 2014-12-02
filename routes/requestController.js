@@ -3,8 +3,16 @@
  */
 
 var Request = require('../models/request');
+var User = require('../models/request');
 var handleError = require('./utils').handleError;
 
+var deleteRequest = function(to, from, callback) {
+    Request.getRequestFromTo(from, to, function(err, request) {
+        if (err) return callback(err);
+        Request.findByIdAndRemove(request._id, callback);
+    });
+
+}
 module.exports = {
 
     // create requests
@@ -41,19 +49,29 @@ module.exports = {
         });
     },
 
+
     // delete requests
     delete: function(req, res) {
-        var deleteRequests = req.body.deleteRequests;
-        if (!req.session.userId) return handleError(res, 400, 'Please login first');
-        if (!deleteRequests.length) return handleError(res, 400, 'Requests do not exist');
+        var handleDelete = function(err) {
+            if (err) return handleError(res, 500, err);
+            res.json({success: true});
+        };
 
-        deleteRequests = deleteRequests.split(',');
-
-        deleteRequests.forEach(function(requestId) {
-            Request.findByIdAndRemove(requestId, function(err) {
-                if (err) return handleError(res, 500, err);
-                res.json({ success:true });
-            });
+        var creator_id = req.params.from_id;
+        var receiver_id = req.params.to_id;
+        var self_id = req.session.userId;
+        if (!self_id) return handleError(res, 400, 'Please login first');
+        if (self_id === receiver_id) {
+            //user is the recipient, no need to auth
+            deleteRequest(creator_id, receiver_id, handleDelete);
+        }
+        User.getRoommates(self_id, function(err, roommates) {
+            //allow iff user is roommate of recipient
+            if (roommates.indexOf(receiver_id) === -1) {
+                //logged in user is not a roommate of the receiver, disallow
+                return handleError(res, 400, 'Logged in user not a roommate of recipient');
+            }
+            deleteRequest(creator_id, receiver_id, handleDelete);
         });
     },
 

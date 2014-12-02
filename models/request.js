@@ -19,6 +19,18 @@ RequestSchema.statics.findTo = function(userId, callback) {
     this.find({ to: userId }).exec(callback);
 }
 
+RequestSchema.getRequestFromTo = function(from_id, to_id, callback) {
+    var Request = this;
+    Request.findFrom(from_id, function(err, requests) {
+        if (err) return callback(err);
+        var result = requests.filter(function(request) {
+            return request.to.equals(to_id);
+        });
+        if (!result.length) return callback('Request does not exist');
+        return result[0];
+    })
+}
+
 // get requests to and from the user
 RequestSchema.statics.getRequests = function(userId, callback) {
     var Request = this;

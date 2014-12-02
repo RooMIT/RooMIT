@@ -19,7 +19,7 @@ $(document).on('click', '.cancel', function(event) {
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
 
-    // delete the request
+    // delete the request (and also delete requests to self's roommates)
     deleteRequest(requestID, function() {
         //check if person has roommates
             //if yes, then remove requests to person's roommates
