@@ -35,8 +35,9 @@ module.exports = {
 
         allRequests.forEach(function(request) {
             request.save(function (err, res) {
-            if (err) return handleError(res, 500, err);
-            res.json({ success:true });
+                if (err) return handleError(res, 500, err);
+                res.json({ success:true });
+            });
         });
     },
 
@@ -47,14 +48,14 @@ module.exports = {
         if (!deleteRequests.length) return handleError(res, 400, 'Requests do not exist');
 
         deleteRequests = deleteRequests.split(',');
-        
+
         deleteRequests.forEach(function(requestId) {
             Request.findByIdAndRemove(requestId, function(err) {
                 if (err) return handleError(res, 500, err);
                 res.json({ success:true });
             });
         });
-    }
+    },
 
     // get all requests to/from a user
     get: function(req, res) {

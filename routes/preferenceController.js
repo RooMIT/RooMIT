@@ -11,9 +11,9 @@ module.exports = {
 
     // create all preferences. should only be called once.
     create: function(req, res) {
-        Preference.createPreferences(function(err) 
+        Preference.createPreferences(function(err) {
             if (err) return handleError(res, 500, err);
-            res.json({ success:true });{
+            res.json({ success:true });
         });
     },
 

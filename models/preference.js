@@ -32,9 +32,7 @@ PreferenceSchema.statics.createPreferences = function(callback) {
                     isDormPreference: isDorm, 
                     isRoommateNumberPreference: isRoommate}},
                 {upsert: true}).exec(callback);
-            });
         });
-
     });
 }
 
@@ -65,6 +63,6 @@ var getPrefs = function() {
     ];
 }
 
-PreferenceSchema.createPreference = function()
+//PreferenceSchema.createPreference = function()
 var Preference = mongoose.model('Preference', PreferenceSchema);
 module.exports = Preference;
