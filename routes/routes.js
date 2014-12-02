@@ -99,8 +99,8 @@ module.exports = function(app) {
     });
 
     /*  
-        Modify a user's availability or group 
-        (and thus all their roommates' availability)
+        Modify a user's availability (and thus all their roommates' availability) 
+        or group 
 
         PUT /users/{id}
         Request Body:

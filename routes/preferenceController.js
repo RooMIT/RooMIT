@@ -26,17 +26,20 @@ module.exports = {
                     {upsert: true},
                     function (err) {
                         if (err) return handleError(res, 500, err);
+                        res.json({ success:true });
                 });
             });
         });
     },
 
-    // modify a preference. requires several more inputs now
+    // modify a preference
     update: function(req, res) {
         var oldPrefId = req.params.id;
         var description = req.body.description;
         var response = req.body.response;
         var userID = req.session.userId;
+
+        if (!userID) return handleError(res, 400, 'Please login first');
         
         // sanitize inputs
         if (!(/^Yes|No|Don\'t Care$/).test(response)) {
@@ -57,6 +60,7 @@ module.exports = {
 
     // initialize preferences for the user
     initialize: function(user, callback){
+        // initially user only has don't cares
         Preference.find({response: 'Don\'t Care'}, function (err, docs){
             if (err) return callback(err);
             var prefIDs = docs.map(function (pref) {
