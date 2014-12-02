@@ -39,12 +39,20 @@ $(document).on('click', '.request-roommate', function(event) {
     if (!user_id) return showLogin();
 
     // create the request
-    createRequest(user_id, roommateId, function() {
-        // TODO: if person has roommates, then also send requests to person's roommates. 
-        // refresh the view
-        showUserProfile(user_id);
+    createRequest(user_id, [], [roommateId], function() {
+        // if person has roommates, then also send requests to person's roommates. 
+        getRoommates(roommateId, function(res){
+            var roommates = res.roommates.map(function(elem) {
+                return elem._id;
+            });
+            if (!roommates.length) showUserProfile(user_id); // refresh the view
+            else {
+                createRequest(user_id, [], roommates, function() {
+                    showUserProfile(user_id);
+                }
+            });
+        });
     });
-
 });
 
 // click leave group, removes the user from the group

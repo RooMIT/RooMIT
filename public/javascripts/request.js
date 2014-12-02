@@ -21,13 +21,16 @@ $(document).on('click', '.cancel', function(event) {
 
     // delete the request
     deleteRequest(requestID, function() {
-        //TODO: check if person has roommates
+        //check if person has roommates
             //if yes, then remove requests to person's roommates
         getUser(requestedUserID, function(res){
             var user = res.user
-            getRoommmateIDs(user, function(roommateIDs) {
-                if (!roommateIDs.length) showRequests();
+            getRoommates(user, function(roommates) {
+                if (!roommates.length) showRequests();
                 else {
+                    var roommateIDs = roommates.map(function(elem){
+                        return elem._id;
+                    });
                     getRequestsTo(user_id, roommateIDs, function(requests){
                         if (!requests.length) showRequests();
                         else {
@@ -59,9 +62,12 @@ $(document).on('click', '.deny', function(event) {
             //else nothing
         getUser(user_id, function(res) {
             var user = res.user;
-            getRoommmateIDs(user, function(roommateIDs) {
-                if (!roommateIDs.length) showRequests();
+            getRoommates(user, function(roommates) {
+                if (!roommates.length) showRequests();
                 else {
+                    var roommateIDs = roommates.map(function(elem){
+                        return elem._id;
+                    });
                     getRequestsTo(requestingUserID, roommateIDs, function(requests) {
                         if (!requests.length) showRequests();
                         else {
@@ -102,18 +108,21 @@ $(document).on('click', '.confirm', function(event) {
         // and add requests to new roommate to requests to user and roommates. 
         getUser(user_id, function(res) {
             var user = res.user;
-            getRoommmateIDs(user, function(roommateIDs) {
-                if (!roommateIDs.length) {
+            getRoommates(user, function(roommates) {
+                if (!roommates.length) {
                     getUser(requestingUserID, function(res) {
                         var user = res.user;
-                        getRoommmateIDs(user, function(roommateIDs) {
-                            if (!roommateIDs.length) {
+                        getRoommates(user, function(roommates) {
+                            if (!roommates.length) {
                                 //make group for user and person
-                                updateUser(user_id, {newRoommate: requestingUserID}, function() {
+                                addRoommate(user_id, requestingUserID, function() {
                                     showRequests();
                                 }
                             }
                             else {
+                                var roommateIDs = roommates.map(function(elem){
+                                    return elem._id;
+                                });
                                 //send requests from user to roommates 
                                 createRequest(user_id, [], roommateIDs, function(){
                                     showRequests();
@@ -123,11 +132,14 @@ $(document).on('click', '.confirm', function(event) {
                     });
                 }
                 else {
+                    var roommateIDs = roommates.map(function(elem) {
+                        return elem._id;
+                    });
                     getRequestsTo(requestingUserID, roommateIDs, function(requests){
                         if (!requests.length) showRequests();
                         else {
                             //add requestingUserID to user's group
-                            updateUser(user_id, {newRoommate: requestingUserID}, function(){
+                            addRoommate(user_id, requestingUserID, function(){
                                 //add {requests to user} to {requests to user's new roommate}, and add 
                                 //{requests to new roommate} to {requests to user and roommates}.
                                 getRequest(user_id, function(res){
