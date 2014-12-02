@@ -117,21 +117,22 @@ exports.update = function(req, res) {
     var userId = req.params.id;
     var available = req.body.available;
     var leaveGroup = req.body.leaveGroup;
+    console.log(available, leaveGroup);
 
     // nothing to update
-    if (!available && !leaveGroup) return res.json({ success:true });
+    if (available === undefined && leaveGroup === undefined) return res.json({ success:true });
 
-    if (leaveGroup) {
+    if (leaveGroup !== undefined) {
         // this also makes the user available
-        User.leaveGroup(function (err) {
+        User.leaveGroup(userId, function (err) {
             if (err) return handleError(res, 500, err);
             return res.json({ success:true });
         });
     }
 
-    if (available) {
-        // find the user
-        User.updateAvailability(userId, available, function (err, user) {
+    if (available !== undefined) {
+        console.log("I AM HERE");
+        User.updateAvailability(userId, available, function (err) {
             if (err) return handleError(res, 500, err);
             return res.json({ success:true });
         });
