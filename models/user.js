@@ -17,55 +17,59 @@ var UserSchema = new Schema({
     preferences: [{ type: ObjectId, ref: 'Preference' }]
 });
 
-UserSchema.methods.addRoommate = function (roommateID, callback){
+// adds a roommate to the user's group.
+// this will either add the roommate to the user's group, 
+// add the user to the roommate's group,
+// or make an entirely new group if neither is in a group
+UserSchema.methods.addRoommate = function (roommateID, callback) {
     var user = this;
-    User.findOne({ _id: roommateID }, function (err, roommate){
-        if (err) return callback(err);
-        if (!roommate) return callback('Roommate not found');
 
-        if (user.group != undefined){
-            User.update({_id: roommateID}, {group: this.group}, function (err){
-                callback(err);
+    // if the user has a group, update the roommate to have the same group
+    if (user.group) {
+        User.update({ _id: roommateID }, { group: user.group }, function (err) {
+            return callback(err);
+        });
+    } 
+
+    // now we check if the roommate has a group
+    User.find({ _id: roommateID }, 'group', function(err, roommate) {
+        // if the roommate has a group, update the user to have the same group
+        if (roommate.group) {
+            User.update({ _id: user._id }, { group: roommate.group }, function (err) {
+                return callback(err);
             });
-        } else if (roommate.group != undefined){
-            User.update({_id: this._id}, {group: roommate.group}, function (err){
-                callback(err);
-            });
-        } else {
-            var group = new Group();
-            group.save(function (err){
-                if (err) return callback(err);
-                User.update({_id: this._id}, {group: group._id}, function (err){
-                    if (err) return callback(err);
-                    User.update({_id: roommateID}, {group: group._id}, function (err){
-                        callback(err);
-                    });
-                });
-            });
-        }
+        }  
     });
+    
+    // otherwise, make a new group
+    var group = new Group();
+    group.save(function (err) {
+        if (err) return callback(err);
+        // update both users to share the group
+        User.update({ _id: { $in: [user._id, roommateID] } }, { group: group._id }, function (err) {
+            callback(err);
+        });
+    });
+
 };
 
-var deleteGroup = function(user, callback) {
-    //TODO figure out whether this actually caches group or whether group is deleted
-    var group = user.group;
-    User.update({group: group}, {group: undefined}, function(err) {
-        if (err) return callback(err);
-        var Group = mongoose.model('Group');
-        Group.remove({_id: group}, callback);
-    }
-}
-
-UserSchema.methods.leaveGroup = function (callback){
+// remove the user from their group, also delete the group if there is only 1 user left
+UserSchema.methods.leaveGroup = function (callback) {
     var user = this;
-    User.update({_id: user._id}, {group: undefined}, function (err){
+    // set the user's group to undefined
+    User.update({ _id: user._id }, { group: undefined }, function (err) {
         if (err) return callback(err);
-        User.find({group: group}, function (err, users){
+
+        // now find the remaining amount of users in the group
+        User.find({ group: group }, function (err, users) {
             if (users.length > 1) return callback(err);
+
+            // if there is only 1 user in the group, destroy the group
             var user = users[0];
-            deleteGroup(user, callback);
+            Group.remove({ _id: user.group }, callback);
             }
         });
+
     });
 };
 
@@ -95,15 +99,14 @@ UserSchema.methods.updateAvailability = function(userId, available, callback) {
 }
 
 UserSchema.methods.updateAvailability = function(available, callback) {
-        var user = this;
-        var groupId = user.group;
-        var availableBoolean = available === 'True' || available === 'true';
+    var user = this;
+    var groupId = user.group;
+    var availableBoolean = available === 'True' || available === 'true';
 
-        var User = mongoose.model('User');
-        // update the availability of everyone in the user's group
-        User.update({ group: groupId }, { available: availableBoolean }, function(error) {
-            callback(error);
-        });
+    var User = mongoose.model('User');
+    // update the availability of everyone in the user's group
+    User.update({ group: groupId }, { available: availableBoolean }, function(error) {
+        callback(error);
     });
 };
 
