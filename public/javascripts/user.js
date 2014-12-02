@@ -49,8 +49,8 @@ $(document).on('click', '.request-roommate', function(event) {
             else {
                 createRequest(user_id, [], roommates, function() {
                     showUserProfile(user_id);
-                }
-            });
+                });
+            }
         });
     });
 });

@@ -78,7 +78,7 @@ $(document).on('click', '.deny', function(event) {
                     });
                 }
             });
-        }
+        });
     });
 });
 
@@ -117,7 +117,7 @@ $(document).on('click', '.confirm', function(event) {
                                 //make group for user and person
                                 addRoommate(user_id, requestingUserID, function() {
                                     showRequests();
-                                }
+                                });
                             }
                             else {
                                 var roommateIDs = roommates.map(function(elem){
