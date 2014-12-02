@@ -67,7 +67,6 @@ UserSchema.methods.leaveGroup = function (callback) {
             // if there is only 1 user in the group, destroy the group
             var user = users[0];
             Group.remove({ _id: user.group }, callback);
-            }
         });
 
     });
@@ -85,8 +84,10 @@ UserSchema.methods.getRequests = function(callback) {
     Request.getRequests(user._id, callback);
 };
 
+// get the populated (with preferences) user
 UserSchema.statics.getUser = function(userId, callback) {
-    User.findOne({_id: userId}, function(callback);
+    User.findOne({ _id: userId }, '_id name email preferences available group')
+                .populate('preferences').exec(callback);
 }
 
 // update availability of the user and their roommates
@@ -103,7 +104,6 @@ UserSchema.methods.updateAvailability = function(available, callback) {
     var groupId = user.group;
     var availableBoolean = available === 'True' || available === 'true';
 
-    var User = mongoose.model('User');
     // update the availability of everyone in the user's group
     User.update({ group: groupId }, { available: availableBoolean }, function(error) {
         callback(error);
@@ -125,6 +125,7 @@ UserSchema.methods.getRoommates = function(user, callback) {
     User.find({ group: user.group }, '_id name email preferences available group', function(err, users) {
         if (err) return callback(err);
 
+        // filter out the user from roommates
         var roommates = users.filter(function(other) {
             return user._id !== other._id;
         });

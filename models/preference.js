@@ -13,8 +13,7 @@ var PreferenceSchema = new Schema({
 });
 
 PreferenceSchema.statics.findPreference = function(description, response, callback) {
-    var Preference = this;
-    Preference.findOne({description: description, response: response}, callback);
+    Preference.findOne({ description: description, response: response }, callback);
 }
 
 PreferenceSchema.createPreference = function()
