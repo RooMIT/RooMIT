@@ -54,28 +54,31 @@ UserSchema.methods.addRoommate = function (roommateID, callback) {
 };
 
 // remove the user from their group, also delete the group if there is only 1 user left
-UserSchema.methods.leaveGroup = function (callback) {
-    var user = this;
-    // set the user's group to undefined and availability to true
-    User.update({ _id: user._id }, { group: undefined, available: true }, function (err) {
-        if (err) return callback(err);
+UserSchema.statics.leaveGroup = function (userId, callback) {
+    // get the user to find their group
+    User.findOne({ _id: userId }, 'group', function(err, user) {
 
-        // now find the remaining amount of users in the group
-        User.find({ group: group }, function (err, users) {
-            if (users.length > 1) return callback(err);
+        // set the user's group to undefined and availability to true
+        User.update({ _id: userId }, { group: undefined, available: true }, function (error) {
+            if (error) return callback(error);
 
-            // if there is only 1 user in the group, destroy the group
-            var user = users[0];
-            Group.remove({ _id: user.group }, callback);
+            // now find the remaining amount of users in the group
+            User.find({ group: user.group }, function (error2, users) {
+                if (error2) return callback(error2);
+                if (users.length > 1) return callback(undefined);
+
+                // if there is only 1 user in the group, destroy the group
+                var user = users[0];
+                Group.remove({ _id: user.group }, callback);
+            });
         });
 
     });
 };
 
 UserSchema.methods.verifyPassword = function (enteredPassword, callback) {
-    bcrypt.compare(enteredPassword, this.password, function(err, isMatch) {
-        callback(err, isMatch);
-    });
+    var user = this;
+    bcrypt.compare(enteredPassword, user.password, callback);
 };
 
 // get requests to and from the user
@@ -98,11 +101,10 @@ UserSchema.statics.getAllUsers = function(callback) {
 
 // find the user and validate their password
 UserSchema.statics.login = function(email, password, callback) {
- User.findOne({ email: email }, '_id name email preferences available group')
-                            .populate('preferences').exec(function(err, user) {
+    User.findOne({ email: email }).populate('preferences').exec(function(err, user) {
         if (err) return callback(err);
         if (!user) return callback('Please create an account');
-        
+
         user.verifyPassword(password, function(error, isMatch) {
             if (!isMatch) return callback('Incorrect password');
             callback(error, user);
@@ -111,24 +113,22 @@ UserSchema.statics.login = function(email, password, callback) {
 }
 
 // update availability of the user and their roommates
-UserSchema.methods.updateAvailability = function(userId, available, callback) {
-    // find the user
+UserSchema.statics.updateAvailability = function(userId, available, callback) {
+    // find the user to find their group
     User.findOne({ _id: userId }, function (err, user) {
         if (err) return callback(err);
-        user.updateAvailability(available, callback);
+
+        var availableBoolean = available === 'True' || available === 'true';
+
+        // if the user doesn't have a group, just update them
+        if (!user.group) {
+            return User.update({ _id: userId }, { available: availableBoolean }).exec(callback);
+        }
+
+        // if there is a group, update the availability of everyone in the user's group
+        User.update({ group: user.group }, { available: availableBoolean }).exec(callback);
     });
 }
-
-UserSchema.methods.updateAvailability = function(available, callback) {
-    var user = this;
-    var groupId = user.group;
-    var availableBoolean = available === 'True' || available === 'true';
-
-    // update the availability of everyone in the user's group
-    User.update({ group: groupId }, { available: availableBoolean }, function(error) {
-        callback(error);
-    });
-};
 
 // set all of the user's preferences and return the new user object
 UserSchema.methods.setPreferences = function(prefs, callback) {
@@ -141,8 +141,15 @@ UserSchema.methods.setPreferences = function(prefs, callback) {
 // get the roommates of the user
 UserSchema.statics.getRoommates = function(userId, callback) {
     User.findOne({ _id: userId }, 'group', function(err, user) {
-        User.find({ group: user.group }, '_id name email preferences available group', function(err, users) {
-            if (err) return callback(err);
+        if (err) return callback(err);
+
+        // if no group, no roommates
+        if (!user.group) {
+            return callback(undefined, []);
+        }
+
+        User.find({ group: user.group }, '_id name email preferences available group', function(error, users) {
+            if (error) return callback(err);
 
             // filter out the user from roommates
             var roommates = users.filter(function(other) {
@@ -150,7 +157,7 @@ UserSchema.statics.getRoommates = function(userId, callback) {
                 return user._id !== other._id;
             });
 
-            callback(err, roommates);
+            callback(undefined, roommates);
         });
     });
     

@@ -16,22 +16,36 @@ PreferenceSchema.statics.findPreference = function(description, response, callba
     Preference.findOne({ description: description, response: response }, callback);
 }
 
-// create all the preference in the database. should only be called once
+// create all the preference in the database. does not overwrite existing entries
 PreferenceSchema.statics.createPreferences = function(callback) {
-    var responses = ['Yes', 'No', 'Don\'t Care'];
-    getPrefs().forEach(function (desc) {
-        var isDorm = (desc.indexOf('would like to live in') != -1);
-        var isRoommate = (desc.indexOf('would like to live with') != -1);
-        
-        response.forEach(function (response) {
-            // setOnInsert and upsert makes it so that it only inserts
-            // if the preference doesn't exist yet
-            Preference.update({description: desc, response: response},
-                {$setOnInsert: {description: desc, 
-                    response: response, 
+    Preference.find({}, function (err, results) {
+        if (err){
+            return callback(err);
+        }
+        if (results.length != 0){
+            return callback(err);
+        }
+        var responses = ['Yes', 'No', 'Don\'t Care'];
+        var inserts = [];
+        var prefs = getPrefs();
+        for (i in prefs){
+            var desc = prefs[i];
+            var isDorm = (desc.indexOf('would like to live in') != -1);
+            var isRoommate = (desc.indexOf('would like to live with') != -1);
+            for (j in responses){
+                var current = {
+                    description: desc,
+                    response: responses[j], 
                     isDormPreference: isDorm, 
-                    isRoommateNumberPreference: isRoommate}},
-                {upsert: true}).exec(callback);
+                    isRoommateNumberPreference: isRoommate
+                };
+                inserts.push(current);
+            }
+        }
+        // setOnInsert and upsert makes it so that it only inserts
+        // if the preference doesn't exist yet
+        Preference.collection.insert(inserts, function (err) {
+            callback(err);
         });
     });
 }
@@ -43,6 +57,9 @@ var getPrefs = function() {
         'I am female and would like to have a male roommate.',
         'I am male and would like to have a female roommate.',
         'I am female and would like to have a female roommate.',
+        'I would like to live with 1 roommate.',
+        'I would like to live with 2 roommate.',
+        'I would like to live with 3 roommate.',
         'I would like to live in Maseeh.',
         'I would like to live in Simmons.',
         'I would like to live in East Campus.',
