@@ -76,11 +76,22 @@ exports.get = function(req, res) {
 
 exports.getAll = function(req, res) {
     if (!req.session.userId) return handleError(res, 400, 'Please login first');
+    
     User.getAllUsers(function(err, users) {
         if (err) return handleError(res, 500, err);
         res.json({users: users});
     });
 };
+
+exports.getRoommates = function(req, res) {
+    if (!req.session.userId) return handleError(res, 400, 'Please login first');
+    var userId = req.params.id;
+
+    User.getRoommates(userId, function(err, roommates) {
+        if (err) return handleError(res, 500, err);
+        res.json({roommates: roommates});
+    });
+}
 
 exports.getMatches = function(req, res) {
     var logged_in_id = req.session.userId;
@@ -105,13 +116,14 @@ exports.update = function(req, res) {
     if (!req.session.userId) return handleError(res, 400, 'Please login first');
     var userId = req.params.id;
     var available = req.body.available;
-    var newRoommate = req.body.newRoommate;
+    var leaveGroup = req.body.leaveGroup;
 
     // nothing to update
-    if (!available && !newRoommate) return res.json({ success:true });
+    if (!available && !leaveGroup) return res.json({ success:true });
 
-    if (newRoommate) {
-        User.addRoommate(newRoommate, function (err) {
+    if (leaveGroup) {
+        // this also makes the user available
+        User.leaveGroup(function (err) {
             if (err) return handleError(res, 500, err);
             return res.json({ success:true });
         });
@@ -124,6 +136,21 @@ exports.update = function(req, res) {
             return res.json({ success:true });
         });
     }
+}
+
+// add a new roommate to the user
+exports.addRoommate = function(req, res) {
+    if (!req.session.userId) return handleError(res, 400, 'Please login first');
+    var userId = req.params.id;
+    var roommateId = req.body.roommateId;
+
+    // nothing to update
+    if (!roommateId) return res.json({ success:true });
+
+    User.addRoommate(newRoommate, function (err) {
+        if (err) return handleError(res, 500, err);
+        return res.json({ success:true });
+    });
 };
 
 module.exports = exports;

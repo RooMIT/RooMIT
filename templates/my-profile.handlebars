@@ -21,8 +21,9 @@
 
 <h5>Roommates: </h5>
 {{#each user.roommates}}
-   <div><a class='user-profile' value='{{_id}}' href='#'> {{name}} </a> <button class='btn btn-default delete-roommate' value='{{_id}}' type='button'>Delete Roommate</button></div>
+   <div><a class='user-profile' value='{{_id}}' href='#'> {{name}} </a></div>
 {{/each}}
+<button class='btn btn-default leave-group' type='button'>Leave Group</button>
 
 <br><br>
 

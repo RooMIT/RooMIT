@@ -56,8 +56,8 @@ UserSchema.methods.addRoommate = function (roommateID, callback) {
 // remove the user from their group, also delete the group if there is only 1 user left
 UserSchema.methods.leaveGroup = function (callback) {
     var user = this;
-    // set the user's group to undefined
-    User.update({ _id: user._id }, { group: undefined }, function (err) {
+    // set the user's group to undefined and availability to true
+    User.update({ _id: user._id }, { group: undefined, available: true }, function (err) {
         if (err) return callback(err);
 
         // now find the remaining amount of users in the group
@@ -141,18 +141,21 @@ UserSchema.methods.setPreferences = function(prefs, callback) {
 };
 
 // get the roommates of the user
-UserSchema.methods.getRoommates = function(user, callback) {
-    User.find({ group: user.group }, '_id name email preferences available group', function(err, users) {
-        if (err) return callback(err);
+UserSchema.methods.getRoommates = function(userId, callback) {
+    User.findOne({ _id: userId }, 'group', function(err, user) {
+        User.find({ group: user.group }, '_id name email preferences available group', function(err, users) {
+            if (err) return callback(err);
 
-        // filter out the user from roommates
-        var roommates = users.filter(function(other) {
-            //FIXME remember all that stuff about ids and equality...this might fail idk
-            return user._id !== other._id;
+            // filter out the user from roommates
+            var roommates = users.filter(function(other) {
+                //FIXME remember all that stuff about ids and equality...this might fail idk
+                return user._id !== other._id;
+            });
+
+            callback(err, roommates);
         });
-
-        callback(err, roommates);
     });
+    
 };
 
 // encrypt password before save
