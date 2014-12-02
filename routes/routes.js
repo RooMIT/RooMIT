@@ -105,7 +105,7 @@ module.exports = function(app) {
         PUT /users/{id}
         Request Body:
             - available: whether or not they are available (optional)
-            - newRoommate: user id of new roommate (optional)
+            - leaveGroup: true if the user has left their group (optional)
         Response:
             - error: error if there was one
     */
@@ -136,6 +136,32 @@ module.exports = function(app) {
     */
     app.put('/preferences/:id', function(req, res) {
         PreferenceController.update(req, res);
+    });
+
+    /*
+        Get the user's roommates (not including themselves)
+
+        GET /user/{id}/roommates/
+        Request Body: empty
+        Response:
+            - roommates: list of all roommates (users)
+            - error: error if there was one
+    */
+    app.get('/users/:id/roommates/', function(req, res) {
+        UserController.getRoommates(req, res);
+    });
+
+    /*
+        Add a new roommate to the user
+
+        PUT /user/{id}/roommates/
+        Request Body:
+            - roommateId: id of roommate to be added
+        Response:
+            - error: error if there was one
+    */
+    app.put('/users/:id/roommates/', function(req, res) {
+        UserController.addRoommate(req, res);
     });
 
     /*
