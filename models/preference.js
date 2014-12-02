@@ -63,6 +63,7 @@ var getPrefs = function() {
     ];
 }
 
+//TODO: I commented out the following line of code. Should it be there? FIXME
 //PreferenceSchema.createPreference = function()
 var Preference = mongoose.model('Preference', PreferenceSchema);
 module.exports = Preference;
