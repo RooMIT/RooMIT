@@ -133,11 +133,9 @@ UserSchema.methods.updateAvailability = function(available, callback) {
 // set all of the user's preferences and return the new user object
 UserSchema.methods.setPreferences = function(prefs, callback) {
     var user = this;
-    User.findOneAndUpdate({ id: user._id }, { preferences : prefs }, 
+    User.findOneAndUpdate({ _id: user._id }, { preferences : prefs }, 
                     '_id name email preferences available group')
-                    .populate('preferences').exec(function(err, updatedUser) {
-        callback(err, updatedUser);
-    });
+                    .populate('preferences').exec(callback);
 };
 
 // get the roommates of the user
