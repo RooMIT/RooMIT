@@ -127,6 +127,7 @@ UserSchema.methods.getRoommates = function(user, callback) {
 
         // filter out the user from roommates
         var roommates = users.filter(function(other) {
+            //FIXME remember all that stuff about ids and equality...this might fail idk
             return user._id !== other._id;
         });
 
