@@ -32,12 +32,17 @@ module.exports = {
         }
 
         Preference.findOne({response: response, description: description}, function (err, pref){
-            User.update({_id: userID}, 
-                {$pull: {"preferences" : oldPrefId}, 
-                $push: {"preferences" : pref._id}}, 
+            User.findOneAndUpdate({_id: userID}, 
+                {$pull: {"preferences" : oldPrefId}}, 
                 function (err){
                     if (err) return handleError(res, 500, err);
-                    res.json({ success:true });
+                    User.findOneAndUpdate({_id: userID},
+                        {$addToSet: {"preferences" : pref._id}},
+                        function (err){
+                            if (err) return handleError(res, 500, err);
+                            res.json({ success:true });
+                        }
+                    );
                 }
             );
         });
