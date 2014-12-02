@@ -43,7 +43,7 @@ exports.create = function(req, res) {
     var errorMessage = validateFields(params);
     if (errorMessage) return handleError(res, 400, errorMessage);
     
-    var newUser = new User({ name: params.name, email: params.email, password: param.password });
+    var newUser = new User({ name: params.name, email: params.email, password: params.password });
     User.save(params, function(err, user) {
         if (err && err.code == 11000) return handleError(res, 400, 'Email already in use');
         if (err) return handleError(res, 500, err);
