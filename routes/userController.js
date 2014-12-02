@@ -44,7 +44,7 @@ exports.create = function(req, res) {
     if (errorMessage) return handleError(res, 400, errorMessage);
     
     var newUser = new User({ name: params.name, email: params.email, password: params.password });
-    User.save(params, function(err, user) {
+    newUser.save(function(err, user) {
         if (err && err.code == 11000) return handleError(res, 400, 'Email already in use');
         if (err) return handleError(res, 500, err);
         
@@ -53,7 +53,7 @@ exports.create = function(req, res) {
             if (!user) return handleError(res, 404, 'User not found');
             
             req.session.userId = user._id;
-            res.json({user: user});
+            res.json({ user: user });
         });
     });
 };

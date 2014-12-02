@@ -6,7 +6,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var ObjectId = Schema.Types.ObjectId;
 var bcrypt = require('bcrypt');
-var Group = require('../models/Group');
+var SALT_WORK_FACTOR = 10;
 
 var UserSchema = new Schema({
     name: { type: String, required: true },
