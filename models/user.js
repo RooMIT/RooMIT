@@ -116,7 +116,7 @@ UserSchema.methods.updateAvailability = function(userId, available, callback) {
     User.findOne({ _id: userId }, function (err, user) {
         if (err) return callback(err);
         user.updateAvailability(available, callback);
-    }
+    });
 }
 
 UserSchema.methods.updateAvailability = function(available, callback) {

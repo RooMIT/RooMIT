@@ -14,7 +14,7 @@ GroupSchema.pre('remove', function(next) {
 
     User.update({ group: groupId }, { group: undefined }, function(err) {
         next(err);
-    }
+    });
 });
 
 var Group = mongoose.model('Group', GroupSchema);
