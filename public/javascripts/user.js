@@ -175,7 +175,8 @@ var showUserProfile = function(userId) {
             // if user is current user, show personal profile
             if (userId === loggedInUserID) {
                 $('#content').html(Handlebars.templates['my-profile']({
-                   user: user
+                    hasRoommates: user.roommates.length > 0,
+                    user: user
                 }));
 
             } else {

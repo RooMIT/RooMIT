@@ -73,9 +73,8 @@ UserSchema.methods.leaveGroup = function (callback) {
 };
 
 UserSchema.methods.verifyPassword = function (enteredPassword, callback) {
-    bcrypt.compare(enteredPassword, this.password, function(err, isMatch) {
-        callback(err, isMatch);
-    });
+    var user = this;
+    bcrypt.compare(enteredPassword, user.password, callback);
 };
 
 // get requests to and from the user
@@ -98,11 +97,10 @@ UserSchema.statics.getAllUsers = function(callback) {
 
 // find the user and validate their password
 UserSchema.statics.login = function(email, password, callback) {
- User.findOne({ email: email }, '_id name email preferences available group')
-                            .populate('preferences').exec(function(err, user) {
+    User.findOne({ email: email }).populate('preferences').exec(function(err, user) {
         if (err) return callback(err);
         if (!user) return callback('Please create an account');
-        
+
         user.verifyPassword(password, function(error, isMatch) {
             if (!isMatch) return callback('Incorrect password');
             callback(error, user);
@@ -141,8 +139,15 @@ UserSchema.methods.setPreferences = function(prefs, callback) {
 // get the roommates of the user
 UserSchema.statics.getRoommates = function(userId, callback) {
     User.findOne({ _id: userId }, 'group', function(err, user) {
-        User.find({ group: user.group }, '_id name email preferences available group', function(err, users) {
-            if (err) return callback(err);
+        if (err) return callback(err);
+
+        // if no group, no roommates
+        if (!user.group) {
+            return callback(undefined, []);
+        }
+
+        User.find({ group: user.group }, '_id name email preferences available group', function(error, users) {
+            if (error) return callback(err);
 
             // filter out the user from roommates
             var roommates = users.filter(function(other) {
@@ -150,7 +155,7 @@ UserSchema.statics.getRoommates = function(userId, callback) {
                 return user._id !== other._id;
             });
 
-            callback(err, roommates);
+            callback(undefined, roommates);
         });
     });
     
