@@ -149,19 +149,19 @@ module.exports = function(app) {
             - error: error if there was one
     */
     app.get('/users/:id/requests/', function(req, res) {
-        RequestController.getAll(req, res);
+        RequestController.get(req, res);
     });
 
     /*  
         Create a request from the specified user
 
-        POST /users/{id}requests/
+        POST /users/{id}/requests/
         Request Body:
             - to: id of user to whom the request is made
         Response:
             - error: error if there was one
     */
-    app.post('/users/{id}/requests/', function(req, res) {
+    app.post('/users/:id/requests/', function(req, res) {
         RequestController.create(req, res);
     });
 

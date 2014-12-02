@@ -155,11 +155,8 @@ var getRoommateIDs = function(user, callback) {
         var userGroup = user.group; 
         getAll(function(res){
             var users = res.users;
-            var roommateIDs = [];
-            for (var i = 0; i < users.length; i++){
-                if (users[i].group === userGroup && users[i]._id !== user._id) {
-                    roommateIDs.push(users[i]._id); 
-                }
+            var roommateIDs = user.filter(function(elem){
+                return elem.group === userGroup && elem._id !== user._id;
             }
             callback(roommateIDs);
         });

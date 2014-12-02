@@ -26,10 +26,10 @@ $(document).on('click', '.cancel', function(event) {
         getUser(requestedUserID, function(res){
             var user = res.user
             getRoommmateIDs(user, function(roommateIDs) {
-                if (roommateIDs.length === 0) showRequests();
+                if (!roommateIDs.length) showRequests();
                 else {
-                    getRequests([user_id], roommateIDs, function(requests){
-                        if (requests.length === 0) showRequests();
+                    getRequestsTo(user_id, roommateIDs, function(requests){
+                        if (!requests.length) showRequests();
                         else {
                             var index = 0;
                             var recurseDelete = function(){
@@ -47,10 +47,6 @@ $(document).on('click', '.cancel', function(event) {
                 }
             });
         });
-        //added frontend functions to: 
-            //get roommate id's
-            //(get requests from id, to group of id's)
-            //delete list of requests
     });
 });
 
@@ -72,10 +68,10 @@ $(document).on('click', '.deny', function(event) {
         getUser(user_id, function(res) {
             var user = res.user;
             getRoommmateIDs(user, function(roommateIDs) {
-                if (roommateIDs.length === 0) showRequests();
+                if (!roommateIDs.length) showRequests();
                 else {
-                    getRequests([requestingUserID], roommateIDs, function(requests) {
-                        if (requests.length === 0) showRequests();
+                    getRequestsTo(requestingUserID, roommateIDs, function(requests) {
+                        if (!requests.length) showRequests();
                         else {
                             var index = 0;
                             var recurseDelete = function(){
@@ -125,11 +121,11 @@ $(document).on('click', '.confirm', function(event) {
         getUser(user_id, function(res) {
             var user = res.user;
             getRoommmateIDs(user, function(roommateIDs) {
-                if (roommateIDs.length === 0) {
+                if (!roommateIDs.length) {
                     getUser(requestingUserID, function(res) {
                         var user = res.user;
                         getRoommmateIDs(user, function(roommateIDs) {
-                            if (roommateIDs.length===0) {
+                            if (!roommateIDs.length) {
                                 //make group for user and person
                                 updateUser(user_id, {newRoommate: requestingUserID}, function() {
                                     showRequests();
@@ -153,15 +149,32 @@ $(document).on('click', '.confirm', function(event) {
                     });
                 }
                 else {
-                    getRequests([requestingUserID], roommateIDs, function(requests){
-                        if (requests.length === 0) showRequests();
+                    getRequestsTo(requestingUserID, roommateIDs, function(requests){
+                        if (!requests.length) showRequests();
                         else {
                             //add requestingUserID to user's group
                             updateUser(user_id, {newRoommate: requestingUserID}, function(){
                                 //add {requests to user} to {requests to user's new roommate}, and add 
                                 //{requests to new roommate} to {requests to user and roommates}.
-                                //TODO: NOT DONE
+                                getRequest(user_id, function(res){
+                                    var requestsTo = res.requestsTo;
 
+                                    //list of ids of users that have sent requests to logged in user
+                                    //TODO: create requests from these users to requestingUserID
+                                    var requestsToUser = requestsTo.map(function(elem) {
+                                        return elem.from._id;
+                                    });
+                                    
+                                    getRequest(requestingUserID, function(res) {
+                                        var requestsTo = res.requestsTo;
+
+                                        //list of ids of users that requested new roommate
+                                        //TODO: create requests from these users to the user and existing roommates
+                                        var requestsToNewRoommate = requestsTo.map(function(elem) {
+                                            return elem.from._id;
+                                        });
+                                    });
+                                });
                                 /*
                                 var index = 0;
                                 var recurseCreate = function(){
@@ -181,10 +194,6 @@ $(document).on('click', '.confirm', function(event) {
             });
         });
     });
-    //need functions to: 
-        //get roommate ids
-        //get requests from id, to group of id's
-        //create requests from group of ids to id
 });
 
 // delete request
@@ -222,17 +231,16 @@ var getRequest = function(userId, callback) {
     });
 }
 
-//get requests from a list of specified users to a list of specified users
-var getRequests = function(from, to, callback) {
-    getRequestsAll(function(res){
-        var requests = res.requests;
-        var newRequests = [];
-        for (var i = 0; i<requests.length; i++){
-            if (from.indexOf(requests[i].from) > -1 && to.indexOf(requests[i].to) > -1 ) {
-                newRequests.push(requests[i]._id);
-            }
-        }
-        callback(newRequests);
+//get requests from a user to a list of specified users
+var getRequestsTo = function(userId, to, callback) {
+    getRequest(userId, function(res){
+        var requestsFrom = res.requestsFrom;
+
+        requestsFrom = requestsFrom.filter(function(elem) {
+            return to.indexOf(elem.to._id) > -1;
+        });
+
+        callback(requestsFrom);
     });
 }
 
