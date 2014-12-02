@@ -1,28 +1,44 @@
 /**
- * Authors: Rujia Zha, George Du
+ * Authors: Rujia Zha
  */
 
 (function() {
-  var connectionString = 'http://teammotivate-dug.rhcloud.com/';
-  // var connectionString = 'http://localhost:8080/';
+  var connectionString = 'http://localhost:8080/';
 
   asyncTest('creating the same user again', function() {
     $.ajax({
       type: 'POST',
-      url: connectionString + 'users',
+      url: '/users/',
       dataType: 'json',
-      data: { username: 'testuser', password: 'asdfjkll' },
+      data: { name: 'testuser', email: 'testuser@mit.edu', password: 'asdfjkll' },
       success : function(data) {
         console.log(data);
-        ok(!data.success);
+        ok(data.success);
         start();
       },
       failure : function(err) {
         console.log('Test failed with error: ' + err);
       }
     });
-  });
+/*
+    $.ajax({
+        url: '/preferences/' + id,
+        type: 'PUT',
+        data: {description: desc,  response: answer}
+    }).done(function(response) {
+        // update the ui accodingly
+        $('.'+id).each(function() {
+            if (this.value !== answer){
+                $(this).prop('checked', false);
+            }
+        });
+    }).fail(function(error) {
+        handleError(error);
+    }); */
 
+  }); 
+
+/*
   asyncTest('logging in user', function() {
     $.ajax({
       type: 'POST',
@@ -234,5 +250,5 @@
         console.log('Test failed with error : ' + err);
       }
     });
-  });
+  }); */
 })();

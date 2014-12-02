@@ -5,8 +5,13 @@
 var UserController = require('./userController');
 var PreferenceController = require('./preferenceController');
 var RequestController = require('./requestController');
+var path = require('path');
 
 module.exports = function(app) {
+
+    app.get('/test', function(request, response) {
+      response.sendFile(path.join(__dirname, '../public', '/test/testing.html'));
+    });
 
     app.get('/', function(req, res) {
         res.locals.token = req.csrfToken();
