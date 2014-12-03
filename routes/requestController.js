@@ -7,20 +7,8 @@ var User = require('../models/user');
 var handleError = require('./utils').handleError;
 
 var acceptRequest = function(creator_id, receiver_id, req, res) {
-    User.getRoommates()
-}
+    Request.acceptRequest(creator_id, receiver_id, function(err, result) {
 
-var rejectRequest = function(creator_id, receiver_id, req, res) {
-    //delete all requests from creator to receiver as well as to roommates of receiver
-    User.getRoommates(receiver_id, function(err, roommates) {
-        var recipients = roommates.map(function(roommate) {
-            return roommate._id.toString();
-        });
-        recipients.push(receiver_id);
-        Request.remove({from: creator_id, to: {$in: recipients}}, function(err) {
-            if (err) return handleError(res, 500, err);
-            res.json({success: true});
-        });
     });
 }
 
@@ -43,13 +31,13 @@ var modifyRequest = function(req, res) {
     var cancel = req.session.cancel;
 
     if (accept) {
-        acceptRequest(creator_id, receiver_id, req, res);
+        Request.acceptRequest(creator_id, receiver_id, req, res);
     }
     else if(reject) {
-        rejectRequest(creator_id, receiver_id, req, res);
+        Request.rejectRequest(creator_id, receiver_id, req, res);
     }
     else if(cancel) {
-        cancelRequest(creator_id, receiver_id, req, res);
+        Request.cancelRequest(creator_id, receiver_id, req, res);
     }
     else {
         res.json({success: true});
@@ -72,10 +60,7 @@ module.exports = {
 
 
     // modify requests
-    update: function(req, res) {
-
-        
-    },
+    modify: modifyRequest,
 
     // get all requests to/from a user
     get: function(req, res) {

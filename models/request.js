@@ -20,7 +20,7 @@ RequestSchema.statics.findTo = function(userId, callback) {
     this.find({ to: userId }).populate('from', '_id name').exec(callback);
 }
 
-RequestSchema.statics.createRequest = function (creator_id, receiver_id, callback){
+RequestSchema.statics.createRequest = function (creator_id, receiver_id, include_receiver, callback){
     var Request = this;
     User.getUser(creator_id, function(err, creator) {
         //Check if other user has roommates
@@ -32,7 +32,7 @@ RequestSchema.statics.createRequest = function (creator_id, receiver_id, callbac
             var recipients= other_roommates.map(function(roommate) {
                 return roommate._id;
             });
-            recipients.push(receiver_id);
+            include_receiver && recipients.push(receiver_id);
             Request.getRequestsFromOneToMany(creator_id, recipients, function(err, requests) {
                 //If creator has any outstanding requests to roommates of receiver, disallow request
                 if (requests.length) {
@@ -45,6 +45,64 @@ RequestSchema.statics.createRequest = function (creator_id, receiver_id, callbac
             });
         });
     });
+}
+
+RequestSchema.acceptRequest = function(creator_id, receiver_id, callback) {
+    User.getUser(creator_id, function(err, creator) {
+        User.getRoommates(receiver_id, function(err, roommates) {
+            if (creator.group && roommates.length > 0) {
+                //somehow both users have groups already...disregard the request entirely
+                this.cancelRequest(creator_id, receiver_id, callback);
+            }
+            else if (creator.group) {
+                //Receiver is an individual accepting a request from a person in a group. 
+                //That means he must now send requests out to all other group members.
+                Request.remove({from: creator_id, to: receiver_id}, function(err) {
+                    if (err) return callback(err);
+                    this.createRequest(receiver_id, creator_id, callback);
+                });
+            }
+            else if (roommates.length > 0) {
+                //Receiver is a person in a group accepting a request from an individual.
+                //That means he must now see if all other group members have also accepted their requests
+                var recipients = roommates.map(function(roommate) {
+                    return roommate._id;
+                });
+                Request.getRequestsFromOneToMany(creator_id, recipients, function(err, requests) {
+                    if (err) return callback(err);
+                    if (requests.length) {
+                        //Not all of receiver's roommates have accepted their requests, so just delete ours and move on.
+                        Request.remove({from: creator_id, to: receiver_id}, callback);
+                    }
+                    else {
+                        //We are the last roommate to accept a request, so let's do a matching
+                        // do stuff
+                    }
+
+                })
+            }
+        });
+    });
+        User.getRoommates(creator_id, function(err, creator_roommates))
+    })
+}
+
+RequestSchema.statics.rejectRequest = function(creator_id, receiver_id, callback) {
+    var Request = this;
+    //delete all requests from creator to receiver as well as to roommates of receiver
+    User.getRoommates(receiver_id, function(err, roommates) {
+        var recipients = roommates.map(function(roommate) {
+            return roommate._id.toString();
+        });
+        recipients.push(receiver_id);
+        Request.remove({from: creator_id, to: {$in: recipients}}, callback);
+    });
+}
+
+RequestSchema.statics.cancelRequest = function(creator_id, receiver_id, callback) {
+    //Model changes when cancelling a request from User A to User B 
+    //are identical to those when rejecting a request from User A to User B
+    this.rejectRequest(creator_id, receiver_id, callback);
 }
 
 RequestSchema.statics.getRequestsFromOneToMany = function(from_id, to_ids, callback) {
