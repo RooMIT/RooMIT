@@ -194,7 +194,7 @@ RequestSchema.statics.getRequests = function(userId, callback) {
 }
 
 //Deny a request from creator_id to receiver_id
-RequestSchema.statics.denyRequest = function(creator_id, receiver_id, req, res) {
+RequestSchema.statics.denyRequest = function(creator_id, receiver_id, callback) {
     //delete all requests from creator to receiver as well as to roommates of receiver
     User.getRoommates(receiver_id, function(err, roommates) {
         var recipients = roommates.map(function(roommate) {
