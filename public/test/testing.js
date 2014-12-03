@@ -1,5 +1,5 @@
 /**
- * Authors: Rujia Zha
+ * Author: Rujia
  */
 
 $.ajaxPrefilter(function(options, _, xhr) {
