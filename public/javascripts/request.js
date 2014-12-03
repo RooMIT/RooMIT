@@ -230,6 +230,16 @@ var getRequestsTo = function(userId, to, callback) {
     });
 }
 
+// gets request to a certain id (undefined if none exist)
+var getRequestTo = function(to, requests) {
+    var result = requests.filter(function(request) {
+        return request.to === to;
+    });
+
+    if (!result.length) return undefined;
+    return result[0];
+}
+
 // refetch all requests to/from user and display them
 var showRequests = function() {
     switchActive('#requests');
@@ -248,7 +258,8 @@ var showRequests = function() {
         if (!user.available) {
             $('#content').html(Handlebars.templates['requests']({
                 requestsToUser: requestsToUser,
-                requestsFromUser: requestsFromUser
+                requestsFromUser: requestsFromUser,
+                showName: true
             }));
             return;
         }
@@ -258,7 +269,8 @@ var showRequests = function() {
 
             $('#content').html(Handlebars.templates['requests']({
                 requestsToUser: result.requestsTo,
-                requestsFromUser: result.requestsFrom
+                requestsFromUser: result.requestsFrom,
+                showName: true
             }));
         });
 
