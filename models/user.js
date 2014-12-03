@@ -55,6 +55,10 @@ UserSchema.statics.addRoommate = function(userID, roommateID, callback) {
                     console.log(group);
                     User.find({_id: {$in: [userID, roommateID] } }, function(err, result) {
                         console.log('Result', result);
+                        result.forEach(function(elem) {
+                            elem.group = group._id;
+                            elem.save();
+                        });
                     })
                     User.update({ _id: { $in: [userID, roommateID] } }, { group: group._id }, function (err) {
                         if (err) console.log('Something fucked up', err);
