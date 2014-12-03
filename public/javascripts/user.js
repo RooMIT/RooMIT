@@ -39,9 +39,8 @@ $(document).on('click', '.request-roommate', function(event) {
     if (!user_id) return showLogin();
 
     $.ajax({
-        url: '/users/' + user_id + '/requests/',
-        type: 'POST',
-        data: {from_id: user_id,  to_id: roommateId}
+        url: '/users/'+ user_id + '/requests/to/' + roommateId,
+        type: 'POST'
     }).done(function(response) {
         // update the ui accodingly
         showUserProfile(user_id);
@@ -190,6 +189,8 @@ var getPopulatedUser = function(userId, callback) {
 }
 
 Handlebars.registerPartial('preference', Handlebars.templates['preference']);
+Handlebars.registerPartial('request-to-user', Handlebars.templates['request-to-user']);
+Handlebars.registerPartial('request-from-user', Handlebars.templates['request-from-user']);
 
 // show a user's profile
 // TODO: make profile and my-profile one thing
@@ -234,7 +235,9 @@ var handleRequestBox = function(user, loggedInUser) {
     if (yourRequest) {
         $('#request-box').html(Handlebars.templates['request-from-user']({
            showName: false,
-           request: yourRequest
+           request: yourRequest,
+           from: user,
+           to: loggedInUser
         }));
         return;
     }
@@ -243,7 +246,9 @@ var handleRequestBox = function(user, loggedInUser) {
     if (usersRequest) {
         $('#request-box').html(Handlebars.templates['request-to-user']({
            showName: false,
-           request: usersRequest
+           request: usersRequest,
+           to: loggedInUser,
+           from: user
         }));
         return;
     } 

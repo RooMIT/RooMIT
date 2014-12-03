@@ -3,11 +3,14 @@
 <h1> Requests </h1><br>
 
 <h3> From others: </h3><br>
+{{#if showName}}
+  <p>Sucks</p>
+{{/if}}
 {{#each requestsToUser}}
-    {{> requestToUser this}}
+    {{> request-to-user this}}
 {{/each}}
 
 <h3> From you: </h3><br>
 {{#each requestsFromUser}}
-    {{> requestFromUser this}}
+    {{> request-from-user this}}
 {{/each}}

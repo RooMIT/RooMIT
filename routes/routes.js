@@ -54,15 +54,27 @@ module.exports = function(app) {
 
         POST /users
         Request Body:
-        	- name: name of the new user 
-        	- email: unique MIT email 
-        	- password: password 
+            - name: name of the new user 
+            - email: unique MIT email 
+            - password: password 
         Response:
             - user: user 
             - error: error if there was one 
     */
     app.post('/users', function(req, res) {
         UserController.create(req, res);
+    });
+
+    /*  
+        Deletes the user
+
+        DELETE /user/{id}
+        Request Body:
+        Response:
+            - error: error if there was one 
+    */
+    app.delete('/users/:id', function(req, res) {
+        UserController.delete(req, res);
     });
 
     /*  
@@ -112,6 +124,7 @@ module.exports = function(app) {
 
         PUT /preferences/{id}
         Request Body:
+            - description: description of preference
             - response: user's response to a preference
         Response:
             - error: error if there was one
