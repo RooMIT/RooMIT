@@ -341,9 +341,11 @@ asyncTest('Add roommate', function() {
                     equal(group1, group2, 'User1 and user2 are in the same group');
 
                     getBothRoommates(user1._id, user2._id, function(roommates1, roommates2) {
-                        same(roommates1, [user2._id], 'User1 is roommates with only user2');
-                        same(roommates2, [user1._id], 'User2 is roommates with only user1');
-                        
+                        equal(roommates1.length, 1, 'User1 has 1 roommate');
+                        equal(roommates2.length, 1, 'User2 has 1 roommate');
+                        equal(roommates1[0]._id, user2._id, 'User1 is roommates with user2');
+                        equal(roommates2[0]._id, user1._id, 'User2 is roommates with user1');
+                      
                         deleteTwoUsers(user1._id, user2._id, function() {
                             start();
                         });
@@ -368,8 +370,10 @@ asyncTest('Remove roommate', function() {
                 equal(group1, group2, 'User1 and user2 are in the same group');
 
                 getBothRoommates(user1._id, user2._id, function(roommates1, roommates2) {
-                    same(roommates1, [user2._id], 'User1 is roommates with only user2');
-                    same(roommates2, [user1._id], 'User2 is roommates with only user1');
+                    equal(roommates1.length, 1, 'User1 has 1 roommate');
+                    equal(roommates2.length, 1, 'User2 has 1 roommate');
+                    equal(roommates1[0]._id, user2._id, 'User1 is roommates with user2');
+                    equal(roommates2[0]._id, user1._id, 'User2 is roommates with user1');
                         
                     // disband group
                     leaveGroup(user1._id, function(response) {
@@ -383,8 +387,8 @@ asyncTest('Remove roommate', function() {
                             ok(group2 ===  undefined, 'User2 has no group');
 
                             getBothRoommates(user1._id, user2._id, function(roommates1, roommates2) {
-                                same(roommates1, [], 'User1 has no roommates');
-                                same(roommates2, [], 'User2 has no roommates');
+                                equal(roommates1, [], 'User1 has no roommates');
+                                equal(roommates2, [], 'User2 has no roommates');
                                 
                                 deleteTwoUsers(user1._id, user2._id, function() {
                                     start();
