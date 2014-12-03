@@ -5,6 +5,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var ObjectId = Schema.Types.ObjectId;
+var User = require('../models/user');
 
 var RequestSchema = new Schema({
     from: { type: ObjectId, ref: 'User', required: true },
@@ -17,6 +18,45 @@ RequestSchema.statics.findFrom = function(userId, callback) {
 
 RequestSchema.statics.findTo = function(userId, callback) {
     this.find({ to: userId }).populate('from', '_id name').exec(callback);
+}
+
+RequestSchema.statics.createRequest = function (fromId, toId, callback){
+    User.findOne({_id: toId}, function (err, toUser){
+        if (err) return callback(err);
+        User.findOne({_id: fromId}, function (err, fromUser){
+            if (err) return callback(err);
+            this.find({to: toId}, function (err, existingUsers){
+                if (err) return callback(err);
+                if (fromUser.group){
+                    User.find({group: fromUser.group}, function (err, fromUsers){
+                        if (err) return callback(err);
+                        var insertUsers = fromUsers.filter(function (curr){
+                            for (i in existingUsers){
+                                if (existingUsers[i]._id === curr._id){
+                                    return true;
+                                }
+                            }
+                            return false;
+                        });
+                        var inserts = insertUsers.map(function (insertUser){
+                            return {from: insertUser._id, to: toId};
+                        });
+                        this.collection.insert(inserts, function (err){
+                            callback(err);
+                        });
+                    });
+                } else {
+                    this.update({from: fromId, to: toId}, 
+                        {$setOnInsert: {from: fromId, to: toId}},
+                        {upsert: true}
+                    }).exec(function (err){
+                        callback(err);
+                    });
+                }
+            });
+            
+        });
+    });
 }
 
 RequestSchema.statics.getRequestsFromOneToMany = function(from_id, to_ids, callback) {

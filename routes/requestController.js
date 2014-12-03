@@ -3,7 +3,7 @@
  */
 
 var Request = require('../models/request');
-var User = require('../models/request');
+var User = require('../models/user');
 var handleError = require('./utils').handleError;
 
 var acceptRequest = function(creator_id, receiver_id, req, res) {
@@ -60,35 +60,13 @@ module.exports = {
 
     // create requests
     create: function(req, res) {
-        var userId = req.params.id;
         if (!req.session.userId) return handleError(res, 400, 'Please login first');
-        if (!toIds.length && !fromIds.length) return handleError(res, 400, 'Users do not exist');
-
-        var toIds = req.body.to;
-        var requests = [];
-        if (toIds.length) {
-            toIds = toIds.split(',');
-            requests = toIds.map(function(elem){
-                return new Request({ from: userId, to: elem });
-            });
-        }
-
-        var fromIds = req.body.from;
-        var requests2 = [];
-        if (fromIds.length) {
-            fromIds = fromIds.split(',');
-            var requests2 = fromIds.map(function(elem){
-                return new Request({ from: elem, to: userId });
-            });
-        }        
-
-        var allRequests = requests.concat(requests2);
-
-        allRequests.forEach(function(request) {
-            request.save(function (err, res) {
-                if (err) return handleError(res, 500, err);
-                res.json({ success:true });
-            });
+        var toId = req.body.to_id;
+        var fromId = req.body.from_id;
+        if (!toId || !fromId) return handleError(res, 400, 'Requested user does not exist');
+        Request.createRequests(fromId, toId, function (err){
+            if (err) return handleError(res, 500, err);
+            res.json({ success:true });
         });
     },
 

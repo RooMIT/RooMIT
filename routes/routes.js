@@ -159,12 +159,12 @@ module.exports = function(app) {
     });
 
     /*  
-        Create requests regarding the specified user
+        Create requests from a user to a user.
 
         POST /users/{id}/requests/
         Request Body:
-            - to: list of ids of users to whom the request is made by the specified user
-            - from: list of ids of users making a request to the specified user
+            - to_id: the id of an user to whom the request is made
+            - from_id: the id of the user making the request
         Response:
             - error: error if there was one
     */
