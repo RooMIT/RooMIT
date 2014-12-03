@@ -26,9 +26,9 @@ var modifyRequest = function(req, res) {
     if (!self_id) return handleError(res, 400, 'Please login first');
     if (receiver_id !== self_id) return handleError(res, 400, 'Not logged in as correct user');
 
-    var accept = req.session.accept;
-    var deny = req.session.deny;
-    var cancel = req.session.cancel;
+    var accept = req.body.accept;
+    var deny = req.body.deny;
+    var cancel = req.body.cancel;
 
     if (accept) {
         Request.acceptRequest(creator_id, receiver_id, req, res);
@@ -52,7 +52,7 @@ module.exports = {
         var toId = req.params.to_id;
         var fromId = req.params.from_id;
         if (!toId || !fromId) return handleError(res, 400, 'Requested user does not exist');
-        Request.createRequest(fromId, toId, function (err){
+        Request.createRequest(fromId, toId, true, function (err){
             if (err) return handleError(res, 500, err);
             res.json({ success:true });
         });
