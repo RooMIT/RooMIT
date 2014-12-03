@@ -69,7 +69,9 @@ UserSchema.statics.leaveGroup = function (userId, callback) {
     User.findOne({ _id: userId }, 'group', function(err, user) {
 
         // set the user's group to undefined and availability to true
-        User.update({ _id: userId }, { group: undefined, available: true }, function (error) {
+        user.group = undefined;
+        user.available = true;
+        user.save(function (error) {
             if (error) return callback(error);
 
             // now find the remaining amount of users in the group
@@ -141,11 +143,19 @@ UserSchema.statics.updateAvailability = function(userId, available, callback) {
 
         // if the user doesn't have a group, just update them
         if (!user.group) {
-            return User.update({ _id: userId }, { available: availableBoolean }).exec(callback);
+            User.update({ _id: userId }, { available: availableBoolean }).exec(callback);
+        } else {
+            // if there is a group, update the availability of everyone in the user's group
+            User.find({ group: user.group }, function(err, users) {
+                users.forEach(function(oneUser) {
+                    oneUser.available = availableBoolean;
+                    oneUser.save();
+                });
+                callback(err);
+            });
         }
 
-        // if there is a group, update the availability of everyone in the user's group
-        User.update({ group: user.group }, { available: availableBoolean }).exec(callback);
+        
     });
 }
 
