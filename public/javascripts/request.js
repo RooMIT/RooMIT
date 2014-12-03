@@ -65,7 +65,7 @@ var modifyRequest = function(creator_id, receiver_id, operation, callback) {
         type: 'PUT',
         data: params
     }).done(function(response) {
-        callback(undefined);
+        callback();
     }).fail(function(error) {
         callback(error);
         handleError(error);
