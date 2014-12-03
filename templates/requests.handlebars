@@ -4,7 +4,7 @@
 
 <h3> From others: </h3><br>
 {{#each requestsToUser}}
-    <div to={{from._id}} from={{to}}>
+    <div to={{to}} from={{from._id}}>
         <span class='requestuser'><a value='{{from._id}}' class='user-profile' href='#'>{{from.name}}</a></span>
         <button class='btn btn-primary confirm' type='button'>Confirm Request</button>
         <button class='btn btn-default deny' type='button'>Deny Request</button>
