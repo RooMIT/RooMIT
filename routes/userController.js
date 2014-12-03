@@ -146,7 +146,7 @@ exports.addRoommate = function(req, res) {
     // nothing to update
     if (!roommateId) return res.json({ success:true });
 
-    User.addRoommate(newRoommate, function (err) {
+    User.addRoommate(userId, roommateId, function (err) {
         if (err) return handleError(res, 500, err);
         return res.json({ success:true });
     });
