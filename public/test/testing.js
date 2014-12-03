@@ -62,199 +62,198 @@ asyncTest('modify preferences', function() {
         getUser(user1._id, function(response) {
             var user = response.user;
             var preference = user.preferences[0];
-            console.log(preference._id);
             
-            modifyPreference(preference._id, 'Yes', function(response) {
+            modifyPreference(preference._id, preference.description, 'Yes', function(response) {
                 ok(response.success)
 
-            //     getUser(user1._id, function(response) {
-            //         var preference2 = response.user.preferences[0];
-            //         equal(preference2.response, 'Yes');
-            //         equal(preference.description, preference2.description);
+                getUser(user1._id, function(response) {
+                    var preference2 = response.user.preferences[0];
+                    equal(preference2.response, 'Yes');
+                    equal(preference.description, preference2.description);
                     start();
-            //     }); 
+                }); 
             });
         });
     });
 });
 
-// asyncTest('add and remove roommate', function() {
-//     registerTwoUsers(function(user1, user2) {
-//         // both have no roommates
-//         getBothRoommates(user1._id, user2._id, function(roommates1, roommates2) {
-//             equal(roommates1.length, 0);
-//             equal(roommates2.length, 0);
+asyncTest('add and remove roommate', function() {
+    registerTwoUsers(function(user1, user2) {
+        // both have no roommates
+        getBothRoommates(user1._id, user2._id, function(roommates1, roommates2) {
+            equal(roommates1.length, 0);
+            equal(roommates2.length, 0);
                 
-//             makeRoommates(user1._id, user2._id, response, function(response) {
-//                 ok(response.success)
+            makeRoommates(user1._id, user2._id, function(response) {
+                ok(response.success)
 
-//                 // check that they both have each other
-//                 getBothUsers(user1._id, user2._id, function(user1, user2) {
-//                     var group1 = user1.group;
-//                     var group2 = user2.group;
-//                     ok(group1 !== undefined); 
-//                     ok(group2 !== undefined);
-//                     equal(group1, group2);
+                // check that they both have each other
+                getBothUsers(user1._id, user2._id, function(user1, user2) {
+                    var group1 = user1.group;
+                    var group2 = user2.group;
+                    ok(group1 !== undefined); 
+                    ok(group2 !== undefined);
+                    equal(group1, group2);
 
-//                     getBothRoommates(user1._id, user2._id, function(roommates1, roommates2) {
-//                         same(roommates1, [user2._id]);
-//                         same(roommates2, [user1._id]);
+                    getBothRoommates(user1._id, user2._id, function(roommates1, roommates2) {
+                        same(roommates1, [user2._id]);
+                        same(roommates2, [user1._id]);
 
-//                         // disband group
-//                         leaveGroup(user1._id, function(response) {
-//                             ok(response.success);
+                        // disband group
+                        leaveGroup(user1._id, function(response) {
+                            ok(response.success);
 
-//                             getBothUsers(user1._id, user2._id, function(user1, user2) {
-//                                 var group1 = user1.group;
-//                                 var group2 = user2.group;
-//                                 ok(group1 === undefined); 
-//                                 ok(group2 ===  undefined);
+                            getBothUsers(user1._id, user2._id, function(user1, user2) {
+                                var group1 = user1.group;
+                                var group2 = user2.group;
+                                ok(group1 === undefined); 
+                                ok(group2 ===  undefined);
 
-//                                 getBothRoommates(user1._id, user2._id, function(roommates1, roommates2) {
-//                                     same(roommates1, []);
-//                                     same(roommates2, []);
-//                                     start();
-//                                 });
-//                             });
-//                         });
-//                     });
-//                 });
-//             });
-//         });
-//     });
-// });
+                                getBothRoommates(user1._id, user2._id, function(roommates1, roommates2) {
+                                    same(roommates1, []);
+                                    same(roommates2, []);
+                                    start();
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+});
 
-// asyncTest('modify availability', function() {
-//     registerTwoUsers(function(user1, user2) {
-//         makeRoommates(user1._id, user2._id, response, function(response) {
-//             ok(response.success);
+asyncTest('modify availability', function() {
+    registerTwoUsers(function(user1, user2) {
+        makeRoommates(user1._id, user2._id, function(response) {
+            ok(response.success);
 
-//             // check that they are both available
-//             getBothUsers(user1._id, user2._id, function(user1, user2) {
-//                 ok(user1.available); 
-//                 ok(user2.available);
+            // check that they are both available
+            getBothUsers(user1._id, user2._id, function(user1, user2) {
+                ok(user1.available); 
+                ok(user2.available);
 
-//                 // make one unavailable
-//                 modifyUserAvailability(user1._id, false, function(response) {
-//                     ok(response.success);
+                // make one unavailable
+                modifyUserAvailability(user1._id, false, function(response) {
+                    ok(response.success);
 
-//                     // both should be unavailable
-//                     getBothUsers(user1._id, user2._id, function(user1, user2) {
-//                         ok(!user1.available); 
-//                         ok(!user2.available);
+                    // both should be unavailable
+                    getBothUsers(user1._id, user2._id, function(user1, user2) {
+                        ok(!user1.available); 
+                        ok(!user2.available);
 
-//                         // make one available
-//                         modifyUserAvailability(user2._id, true, function(response) {
-//                             ok(response.success);
+                        // make one available
+                        modifyUserAvailability(user2._id, true, function(response) {
+                            ok(response.success);
 
-//                             // both should be available
-//                             getBothUsers(user1._id, user2._id, function(user1, user2) {
-//                                 ok(user1.available); 
-//                                 ok(user2.available);
+                            // both should be available
+                            getBothUsers(user1._id, user2._id, function(user1, user2) {
+                                ok(user1.available); 
+                                ok(user2.available);
 
-//                                 // disband group
-//                                 leaveGroup(user1._id, function(response) {
-//                                     ok(response.success);
-//                                     start();
-//                                 });
-//                             });
-//                         });
-//                     });
-//                 });
-//             });
-//         });
-//     });
-// });
+                                // disband group
+                                leaveGroup(user1._id, function(response) {
+                                    ok(response.success);
+                                    start();
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+});
 
-// asyncTest('make and deny request', function() {
-//     registerTwoUsers(function(user1, user2) {
-//         createRequest(user1._id, user2._id, function(response) {
-//             ok(response.success);
+asyncTest('make and deny request', function() {
+    registerTwoUsers(function(user1, user2) {
+        createRequest(user1._id, user2._id, function(response) {
+            ok(response.success);
 
-//             getBothRequests(user1._id, user2._id, function(response1, response2) {
-//                 var reqTo1 = response1.requestsTo;
-//                 var reqTo2 = response2.requestsTo;
-//                 var reqFrom1 = response1.requestsFrom;
-//                 var reqFrom2 = response2.requestsFrom;
+            getBothRequests(user1._id, user2._id, function(response1, response2) {
+                var reqTo1 = response1.requestsTo;
+                var reqTo2 = response2.requestsTo;
+                var reqFrom1 = response1.requestsFrom;
+                var reqFrom2 = response2.requestsFrom;
 
-//                 equal(reqTo1.length, 0);
-//                 equal(reqFrom2.length, 0);
-//                 equal(reqTo2.length, 1);
-//                 equal(reqFrom1.length, 1);
+                equal(reqTo1.length, 0);
+                equal(reqFrom2.length, 0);
+                equal(reqTo2.length, 1);
+                equal(reqFrom1.length, 1);
 
-//                 equal(reqTo2[0].to, user2._id);
-//                 equal(reqTo2[0].from, user1._id);
-//                 equal(reqFrom1[0].to, user2._id);
-//                 equal(reqFrom1[0].from, user1._id);
+                equal(reqTo2[0].to, user2._id);
+                equal(reqTo2[0].from, user1._id);
+                equal(reqFrom1[0].to, user2._id);
+                equal(reqFrom1[0].from, user1._id);
 
-//                 modifyRequest(user1._id, user2._id, false, true, false, function(response) {
-//                     ok(response.success);
+                modifyRequest(user1._id, user2._id, false, true, false, function(response) {
+                    ok(response.success);
 
-//                     getBothRequests(user1._id, user2._id, function(response1, response2) {
-//                         var reqTo1 = response1.requestsTo;
-//                         var reqTo2 = response2.requestsTo;
-//                         var reqFrom1 = response1.requestsFrom;
-//                         var reqFrom2 = response2.requestsFrom;
+                    getBothRequests(user1._id, user2._id, function(response1, response2) {
+                        var reqTo1 = response1.requestsTo;
+                        var reqTo2 = response2.requestsTo;
+                        var reqFrom1 = response1.requestsFrom;
+                        var reqFrom2 = response2.requestsFrom;
 
-//                         equal(reqTo1.length, 0);
-//                         equal(reqFrom2.length, 0);
-//                         equal(reqTo2.length, 0);
-//                         equal(reqFrom1.length, 0);
-//                         start();
-//                     });
-//                 });
-//             });
-//         });
-//     });
-// });
+                        equal(reqTo1.length, 0);
+                        equal(reqFrom2.length, 0);
+                        equal(reqTo2.length, 0);
+                        equal(reqFrom1.length, 0);
+                        start();
+                    });
+                });
+            });
+        });
+    });
+});
 
-// asyncTest('make and cancel request', function() {
-//     registerTwoUsers(function(user1, user2) {
-//         createRequest(user1._id, user2._id, function(response) {
-//             ok(response.success);
+asyncTest('make and cancel request', function() {
+    registerTwoUsers(function(user1, user2) {
+        createRequest(user1._id, user2._id, function(response) {
+            ok(response.success);
 
-//             getBothRequests(user1._id, user2._id, function(response1, response2) {
-//                 var reqTo1 = response1.requestsTo;
-//                 var reqTo2 = response2.requestsTo;
-//                 var reqFrom1 = response1.requestsFrom;
-//                 var reqFrom2 = response2.requestsFrom;
+            getBothRequests(user1._id, user2._id, function(response1, response2) {
+                var reqTo1 = response1.requestsTo;
+                var reqTo2 = response2.requestsTo;
+                var reqFrom1 = response1.requestsFrom;
+                var reqFrom2 = response2.requestsFrom;
 
-//                 equal(reqTo1.length, 0);
-//                 equal(reqFrom2.length, 0);
-//                 equal(reqTo2.length, 1);
-//                 equal(reqFrom1.length, 1);
+                equal(reqTo1.length, 0);
+                equal(reqFrom2.length, 0);
+                equal(reqTo2.length, 1);
+                equal(reqFrom1.length, 1);
 
-//                 equal(reqTo2[0].to, user2._id);
-//                 equal(reqTo2[0].from, user1._id);
-//                 equal(reqFrom1[0].to, user2._id);
-//                 equal(reqFrom1[0].from, user1._id);
+                equal(reqTo2[0].to, user2._id);
+                equal(reqTo2[0].from, user1._id);
+                equal(reqFrom1[0].to, user2._id);
+                equal(reqFrom1[0].from, user1._id);
 
-//                 // cancel request
-//                 modifyRequest(user1._id, user2._id, false, false, true, function(response) {
-//                     ok(response.success);
+                // cancel request
+                modifyRequest(user1._id, user2._id, false, false, true, function(response) {
+                    ok(response.success);
 
-//                     getBothRequests(user1._id, user2._id, function(response1, response2) {
-//                         var reqTo1 = response1.requestsTo;
-//                         var reqTo2 = response2.requestsTo;
-//                         var reqFrom1 = response1.requestsFrom;
-//                         var reqFrom2 = response2.requestsFrom;
+                    getBothRequests(user1._id, user2._id, function(response1, response2) {
+                        var reqTo1 = response1.requestsTo;
+                        var reqTo2 = response2.requestsTo;
+                        var reqFrom1 = response1.requestsFrom;
+                        var reqFrom2 = response2.requestsFrom;
 
-//                         equal(reqTo1.length, 0);
-//                         equal(reqFrom2.length, 0);
-//                         equal(reqTo2.length, 0);
-//                         equal(reqFrom1.length, 0);
-//                         start();
-//                     });
-//                 });
-//             });
-//         });
-//     });
-// });
+                        equal(reqTo1.length, 0);
+                        equal(reqFrom2.length, 0);
+                        equal(reqTo2.length, 0);
+                        equal(reqFrom1.length, 0);
+                        start();
+                    });
+                });
+            });
+        });
+    });
+});
 
 function makeRoommates(userId1, userId2, callback) {
     // request and accept
-    createRequest(userId, userId1, function(response) {
-        modifyRequest(userId, userId2, true, false, false, callback);
+    createRequest(userId1, userId2, function(response) {
+        modifyRequest(userId1, userId2, true, false, false, callback);
     });
 }
 
@@ -325,8 +324,8 @@ function modifyUserAvailability(userId, available, callback) {
     ajax({available: available}, '/users/' + userId, 'PUT', 'Modify user availability', callback);
 }
 
-function modifyPreference(preferenceId, response, callback) {
-    ajax({response: response}, '/preferences/' + preferenceId, 'PUT', 'Modify preferences', callback);
+function modifyPreference(preferenceId, description, response, callback) {
+    ajax({response: response, description: description}, '/preferences/' + preferenceId, 'PUT', 'Modify preferences', callback);
 }
 
 function getRoommates(userId, callback) {
