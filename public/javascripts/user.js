@@ -31,24 +31,6 @@ $(document).on('click', '.user-profile', function(event) {
     showUserProfile(id);
 });
 
-// click request roommate
-$(document).on('click', '.request-roommate', function(event) {
-    var button = $(this);
-    var roommateId = button.attr('value');
-    var user_id = $.cookie('user');
-    if (!user_id) return showLogin();
-
-    $.ajax({
-        url: '/users/'+ user_id + '/requests/to/' + roommateId,
-        type: 'POST'
-    }).done(function(response) {
-        // update the ui accodingly
-        showUserProfile(user_id);
-    }).fail(function(error) {
-        handleError(error);
-    });
-});
-
 // click leave group, removes the user from the group
 $(document).on('click', '.leave-group', function(event) {
     var roommateId = $(this).attr('value');
@@ -61,29 +43,6 @@ $(document).on('click', '.leave-group', function(event) {
     });
 
 });
-
-/*
-// Updates the preference on a click
-$(document).on('click', '.preference-radio-inline', function(event) {
-    var user_id = $.cookie('user');
-    if (!user_id) return showLogin();
-
-    var input = this.getElementsByTagName('input')[0];
-    var id = input.className;
-    var answer = input.value;
-    var desc = $('.'+id).parent().prev('.space').html();
-
-    $.ajax({
-        url: '/preferences/' + id,
-        type: 'PUT',
-        data: {description: desc,  response: answer}
-    }).done(function(response) {
-        // update the ui accodingly
-        showUserProfile(user_id);
-    }).fail(function(error) {
-        handleError(error);
-    });
-}); */
 
 // Updates the preference on a click
 $(document).on('click', '.preference', function(event) {
@@ -193,7 +152,6 @@ Handlebars.registerPartial('request-to-user', Handlebars.templates['request-to-u
 Handlebars.registerPartial('request-from-user', Handlebars.templates['request-from-user']);
 
 // show a user's profile
-// TODO: make profile and my-profile one thing
 var showUserProfile = function(userId) {
     var loggedInUserID = $.cookie('user');
     if (!loggedInUserID) return showLogin();

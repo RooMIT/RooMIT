@@ -57,6 +57,7 @@ var modifyRequest = function(creator_id, receiver_id, operation, callback) {
             break;
         default:
             callback('No operation specified');
+            return;
             break;
     }
     $.ajax({

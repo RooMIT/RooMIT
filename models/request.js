@@ -14,10 +14,10 @@ var RequestSchema = new Schema({
 
 // find all requests to userId
 RequestSchema.statics.findTo = function(userId, callback) {
-    this.find({}).populate('to', '_id name').exec(function(err, result) {
+    this.find({}).populate('from', '_id name').exec(function(err, result) {
         console.log('To', result);
         result = result.filter(function(request) {
-            return request.to._id.equals(userId);
+            return request.to.equals(userId);
         });
         callback(err, result)
     });
@@ -40,10 +40,10 @@ RequestSchema.statics.removeFromTos = function(creator_id, receiver_ids, callbac
 
 // find all requests from userId 
 RequestSchema.statics.findFrom = function(userId, callback) {
-    this.find({}).populate('from', '_id name').exec(function(err, result) {
+    this.find({}).populate('to', '_id name').exec(function(err, result) {
         console.log('From', result);
         result = result.filter(function(request) {
-            return request.from._id.equals(userId);
+            return request.from.equals(userId);
         });
         callback(err, result)
     });

@@ -34,12 +34,14 @@ UserSchema.statics.addRoommate = function(userID, roommateID, callback) {
             if (!other) return callback('Other user does not exist');
             //If user already has a group, add other to user's group
             if (user.group) {
+                console.log('User already has group');
                 User.update({ _id: roommateID }, { group: user.group }, function (err) {
                     return callback(err);
                 });
             }
             //If user has no group but other does, add user to other's group
             else if (other.group) {
+                console.log('Other already has group');
                 User.update({ _id: user._id }, { group: other.group }, function (err) {
                     return callback(err);
                 });
@@ -51,8 +53,11 @@ UserSchema.statics.addRoommate = function(userID, roommateID, callback) {
                     if (err) return callback(err);
                     // update both users to share the group
                     console.log(group);
+                    User.find({_id: {$in: [userID, roommateID] } }, function(err, result) {
+                        console.log('Result', result);
+                    })
                     User.update({ _id: { $in: [userID, roommateID] } }, { group: group._id }, function (err) {
-                        console.log('Something fucked up');
+                        if (err) console.log('Something fucked up', err);
                         callback(err);
                     });
                 });
