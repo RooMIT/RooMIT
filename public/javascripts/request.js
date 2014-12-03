@@ -48,37 +48,13 @@ $(document).on('click', '.cancel', function(event) {
 // click deny
 $(document).on('click', '.deny', function(event) {
     event.preventDefault();
-    var requestID = $(this).parent().attr('request-id');
-    var requestingUserID = $(this).parent().attr('user-id'); 
-
-    // get logged in user
-    var user_id = $.cookie('user');
-    if (!user_id) return showLogin();
+    var request_id = $(this).parent().attr('request-id');
+    var requesting_user_id = $(this).parent().attr('user-id'); 
     
-    // delete the request
-    deleteRequest(requestID, function() {
-        //check if user has group 
-            //if yes, then remove all requests from person to user's roommates
-            //else nothing
-        getUser(user_id, function(res) {
-            var user = res.user;
-            getRoommates(user, function(roommates) {
-                if (!roommates.length) showRequests();
-                else {
-                    var roommateIDs = roommates.map(function(elem){
-                        return elem._id;
-                    });
-                    getRequestsTo(requestingUserID, roommateIDs, function(requests) {
-                        if (!requests.length) showRequests();
-                        else {
-                            deleteRequest(requests, function(){
-                                showRequests();
-                            });
-                        }
-                    });
-                }
-            });
-        });
+    //delete request from requesting user to self. also deletes all requests from requesting user to self's roommates
+    rejectRequest(requesting_user_id, function(err) {
+        if (err) return handleError(err);
+        showRequests();
     });
 });
 
@@ -181,6 +157,23 @@ $(document).on('click', '.confirm', function(event) {
     });
 });
 
+var rejectRequest = function(from_id, callback) {
+    var self_id = $.cookie('user');
+    if (!self_id) return showLogin();
+    $.ajax({
+        url: '/users/' + from_id + '/requests/to/' + self_id,
+        type: 'DELETE'
+    }).done(function(response) {
+        callback(undefined);
+    }).fail(function(error) {
+        callback(error);
+        handleError(error);
+    });
+}
+
+var confirmRequest = function(from_id, callback) {
+    
+}
 // delete requests
 // deleteRequests: list of request id to be deleted
 var deleteRequest = function(deleteRequests, callback) {

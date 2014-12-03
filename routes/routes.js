@@ -5,8 +5,13 @@
 var UserController = require('./userController');
 var PreferenceController = require('./preferenceController');
 var RequestController = require('./requestController');
+var path = require('path');
 
 module.exports = function(app) {
+
+    app.get('/test', function(request, response) {
+      response.sendFile(path.join(__dirname, '../public', '/test/testing.html'));
+    });
 
     app.get('/', function(req, res) {
         res.locals.token = req.csrfToken();
@@ -193,15 +198,18 @@ module.exports = function(app) {
     });
 
     /*  
-        Delete requests from  to another user (and deletes requests to )
+        Delete requests from one user to another user.
+        If deleteRoommateRequests is true, then also delete requests to the other user's roommates.
         Requires logged in user to either be to_id or a roommate of to_id
 
-        DELETE /users/{from_id}/requests/to/{to_id}
-        Request body: empty
+        PUT /users/{from_id}/requests/to/{to_id}
+        Request body: {
+            deleteRoommateRequests: true/false
+        }
         Response:
             - error: error if there was one
     */
-    app.delete('/users/:from_id/requests/to/:to_id', function(req, res) {
+    app.put('/users/:from_id/requests/to/:to_id', function(req, res) {
         RequestController.delete(req, res);
     });
 
