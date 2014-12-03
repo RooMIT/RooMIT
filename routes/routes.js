@@ -204,28 +204,14 @@ module.exports = function(app) {
 
         PUT /users/{from_id}/requests/to/{to_id}
         Request body: {
-            deleteRoommateRequests: true/false
+            reject: true/false
+            cancel: true/false
+            accept: true/false
         }
         Response:
             - error: error if there was one
     */
     app.put('/users/:from_id/requests/to/:to_id', function(req, res) {
-        RequestController.delete(req, res);
+        RequestController.update(req, res);
     });
-
-    /*  
-        Delete requests specified by the body
-
-        DELETE /requests/
-        Request Body: 
-            - deleteRequests: list of requests to be deleted
-        Response:
-            - error: error if there was one
-    */
-    app.delete('/requests/', function(req, res) {
-        RequestController.delete(req, res);
-    });
-
-
-
 }

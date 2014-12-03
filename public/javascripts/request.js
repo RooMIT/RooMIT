@@ -58,6 +58,10 @@ $(document).on('click', '.deny', function(event) {
     });
 });
 
+var confirmRequest = function(creator_id, callback) {
+    User.
+}
+
 // click confirm, remove the request and make the users roommates (as well as unavailable)
 $(document).on('click', '.confirm', function(event) {
     event.preventDefault();
@@ -67,7 +71,7 @@ $(document).on('click', '.confirm', function(event) {
     // get logged in user
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
-    
+
     // delete the request
     deleteRequest(requestID, function() {
 
@@ -172,7 +176,7 @@ var rejectRequest = function(from_id, callback) {
 }
 
 var confirmRequest = function(from_id, callback) {
-    
+
 }
 // delete requests
 // deleteRequests: list of request id to be deleted
