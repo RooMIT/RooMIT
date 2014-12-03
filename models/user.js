@@ -193,24 +193,23 @@ UserSchema.statics.getRoommates = function(userId, callback) {
     
 };
 
-// encrypt password before save
-UserSchema.pre('save', function(next) {
-    var user = this;
-
+// create the user, hash the password
+UserSchema.statics.create = function(name, email, password, callback) {
     // generate a salt
     bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
-        if (err) return next(err);
+        if (err) return callback(err);
 
         // hash the password along with our new salt
-        bcrypt.hash(user.password, salt, function(err, hash) {
-            if (err) return next(err);
+        bcrypt.hash(password, salt, function(error, hash) {
+            if (error) return callback(error);
 
-            // override the cleartext password with the hashed one
-            user.password = hash;
-            next();
+            var newUser = new User({ name: name, email: email, password: hash });
+            newUser.save(function(error2, user) {
+                callback(undefined, user);
+            });
         });
     });
-});
+}
 
 var User = mongoose.model('User', UserSchema);
 module.exports = User;

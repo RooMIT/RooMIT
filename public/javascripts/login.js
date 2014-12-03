@@ -74,6 +74,7 @@ $(document).on('click', '#submit-register', function(event) {
 // logout
 $(document).on('click', '#logout', function(event) {
     event.preventDefault();
+    removeError(); // remove previous errors
 
     $.post(
         '/logout'
