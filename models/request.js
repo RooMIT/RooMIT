@@ -55,7 +55,7 @@ RequestSchema.statics.getRequestsFromOneToMany = function(from_id, to_ids, callb
             return to_ids.indexOf(request.to.toString()) !== -1;
         });
         callback(undefined, result);
-    })
+    });
 }
 
 RequestSchema.statics.getRequestFromTo = function(from_id, to_id, callback) {
@@ -69,9 +69,9 @@ RequestSchema.statics.getRequests = function(userId, callback) {
         if (err) return callback(err);
         Request.findTo(userId, function(err, to) {
             callback(err, {requestsFrom: from, requestsTo: to});
-        });;
-    })
-};
+        });
+    });
+}
 
 RequestSchema.statics.rejectRequest = function(creator_id, receiver_id, req, res) {
     //delete all requests from creator to receiver as well as to roommates of receiver
