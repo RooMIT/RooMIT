@@ -63,19 +63,6 @@ module.exports = function(app) {
         UserController.create(req, res);
     });
 
-    /*
-        Get all users
-
-        GET /users
-        Request Body: empty
-        Response:
-            - users: a list of all users
-            - error: error if there was one
-    */
-    app.get('/users', function(req, res) {
-        UserController.getAll(req, res);
-    }); 
-
     /*  
         Get a particular user
 
@@ -119,19 +106,7 @@ module.exports = function(app) {
     });
 
     /*  
-        Create all the preferences (should only be done once)
-
-        POST /preferences/
-        Request Body:
-        Response:
-            - error: error if there was one
-    */
-    app.post('/preferences/', function(req, res) {
-        PreferenceController.create(req, res);
-    });
-
-    /*  
-        Modify a preference
+        Modify a preference of the logged in user
 
         PUT /preferences/{id}
         Request Body:
