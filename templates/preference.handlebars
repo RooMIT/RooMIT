@@ -1,14 +1,11 @@
 {{! Author: Peinan}}
 
 <div>
-<span class='space'>{{description}}</span>
-<label class='preference-radio-inline'>
-    <input type='radio' class='{{_id}}' value='Yes' {{checked 'Yes' response}}> Yes
-</label>
-<label class='preference-radio-inline'>
-    <input type='radio' class='{{_id}}' value='No' {{checked 'No' response}}> No
-</label>
-<label class='preference-radio-inline'>
-    <input type='radio' class='{{_id}}' value="Don't Care" {{checked "Don't Care" response}}> Don't Care
-</label>
-</div>
+	<span class='space'>{{description}}</span>
+
+	<div class='btn-group' role='group'>
+		<button type='button' id='{{_id}}' class='preference btn {{checked 'Yes' response}}' value='Yes' >Yes</button>
+    <button type='button' id='{{_id}}' class='preference btn {{checked 'No' response}}' value='No'>No</button>
+    <button type='button' id='{{_id}}' class='preference btn {{checked "Don't Care" response}}' value="Don't Care">Don't Care</button>
+  </div>
+</div><br>

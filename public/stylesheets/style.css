@@ -8,7 +8,7 @@ body {
 }
 
 a {
-  color: #00B7FF;
+  color: #428bca;
 }
 
 .login-form {
@@ -16,7 +16,9 @@ a {
 }
 
 #toolbar {
-    float: right;
+    position: fixed; 
+    right: 3%; 
+    top: 3%;
 }
 
 li.active a {
@@ -31,6 +33,16 @@ li a {
     cursor: default;
 }
 
+#available-group .btn-default {
+  color: #428bca;
+  border-color: #FFFFFF;
+}
+
+#available-group .btn-default:hover {
+  border-color: #FFFFFF;
+  color:black;
+}
+
 .requestuser { 
 	display: inline-block; 
 	width: 7%;
@@ -40,3 +52,25 @@ li a {
   display: inline-block;
   width: 30%;
 }
+
+#name {
+  margin-top:0px;
+}
+
+.preference:hover {
+  border-color: #FFFFFF;
+}
+
+.preference.btn-default {
+  color: #428bca;
+  border-color: #FFFFFF;
+}
+
+.preference.btn-default:hover {
+  color: black;
+  border-color: #FFFFFF;
+}
+
+
+
+

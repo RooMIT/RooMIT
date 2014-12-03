@@ -63,6 +63,7 @@ $(document).on('click', '.leave-group', function(event) {
 
 });
 
+/*
 // Updates the preference on a click
 $(document).on('click', '.preference-radio-inline', function(event) {
     var user_id = $.cookie('user');
@@ -83,6 +84,28 @@ $(document).on('click', '.preference-radio-inline', function(event) {
     }).fail(function(error) {
         handleError(error);
     });
+}); */
+
+// Updates the preference on a click
+$(document).on('click', '.preference', function(event) {
+
+    var user_id = $.cookie('user');
+    if (!user_id) return showLogin();
+
+    var id = $(this).attr('id');
+    var answer = $(this).attr('value');
+    var desc = $(this).parent().prev('.space').html();
+
+    $.ajax({
+        url: '/preferences/' + id,
+        type: 'PUT',
+        data: {description: desc,  response: answer}
+    }).done(function(response) {
+        // update the ui accodingly
+        showUserProfile(user_id);
+    }).fail(function(error) {
+        handleError(error);
+    });  
 });
 
 // get a user 
