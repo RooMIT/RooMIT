@@ -6,19 +6,6 @@ var Request = require('../models/request');
 var User = require('../models/user');
 var handleError = require('./utils').handleError;
 
-
-var acceptRequest = function(creator_id, receiver_id, req, res) {
-    Request.acceptRequest(creator_id, receiver_id, function(err, result) {
-
-    });
-}
-
-var cancelRequest = function(creator_id, receiver_id, req, res) {
-    //Model changes when cancelling a request from User A to User B 
-    //are identical to those when rejecting a request from User A to User B
-    rejectRequest(creator_id, receiver_id, req, res);
-}
-
 var modifyRequest = function(req, res) {
     var creator_id = req.params.from_id;
     var receiver_id = req.params.to_id;

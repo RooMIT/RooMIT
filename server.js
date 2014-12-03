@@ -30,6 +30,12 @@ app.use(session({ secret: 'beans',
 
 app.use(csrf());
 
+//Mongoose hack
+String.prototype.toObjectId = function() {
+  var ObjectId = (require('mongoose').Types.ObjectId);
+  return new ObjectId(this.toString());
+};
+
 // set up routes
 require('./routes/routes')(app);
 

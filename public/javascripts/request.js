@@ -5,12 +5,43 @@
 $(document).on('click', '#requests:not(.active) a', function(event) {
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
-
     showRequests();
+});
+
+// create new request from user_id (logged in user) to receiver_id
+var createRequest = function(user_id, receiver_id, callback) {
+    var url = '/users/' + user_id + '/requests/to/' + receiver_id;
+    console.log(url);
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: {}
+    }).done(function(response) {
+        callback(undefined);
+    }).fail(function(error) {
+        handleError(error);
+    });
+}
+
+// click create
+$(document).on('click', '.request-roommate', function(event) {
+    event.preventDefault();
+    var receiver_id = $(this).attr('value');
+    // get logged in user
+    var user_id = $.cookie('user');
+    if (!user_id) return showLogin();
+    
+    //Accept request from creator to user, and add creator to user's roommates if all of user's other roommates have already accepted
+    createRequest(user_id, receiver_id, function(err) {
+        if (err) return handleError(res, 500, err);
+        showRequests();
+    })
 });
 
 var modifyRequest = function(creator_id, receiver_id, operation, callback) {
     var params = {};
+    var self_id = $.cookie('user');
+    if (!self_id) return showLogin();
     switch(operation) {
         case 'cancel':
             if (self_id !== creator_id) return showLogin();
@@ -51,7 +82,7 @@ $(document).on('click', '.cancel', function(event) {
     
     //Cancel request from user to receiver and to all of receiver's roommates
     modifyRequest(user_id, receiver_id, 'cancel', function(err) {
-        if (err) return handleError(res, 500, 'Something went wrong');
+        if (err) return handleError(res, 500, err);
         showRequests();
     })
 });
@@ -67,7 +98,7 @@ $(document).on('click', '.deny', function(event) {
     
     //Accept request from creator to user, and add creator to user's roommates if all of user's other roommates have already accepted
     modifyRequest(creator_id, user_id, 'deny', function(err) {
-        if (err) return handleError(res, 500, 'Something went wrong');
+        if (err) return handleError(res, 500, err);
         showRequests();
     })
 });
@@ -82,26 +113,11 @@ $(document).on('click', '.confirm', function(event) {
     if (!user_id) return showLogin();
 
     modifyRequest(creator_id, user_id, 'accept', function(err) {
-        if (err) return handleError(res, 500, 'Something went wrong');
+        if (err) return handleError(res, 500, err);
         showRequests();
     })
     
 });
-
-// create new requests regarding the user with userId
-// fromIds: array of ids of users requesting the user with userId
-// toIds: array of ids of user the user with userId wants to request
-var createRequest = function(user_id, receiver_id, callback) {
-    $.ajax({
-        url: '/users/' + user_id + '/requests/to/' + receiver_id,
-        type: 'POST',
-        data: {}
-    }).done(function(response) {
-        callback(undefined);
-    }).fail(function(error) {
-        handleError(error);
-    });
-}
 
 // get all requests to/from a user
 var getRequest = function(userId, callback) {
