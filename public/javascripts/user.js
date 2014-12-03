@@ -195,7 +195,7 @@ var showUserProfile = function(userId) {
         // else show visitor profile
         getPopulatedUser(loggedInUserID, function(loggedInUser) {
             $('li').removeClass('active');
-            var areRoommates = user.group === loggedInUser.group;
+            var areRoommates = user.group !== undefined && user.group === loggedInUser.group;
             
             $('#content').html(Handlebars.templates['profile']({
                user: user,
@@ -209,8 +209,8 @@ var showUserProfile = function(userId) {
 
 // add the correct request button (accept/deny, cancel, or request)
 var handleRequestBox = function(user, loggedInUser) {
-    var yourRequest = getRequestTo(user._id, loggedInUser.requestFrom);
-    var usersRequest = getRequestTo(loggedInUser._id, user.requestFrom);
+    var yourRequest = getRequestTo(user._id, loggedInUser.requestsFrom);
+    var usersRequest = getRequestTo(loggedInUser._id, user.requestsFrom);
 
     // if you requested the user, show a cancel request button
     if (yourRequest) {

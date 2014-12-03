@@ -232,8 +232,8 @@ var getRequestTo = function(to, requests) {
         return request.to === to;
     });
 
-    // true if length > 0, false if 0
-    return result;
+    if (!result.length) return undefined;
+    return result[0];
 }
 
 // refetch all requests to/from user and display them
@@ -254,7 +254,8 @@ var showRequests = function() {
         if (!user.available) {
             $('#content').html(Handlebars.templates['requests']({
                 requestsToUser: requestsToUser,
-                requestsFromUser: requestsFromUser
+                requestsFromUser: requestsFromUser,
+                showName: true
             }));
             return;
         }
@@ -264,7 +265,8 @@ var showRequests = function() {
 
             $('#content').html(Handlebars.templates['requests']({
                 requestsToUser: result.requestsTo,
-                requestsFromUser: result.requestsFrom
+                requestsFromUser: result.requestsFrom,
+                showName: true
             }));
         });
 

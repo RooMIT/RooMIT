@@ -117,7 +117,6 @@ exports.update = function(req, res) {
     var userId = req.params.id;
     var available = req.body.available;
     var leaveGroup = req.body.leaveGroup;
-    console.log(available, leaveGroup);
 
     // nothing to update
     if (available === undefined && leaveGroup === undefined) return res.json({ success:true });
