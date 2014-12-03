@@ -247,32 +247,16 @@ var showRequests = function() {
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
 
-    var requestsToUser = [];
-    var requestsFromUser = [];
-
-    // get logged in user
-    getUser(user_id, function(res) {
-        var user = res.user;
-        // if user not available, don't show any requests
-        if (!user.available) {
-            $('#content').html(Handlebars.templates['requests']({
-                requestsToUser: requestsToUser,
-                requestsFromUser: requestsFromUser,
-                showName: true
-            }));
-            return;
-        }
-        
-        // fetch requests
-        getRequest(user_id, function(result) {
-
-            $('#content').html(Handlebars.templates['requests']({
-                requestsToUser: result.requestsTo,
-                requestsFromUser: result.requestsFrom,
-                showName: true
-            }));
-        });
-
+    $.ajax({
+        url: '/users/' + user_id + '/requests/',
+        type: 'GET'
+    }).done(function(response) {
+        $('#content').html(Handlebars.templates['requests']({
+            requestsToUser: response.requestsTo,
+            requestsFromUser: response.requestsFrom,
+            showName: true
+        }));
+    }).fail(function(error) {
+        handleError(error);
     });
-
 }
