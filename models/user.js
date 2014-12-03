@@ -23,8 +23,7 @@ var UserSchema = new Schema({
 // add the user to the roommate's group,
 // or make an entirely new group if neither is in a group
 UserSchema.statics.addRoommate = function(userID, roommateID, callback) {
-    var user = this;
-
+    var User = this;
     User.find({ _id: userID}, 'group', function(err, user) {
         User.find({_id: roommateID}, 'group', function(err, other) {
             //If user already has a group, add other to user's group
@@ -77,6 +76,7 @@ UserSchema.statics.leaveGroup = function (userId, callback) {
     });
 };
 
+// verify the given password
 UserSchema.methods.verifyPassword = function (enteredPassword, callback) {
     var user = this;
     bcrypt.compare(enteredPassword, user.password, callback);

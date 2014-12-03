@@ -21,15 +21,15 @@ module.exports = function(app) {
     });
 
     /* 
-        Logs in the user, creates session
+        Logs in a user, creates session
 
         POST /login
         Request Body:
-            - email: MIT email
-            - password: password
+            - email: MIT email address 
+            - password: password  
         Response:
-            - user: user
-            - error: error if there was one
+            - user: user 
+            - error: error if there was one 
     */
     app.post('/login', function(req, res) {
         UserController.login(req, res);
@@ -41,7 +41,7 @@ module.exports = function(app) {
         POST /logout
         Request Body: empty
         Response:
-            - error: error if there was one
+            - error: error if there was one 
     */
     app.post('/logout', function(req, res) {
         UserController.logout(req, res);
@@ -54,25 +54,25 @@ module.exports = function(app) {
 
         POST /users
         Request Body:
-        	- name: name of the new user
-        	- email: unique MIT email
-        	- password: password
+        	- name: name of the new user 
+        	- email: unique MIT email 
+        	- password: password 
         Response:
-            - user: user
-            - error: error if there was one
+            - user: user 
+            - error: error if there was one 
     */
     app.post('/users', function(req, res) {
         UserController.create(req, res);
     });
 
     /*  
-        Get a particular user
+        Get a particular user with the given id
 
         GET /users/{id}
         Request Body: empty
         Response:
-            - user: the user
-            - error: error if there was one
+            - user: the user 
+            - error: error if there was one 
     */
     app.get('/users/:id', function(req, res) {
         UserController.get(req, res);
@@ -139,8 +139,8 @@ module.exports = function(app) {
         GET /user/{id}/requests/
         Request Body: empty
         Response:
-            - requestsTo: list of all requests to the user (ids)
-            - requestsFrom: list of all requests from the user (ids)
+            - requestsTo: list of ids of all requests to the user 
+            - requestsFrom: list of ids of all requests from the user
             - error: error if there was one
     */
     app.get('/users/:id/requests/', function(req, res) {

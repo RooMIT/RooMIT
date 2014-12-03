@@ -13,6 +13,7 @@ function handleError(error) {
     }
 }
 
+// remove error message
 function removeError() {
     $('#error').html('');
 }
