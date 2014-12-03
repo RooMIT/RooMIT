@@ -13,11 +13,11 @@ var RequestSchema = new Schema({
 });
 
 RequestSchema.statics.findFrom = function(userId, callback) {
-    this.find({ from: userId }).populate('to', '_id name email preferences available group').exec(callback);
+    this.find({ from: userId }).populate('to', '_id name').exec(callback);
 }
 
 RequestSchema.statics.findTo = function(userId, callback) {
-    this.find({ to: userId }).populate('from', '_id name email preferences available group').exec(callback);
+    this.find({ to: userId }).populate('from', '_id name').exec(callback);
 }
 
 RequestSchema.statics.createRequest = function (fromId, toId, callback){
@@ -85,6 +85,20 @@ RequestSchema.statics.getRequests = function(userId, callback) {
         });;
     })
 };
+
+RequestSchme.statics.rejectRequest = function(creator_id, receiver_id, req, res) {
+    //delete all requests from creator to receiver as well as to roommates of receiver
+    User.getRoommates(receiver_id, function(err, roommates) {
+        var recipients = roommates.map(function(roommate) {
+            return roommate._id.toString();
+        });
+        recipients.push(receiver_id);
+        Request.remove({from: creator_id, to: {$in: recipients}}, function(err) {
+            if (err) return handleError(res, 500, err);
+            res.json({success: true});
+        });
+    });
+}
 
 var Request = mongoose.model('Request', RequestSchema);
 module.exports = Request;

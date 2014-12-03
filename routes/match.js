@@ -1,4 +1,8 @@
- module.exports = {
+/**
+ * Author: Alec
+ */
+
+module.exports = {
     // filter out all users that don't share any housing preferences
     filterUsers: function(self, users) {
         var acceptableDorms = {};

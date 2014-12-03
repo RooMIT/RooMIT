@@ -58,6 +58,10 @@ $(document).on('click', '.deny', function(event) {
     });
 });
 
+var confirmRequest = function(creator_id, callback) {
+    User.
+}
+
 // click confirm, remove the request and make the users roommates (as well as unavailable)
 $(document).on('click', '.confirm', function(event) {
     event.preventDefault();
@@ -67,7 +71,7 @@ $(document).on('click', '.confirm', function(event) {
     // get logged in user
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
-    
+
     // delete the request
     deleteRequest(requestID, function() {
 
@@ -172,7 +176,7 @@ var rejectRequest = function(from_id, callback) {
 }
 
 var confirmRequest = function(from_id, callback) {
-    
+
 }
 // delete requests
 // deleteRequests: list of request id to be deleted
@@ -226,6 +230,16 @@ var getRequestsTo = function(userId, to, callback) {
     });
 }
 
+// gets request to a certain id (undefined if none exist)
+var getRequestTo = function(to, requests) {
+    var result = requests.filter(function(request) {
+        return request.to === to;
+    });
+
+    if (!result.length) return undefined;
+    return result[0];
+}
+
 // refetch all requests to/from user and display them
 var showRequests = function() {
     switchActive('#requests');
@@ -244,7 +258,8 @@ var showRequests = function() {
         if (!user.available) {
             $('#content').html(Handlebars.templates['requests']({
                 requestsToUser: requestsToUser,
-                requestsFromUser: requestsFromUser
+                requestsFromUser: requestsFromUser,
+                showName: true
             }));
             return;
         }
@@ -254,7 +269,8 @@ var showRequests = function() {
 
             $('#content').html(Handlebars.templates['requests']({
                 requestsToUser: result.requestsTo,
-                requestsFromUser: result.requestsFrom
+                requestsFromUser: result.requestsFrom,
+                showName: true
             }));
         });
 

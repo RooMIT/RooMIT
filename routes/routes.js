@@ -63,19 +63,6 @@ module.exports = function(app) {
         UserController.create(req, res);
     });
 
-    /*
-        Get all users
-
-        GET /users
-        Request Body: empty
-        Response:
-            - users: a list of all users
-            - error: error if there was one
-    */
-    app.get('/users', function(req, res) {
-        UserController.getAll(req, res);
-    }); 
-
     /*  
         Get a particular user
 
@@ -119,19 +106,7 @@ module.exports = function(app) {
     });
 
     /*  
-        Create all the preferences (should only be done once)
-
-        POST /preferences/
-        Request Body:
-        Response:
-            - error: error if there was one
-    */
-    app.post('/preferences/', function(req, res) {
-        PreferenceController.create(req, res);
-    });
-
-    /*  
-        Modify a preference
+        Modify a preference of the logged in user
 
         PUT /preferences/{id}
         Request Body:
@@ -175,8 +150,8 @@ module.exports = function(app) {
         GET /user/{id}/requests/
         Request Body: empty
         Response:
-            - requestsTo: list of all requests to the user
-            - requestsFrom: list of all requests from the user
+            - requestsTo: list of all requests to the user (ids)
+            - requestsFrom: list of all requests from the user (ids)
             - error: error if there was one
     */
     app.get('/users/:id/requests/', function(req, res) {
@@ -204,28 +179,14 @@ module.exports = function(app) {
 
         PUT /users/{from_id}/requests/to/{to_id}
         Request body: {
-            deleteRoommateRequests: true/false
+            reject: true/false
+            cancel: true/false
+            accept: true/false
         }
         Response:
             - error: error if there was one
     */
     app.put('/users/:from_id/requests/to/:to_id', function(req, res) {
-        RequestController.delete(req, res);
+        RequestController.update(req, res);
     });
-
-    /*  
-        Delete requests specified by the body
-
-        DELETE /requests/
-        Request Body: 
-            - deleteRequests: list of requests to be deleted
-        Response:
-            - error: error if there was one
-    */
-    app.delete('/requests/', function(req, res) {
-        RequestController.delete(req, res);
-    });
-
-
-
 }

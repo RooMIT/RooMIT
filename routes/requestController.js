@@ -6,13 +6,56 @@ var Request = require('../models/request');
 var User = require('../models/user');
 var handleError = require('./utils').handleError;
 
-var deleteRequest = function(from, to, callback) {
-    Request.getRequestFromTo(from, to, function(err, request) {
-        if (err) return callback(err);
-        Request.findByIdAndRemove(request._id, callback);
-    });
-
+var acceptRequest = function(creator_id, receiver_id, req, res) {
+    User.getRoommates()
 }
+
+var rejectRequest = function(creator_id, receiver_id, req, res) {
+    //delete all requests from creator to receiver as well as to roommates of receiver
+    User.getRoommates(receiver_id, function(err, roommates) {
+        var recipients = roommates.map(function(roommate) {
+            return roommate._id.toString();
+        });
+        recipients.push(receiver_id);
+        Request.remove({from: creator_id, to: {$in: recipients}}, function(err) {
+            if (err) return handleError(res, 500, err);
+            res.json({success: true});
+        });
+    });
+}
+
+var cancelRequest = function(creator_id, receiver_id, req, res) {
+    //Model changes when cancelling a request from User A to User B 
+    //are identical to those when rejecting a request from User A to User B
+    rejectRequest(creator_id, receiver_id, req, res);
+}
+
+var modifyRequest = function(req, res) {
+    var creator_id = req.params.from_id;
+    var receiver_id = req.params.to_id;
+
+    var self_id = req.session.userId;
+    if (!self_id) return handleError(res, 400, 'Please login first');
+    if (receiver_id !== self_id) return handleError(res, 400, 'Not logged in as correct user');
+
+    var accept = req.session.accept;
+    var reject = req.session.reject;
+    var cancel = req.session.cancel;
+
+    if (accept) {
+        acceptRequest(creator_id, receiver_id, req, res);
+    }
+    else if(reject) {
+        rejectRequest(creator_id, receiver_id, req, res);
+    }
+    else if(cancel) {
+        cancelRequest(creator_id, receiver_id, req, res);
+    }
+    else {
+        res.json({success: true});
+    }
+}
+
 module.exports = {
 
     // create requests
@@ -28,40 +71,10 @@ module.exports = {
     },
 
 
-    // delete requests
-    delete: function(req, res) {
+    // modify requests
+    update: function(req, res) {
 
-        var creator_id = req.params.from_id;
-        var receiver_id = req.params.to_id;
-
-        var deleteRoommates = req.body.deleteRoommateRequests;
-
-        var self_id = req.session.userId;
-        if (!self_id) return handleError(res, 400, 'Please login first');
-
-        if (!deleteRoommates) {
-            if (receiver_id !== self_id) return handleError(res, 400, 'Not logged in as correct user');
-            //user is the recipient, no need to auth
-            Request.remove({from: creator_id, to: receiver_id}, function(err) {
-                if (err) return handleError(res, 500, err);
-                res.json({success: true});
-            })
-        }
-        User.getRoommates(receiver_id, function(err, roommates) {
-            //allow iff user is roommate of recipient
-            var recipients = roommates.map(function(roommate) {
-                return roommate._id.toString();
-            });
-            if (recipients.indexOf(self_id) === -1 && self_id !== receiver_id) {
-                //logged in user is not a roommate of the receiver or the receiver himself, disallow this operation
-                return handleError(res, 400, 'Logged in user not a roommate of recipient');
-            }
-            recipients.push(receiver_id);
-            Request.remove({from: creator_id, to: {$in: recipients}}, function(err) {
-                if (err) return handleError(res, 500, err);
-                res.json({success: true});
-            });
-        });
+        
     },
 
     // get all requests to/from a user
