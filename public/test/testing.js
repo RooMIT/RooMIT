@@ -723,10 +723,10 @@ function modifyRequest(from, to, accept, deny, cancel, callback) {
 }
 
 function deleteUser(userId, callback) {
-    $.ajax(
+    $.ajax({
         url: '/users/' + userId,
         type: 'DELETE'
-    ).done(function(response) {
+    }).done(function(response) {
         callback(response);
     }).fail(function(error) {
         console.log(error);
