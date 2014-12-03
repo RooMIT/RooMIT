@@ -73,7 +73,7 @@ RequestSchema.statics.getRequests = function(userId, callback) {
     })
 };
 
-RequestSchme.statics.rejectRequest = function(creator_id, receiver_id, req, res) {
+RequestSchema.statics.rejectRequest = function(creator_id, receiver_id, req, res) {
     //delete all requests from creator to receiver as well as to roommates of receiver
     User.getRoommates(receiver_id, function(err, roommates) {
         var recipients = roommates.map(function(roommate) {
