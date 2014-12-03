@@ -24,28 +24,30 @@ var UserSchema = new Schema({
 // or make an entirely new group if neither is in a group
 UserSchema.statics.addRoommate = function(userID, roommateID, callback) {
     var User = this;
-    User.find({ _id: userID}, '_id group', function(err, user) {
+    User.findOne({ _id: userID}, '_id group', function(err, user) {
         if (err) return callback(err);
         if (!user) return callback('User does not exist');
-        User.find({_id: roommateID}, '_id group', function(err, other) {
+        User.findOne({_id: roommateID}, '_id group', function(err, other) {
             if (err) return callback(err);
             if (!other) return callback('Other user does not exist');
             //If user already has a group, add other to user's group
-            console.log('IM ADDING A ROOMMATE');
+            console.log('Me!', user);
+            console.log('Other!', other);
             if (user.group) {
-                User.update({ _id: other._id }, { group: user.group }, function (err) {
-                    return callback(err);
-                });
+                console.log('first situation', user.group);
+                other.group = user.group;
+                other.save(callback);
             }
             //If user has no group but other does, add user to other's group
             else if (other.group) {
-                User.update({ _id: user._id }, { group: other.group }, function (err) {
-                    return callback(err);
-                });
+                console.log('second situation', other.group);
+                user.group = other.group;
+                user.save(callback);
             }
             //otherwise make a new group
             else {
                 var group = new Group();
+                console.log('third situation', group);
                 group.save(function (err) {
                     if (err) return callback(err);
                     // update both users to share the group

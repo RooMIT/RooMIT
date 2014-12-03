@@ -24,18 +24,19 @@ RequestSchema.statics.findTo = function(userId, callback) {
 
 //Remove all requests from creator_id to any of the ids in receiver_ids
 RequestSchema.statics.removeFromTos = function(creator_id, receiver_ids, callback) {
-    this.find({}).exec(function(err, result) {
-        result = result.filter(function(request) {
-            return request.from.equals(creator_id);
-        });
-        result = result.filter(function(request) {
-            return receiver_ids.indexOf(request.from.toString()) !== -1;
+    var Request = this;
+    Request.findFrom(creator_id, function(err, requests) {
+        if (err) return callback(err);
+        var result = requests.filter(function(request) {
+            return receiver_ids.filter(function(id) {
+                return request.to._id.equals(id);
+            }).length > 0;
         });
         result.forEach(function(request) {
             request.remove();
-        });
+        })
         callback();
-    })
+    });
 }
 
 // find all requests from userId 
@@ -80,7 +81,6 @@ RequestSchema.statics.createRequest = function (creator_id, receiver_id, include
                     request.save();
                 });
                 callback();
-                //Request.create(new_requests, callback);
             });
         });
     });
@@ -149,7 +149,6 @@ RequestSchema.statics.acceptRequest = function(creator_id, receiver_id, callback
                 //That means we have to make them roommates and cancel all their existing requests
                 Request.removeFromTos(creator_id, [receiver_id], function(err) { 
                     if (err) return callback(err);
-                    console.log('Second one called');
                     addRoommate(creator_id, receiver_id, [], Request, callback);
                 });
             }
@@ -157,24 +156,11 @@ RequestSchema.statics.acceptRequest = function(creator_id, receiver_id, callback
     });
 }
 
-//Reject the request from creator to receiver
-RequestSchema.statics.rejectRequest = function(creator_id, receiver_id, callback) {
-    var Request = this;
-    //delete all requests from creator to receiver as well as to roommates of receiver
-    User.getRoommates(receiver_id, function(err, roommates) {
-        var recipients = roommates.map(function(roommate) {
-            return roommate._id.toString();
-        });
-        recipients.push(receiver_id);
-        Request.removeFromTos(creator_id, recipients, callback);
-    });
-}
-
 //Cancel the request from creator to receiver
 RequestSchema.statics.cancelRequest = function(creator_id, receiver_id, callback) {
     //Model changes when cancelling a request from User A to User B 
     //are identical to those when rejecting a request from User A to User B
-    this.rejectRequest(creator_id, receiver_id, callback);
+    this.denyRequest(creator_id, receiver_id, callback);
 }
 
 //Get all requests from from_id that are to any of the users in to_ids
@@ -182,9 +168,10 @@ RequestSchema.statics.getRequestsFromOneToMany = function(from_id, to_ids, callb
     var Request = this;
     Request.findFrom(from_id, function(err, requests) {
         if (err) return callback(err);
-        console.log('Requests!', requests);
         var result = requests.filter(function(request) {
-            return to_ids.indexOf(request.to.toString()) !== -1;
+            return to_ids.filter(function(id) {
+                return id.equals(request.to._id);
+            }).length;
         });
         callback(undefined, result);
     });
@@ -211,7 +198,7 @@ RequestSchema.statics.denyRequest = function(creator_id, receiver_id, req, res) 
     //delete all requests from creator to receiver as well as to roommates of receiver
     User.getRoommates(receiver_id, function(err, roommates) {
         var recipients = roommates.map(function(roommate) {
-            return roommate._id.toString();
+            return roommate._id;
         });
         recipients.push(receiver_id);
         Request.removeFromTos(creator_id, recipients, callback);
