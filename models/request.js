@@ -47,6 +47,19 @@ RequestSchema.statics.createRequest = function (creator_id, receiver_id, include
     });
 }
 
+var addRoommate(user_id, other_id, roommate_ids, Request, callback) {
+    roommate_ids.push(user_id);
+    User.addRoommate(user_id, other_id, function(err) {
+        if (err) return callback(err);
+        roommate_ids.push(other_id);
+        //Remove all existing requests involving all users in the new room, since their statuses have changed
+        Request.remove({from: {$in: roommate_ids}}, function(err) {
+            if (err) return callback(err);
+            Request.remove({to: {$in: roommate_ids}}, callback);
+        })
+    })
+}
+
 RequestSchema.acceptRequest = function(creator_id, receiver_id, callback) {
     User.getUser(creator_id, function(err, creator) {
         User.getRoommates(receiver_id, function(err, roommates) {
@@ -75,10 +88,10 @@ RequestSchema.acceptRequest = function(creator_id, receiver_id, callback) {
                         Request.remove({from: creator_id, to: receiver_id}, callback);
                     }
                     else {
-                        //We are the last roommate to accept a request, so let's do a matching
+                        //Receiver is the last roommate to accept a request, so add creator to his group
                         Request.remove({from: creator_id, to: receiver_id}, function(err) {
                             if (err) return callback(err);
-                            //Do the stuff to put them together
+                            addRoommate(user, creator_id, recipients, Request, callback);
                         });
                     }
                 });
@@ -88,7 +101,7 @@ RequestSchema.acceptRequest = function(creator_id, receiver_id, callback) {
                 //That means we have to make them roommates and cancel all their existing requests
                 Request.remove({from: creator_id, to: receiver_id}, function(err) {
                     if (err) return callback(err);
-                    //Do the stuff to put them together
+                    addRoommate(user, creator_id, [], Request, callback);
                 });
             }
         });
