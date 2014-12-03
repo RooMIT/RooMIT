@@ -19,15 +19,15 @@ module.exports = function(app) {
     });
 
     /* 
-        Logs in the user, creates session
+        Logs in the user and creates session
 
         POST /login
         Request Body:
-            - email: MIT email
-            - password: password
+            - email: (String) MIT email address
+            - password: (String) password
         Response:
-            - user: user
-            - error: error if there was one
+            - user: (Object) user
+            - error: (String) error if there was one
     */
     app.post('/login', function(req, res) {
         UserController.login(req, res);

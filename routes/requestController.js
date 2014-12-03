@@ -6,6 +6,7 @@ var Request = require('../models/request');
 var User = require('../models/user');
 var handleError = require('./utils').handleError;
 
+
 var acceptRequest = function(creator_id, receiver_id, req, res) {
     Request.acceptRequest(creator_id, receiver_id, function(err, result) {
 
