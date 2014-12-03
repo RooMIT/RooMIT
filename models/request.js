@@ -41,7 +41,7 @@ RequestSchema.statics.createRequest = function (creator_id, receiver_id, callbac
                 var new_requests = recipients.map(function(user_id) {
                     return {from: creator_id, to: user_id};
                 });
-                this.collection.insert(new_requests, callback);
+                Request.collection.insert(new_requests, callback);
             });
         });
     });
