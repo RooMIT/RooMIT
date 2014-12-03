@@ -26,7 +26,7 @@ var rejectRequest = function(creator_id, receiver_id, req, res) {
 
 var cancelRequest = function(creator_id, receiver_id, req, res) {
     //Model changes when cancelling a request from User A to User B 
-    //  are identical to those when rejecting a request from User A to User B
+    //are identical to those when rejecting a request from User A to User B
     rejectRequest(creator_id, receiver_id, req, res);
 }
 

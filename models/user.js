@@ -7,6 +7,7 @@ var Schema = mongoose.Schema;
 var ObjectId = Schema.Types.ObjectId;
 var bcrypt = require('bcrypt');
 var SALT_WORK_FACTOR = 10;
+var Group = require('../group');
 
 var UserSchema = new Schema({
     name: { type: String, required: true },
@@ -21,38 +22,36 @@ var UserSchema = new Schema({
 // this will either add the roommate to the user's group, 
 // add the user to the roommate's group,
 // or make an entirely new group if neither is in a group
-UserSchema.statics.addRoommate = function(userId, roommateID, callback) {
+UserSchema.statics.addRoommate = function(userID, roommateID, callback) {
     var user = this;
 
-    // if the user has a group, update the roommate to have the same group
-    User.find({ _id: userId }, 'group', function(err, user) {
-        if (user.group) {
-            User.update({ _id: roommateID }, { group: user.group }, function (err) {
-                return callback(err);
-            });
-        } 
-    });
-
-    // now we check if the roommate has a group
-    User.find({ _id: roommateID }, 'group', function(err, roommate) {
-        // if the roommate has a group, update the user to have the same group
-        if (roommate.group) {
-            User.update({ _id: user._id }, { group: roommate.group }, function (err) {
-                return callback(err);
-            });
-        }  
-    });
-    
-    // otherwise, make a new group
-    var group = new Group();
-    group.save(function (err) {
-        if (err) return callback(err);
-        // update both users to share the group
-        User.update({ _id: { $in: [user._id, roommateID] } }, { group: group._id }, function (err) {
-            callback(err);
+    User.find({ _id: userID}, 'group', function(err, user) {
+        User.find({_id: roommateID}, 'group', function(err, other) {
+            //If user already has a group, add other to user's group
+            if (user.group) {
+                User.update({ _id: roommateID }, { group: user.group }, function (err) {
+                    return callback(err);
+                });
+            }
+            //If user has no group but other does, add user to other's group
+            else if (roommate.group) {
+                User.update({ _id: user._id }, { group: roommate.group }, function (err) {
+                    return callback(err);
+                });
+            }
+            //otherwise make a new group
+            else {
+                var group = new Group();
+                group.save(function (err) {
+                    if (err) return callback(err);
+                    // update both users to share the group
+                    User.update({ _id: { $in: [user._id, roommateID] } }, { group: group._id }, function (err) {
+                        callback(err);
+                    });
+                });
+            }
         });
     });
-
 };
 
 // remove the user from their group, also delete the group if there is only 1 user left
