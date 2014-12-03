@@ -19,7 +19,10 @@ asyncTest('Register a user', function() {
         ok(user.preferences.length, 'Preferences are present');
         ok(user.available, 'User is initially available');
         equal(user.group, undefined, 'User initially has no group');
-        start();
+        
+        deleteUser(user._id, function() {
+            start();
+        });
     });
 });
 
@@ -30,7 +33,10 @@ asyncTest('Log in a user', function() {
             equal(user.name, name, 'Name is correct');
             equal(user.email, user1.email, 'Email is correct');
             equal(user._id, user1._id, 'User id is correct')
-            start();
+            
+            deleteUser(user1._id, function() {
+                start();
+            });
         });
     });
 });
@@ -42,7 +48,10 @@ asyncTest('Get a user', function() {
             equal(user.name, name, 'Name is correct');
             equal(user.email, user1.email, 'Email is correct');
             equal(user._id, user1._id, 'User id is correct')
-            start();
+            
+            deleteUser(user1._id, function() {
+                start();
+            });
         });
     });
 });
@@ -52,7 +61,10 @@ asyncTest('Get suggestions', function() {
         getSuggestions(function(response) {
             var suggestions = response.suggestions;
             ok(suggestions, 'There are suggestions');
-            start();
+            
+            deleteUser(user._id, function() {
+                start();
+            });
         });
     });
 });
@@ -81,7 +93,10 @@ asyncTest('Modify preferences', function() {
                             var preference3 = response.user.preferences[0];
                             equal(preference3.response, 'No', 'Preference response is now No');
                             equal(preference.description, preference2.description, 'Description is the same');
-                            start();
+                            
+                            deleteUser(user1._id, function() {
+                                start();
+                            });
                         }); 
                     });
                 }); 
@@ -111,7 +126,10 @@ asyncTest('Modify availability', function() {
                         // should be available
                         getUser(user1._id, function(response) {
                             ok(response.user.available, 'Availability is true');
-                            start(); 
+                            
+                            deleteUser(user1._id, function() {
+                                start();
+                            });
                         });
                     });
                 });
@@ -154,7 +172,10 @@ asyncTest('Make a request', function() {
                     equal(reqTo2[0].from._id, user1._id, 'Request to user2 is from user1');
                     equal(reqFrom1[0].to._id, user2._id, 'Request from user1 is to user2');
                     equal(reqFrom1[0].from._id, user1._id, 'Request from user1 is from user1');
-                    start();
+                    
+                    deleteTwoUsers(user1._id, user2._id, function() {
+                        start();
+                    });
                 });
             });
         });
@@ -197,7 +218,10 @@ asyncTest('Make and accept request', function() {
                         equal(reqFrom2.length, 0, 'No requests from user2');
                         equal(reqTo2.length, 0, 'No requests to user2');
                         equal(reqFrom1.length, 0, 'No requests from user1');
-                        start();
+                        
+                        deleteTwoUsers(user1._id, user2._id, function() {
+                            start();
+                        });
                     });
                 });
             });
@@ -241,7 +265,10 @@ asyncTest('Make and deny request', function() {
                         equal(reqFrom2.length, 0, 'No requests from user2');
                         equal(reqTo2.length, 0, 'No requests to user2');
                         equal(reqFrom1.length, 0, 'No requests from user1');
-                        start();
+                        
+                        deleteTwoUsers(user1._id, user2._id, function() {
+                            start();
+                        });
                     });
                 });
             });
@@ -284,7 +311,10 @@ asyncTest('Make and cancel request', function() {
                         equal(reqFrom2.length, 0, 'No requests from user2');
                         equal(reqTo2.length, 0, 'No requests to user2');
                         equal(reqFrom1.length, 0, 'No requests from user1');
-                        start();
+                        
+                        deleteTwoUsers(user1._id, user2._id, function() {
+                            start();
+                        });
                     });
                 });
             });
@@ -313,7 +343,10 @@ asyncTest('Add roommate', function() {
                     getBothRoommates(user1._id, user2._id, function(roommates1, roommates2) {
                         same(roommates1, [user2._id], 'User1 is roommates with only user2');
                         same(roommates2, [user1._id], 'User2 is roommates with only user1');
-                        start();
+                        
+                        deleteTwoUsers(user1._id, user2._id, function() {
+                            start();
+                        });
                     });
                 });
             });
@@ -352,7 +385,10 @@ asyncTest('Remove roommate', function() {
                             getBothRoommates(user1._id, user2._id, function(roommates1, roommates2) {
                                 same(roommates1, [], 'User1 has no roommates');
                                 same(roommates2, [], 'User2 has no roommates');
-                                start();
+                                
+                                deleteTwoUsers(user1._id, user2._id, function() {
+                                    start();
+                                });
                             });
                         });
                     });
@@ -389,7 +425,10 @@ asyncTest('Modify availability with roommates', function() {
                             getBothUsers(user1._id, user2._id, function(user1, user2) {
                                 ok(user1.available, 'User1 is available'); 
                                 ok(user2.available, 'User2 is available');
-                                start();
+                                
+                                deleteTwoUsers(user1._id, user2._id, function() {
+                                    start();
+                                });
                             });
                         });
                     });
@@ -420,7 +459,10 @@ asyncTest('Send request to group of two', function() {
 
                         equal(reqTo1[0].from, user3._id, 'Request to user1 is from user3');
                         equal(reqTo2[0].from, user3._id, 'Request to user2 is from user3');
-                        start();
+                        
+                        deleteThreeUsers(user1._id, user2._id, user3._id, function() {
+                            start();
+                        });
                     });
                 });
             });
@@ -465,7 +507,10 @@ asyncTest('Send request to group of two, accept it', function() {
 
                                 ok(roommates3.indexOf(user1._id) > -1, 'User3 is roommates with user1');
                                 ok(roommates3.indexOf(user2._id) > -1, 'User3 is roommates with user2');
-                                start();
+                                
+                                deleteThreeUsers(user1._id, user2._id, user3._id, function() {
+                                    start();
+                                });
                             });
                         });
                     });
@@ -505,7 +550,10 @@ asyncTest('Send request to group of two, one denies, one accepts it', function()
 
                                 equal(reqTo1.length, 0, 'No requests to user1');
                                 equal(reqTo2.length, 0, 'No requests to user2');
-                                start();
+                                
+                                deleteThreeUsers(user1._id, user2._id, user3._id, function() {
+                                    start();
+                                });
                             });
                         });
                     });
@@ -534,7 +582,10 @@ asyncTest('Send request to group of two, cancel it', function() {
 
                         equal(reqTo1.length, 0, 'No requests to user1');
                         equal(reqTo2.length, 0, 'No requests to user2');
-                        start();
+                        
+                        deleteThreeUsers(user1._id, user2._id, user3._id, function() {
+                            start();
+                        });
                     });
                 });
             });
@@ -669,6 +720,31 @@ function createRequest(from, to, callback) {
 
 function modifyRequest(from, to, accept, deny, cancel, callback) {
     ajax({deny: deny, cancel: cancel, accept: accept}, '/users/' + from + '/requests/to/' + to, 'PUT', 'Modify request', callback);
+}
+
+function deleteUser(userId, callback) {
+    $.ajax(
+        url: '/users/' + userId,
+        type: 'DELETE'
+    ).done(function(response) {
+        callback(response);
+    }).fail(function(error) {
+        console.log(error);
+    });
+}
+
+function deleteTwoUsers(userId1, userId2, callback) {
+    deleteUser(userId1, function() {
+        deleteUser(userId2, callback);
+    });
+}
+
+function deleteThreeUsers(userId1, userId2, userId3, callback) {
+    deleteUser(userId1, function() {
+        deleteUser(userId2, function() {
+            deleteUser(userId3, callback);
+        });
+    });
 }
 
 function registerWithoutTest(name, email, password, callback) {

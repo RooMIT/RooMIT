@@ -135,4 +135,14 @@ exports.update = function(req, res) {
     }
 }
 
+// deletes the user
+exports.delete = function(req, res) {
+    var userId = req.params.id;
+
+    User.findByIdAndRemove(userId, function(err) {
+        if (err) return handleError(res, 500, err);
+        return res.json({ success:true });
+    });
+}
+
 module.exports = exports;
