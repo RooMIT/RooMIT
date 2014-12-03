@@ -141,11 +141,19 @@ UserSchema.statics.updateAvailability = function(userId, available, callback) {
 
         // if the user doesn't have a group, just update them
         if (!user.group) {
-            return User.update({ _id: userId }, { available: availableBoolean }).exec(callback);
+            User.update({ _id: userId }, { available: availableBoolean }).exec(callback);
+        } else {
+            // if there is a group, update the availability of everyone in the user's group
+            User.find({ group: user.group }, function(err, users) {
+                users.forEach(function(oneUser) {
+                    oneUser.available = availableBoolean;
+                    oneUser.save();
+                });
+                callback(err);
+            });
         }
 
-        // if there is a group, update the availability of everyone in the user's group
-        User.update({ group: user.group }, { available: availableBoolean }).exec(callback);
+        
     });
 }
 
@@ -176,9 +184,6 @@ UserSchema.statics.getRoommates = function(userId, callback) {
 
             // filter out the user from roommates
             var roommates = users.filter(function(other) {
-                console.log(user.email);
-                console.log(other.email);
-                console.log(other._id.equals(user._id));
                 return user.email != other.email;
             });
             callback(undefined, roommates);
