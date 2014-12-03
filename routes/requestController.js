@@ -3,10 +3,10 @@
  */
 
 var Request = require('../models/request');
-var User = require('../models/request');
+var User = require('../models/user');
 var handleError = require('./utils').handleError;
 
-var deleteRequest = function(to, from, callback) {
+var deleteRequest = function(from, to, callback) {
     Request.getRequestFromTo(from, to, function(err, request) {
         if (err) return callback(err);
         Request.findByIdAndRemove(request._id, callback);
@@ -17,65 +17,50 @@ module.exports = {
 
     // create requests
     create: function(req, res) {
-        var userId = req.params.id;
         if (!req.session.userId) return handleError(res, 400, 'Please login first');
-        var toIds = req.body.to;
-        var fromIds = req.body.from;
-        if (!toIds.length && !fromIds.length) return handleError(res, 400, 'Users do not exist');
-        Request.create(fromIds, toIds, function (err));
-
-
-        var toIds = req.body.to;
-        var requests = [];
-        if (toIds.length) {
-            toIds = toIds.split(',');
-            requests = toIds.map(function(elem){
-                return new Request({ from: userId, to: elem });
-            });
-        }
-
-        var fromIds = req.body.from;
-        var requests2 = [];
-        if (fromIds.length) {
-            fromIds = fromIds.split(',');
-            var requests2 = fromIds.map(function(elem){
-                return new Request({ from: elem, to: userId });
-            });
-        }        
-
-        var allRequests = requests.concat(requests2);
-
-        allRequests.forEach(function(request) {
-            request.save(function (err, res) {
-                if (err) return handleError(res, 500, err);
-                res.json({ success:true });
-            });
+        var toId = req.body.to_id;
+        var fromId = req.body.from_id;
+        if (!toId || !fromId) return handleError(res, 400, 'Requested user does not exist');
+        Request.createRequests(fromId, toId, function (err){
+            if (err) return handleError(res, 500, err);
+            res.json({ success:true });
         });
     },
 
 
     // delete requests
     delete: function(req, res) {
-        var handleDelete = function(err) {
-            if (err) return handleError(res, 500, err);
-            res.json({success: true});
-        };
 
         var creator_id = req.params.from_id;
         var receiver_id = req.params.to_id;
+
+        var deleteRoommates = req.body.deleteRoommateRequests;
+
         var self_id = req.session.userId;
         if (!self_id) return handleError(res, 400, 'Please login first');
-        if (self_id === receiver_id) {
+
+        if (!deleteRoommates) {
+            if (receiver_id !== self_id) return handleError(res, 400, 'Not logged in as correct user');
             //user is the recipient, no need to auth
-            deleteRequest(creator_id, receiver_id, handleDelete);
+            Request.remove({from: creator_id, to: receiver_id}, function(err) {
+                if (err) return handleError(res, 500, err);
+                res.json({success: true});
+            })
         }
-        User.getRoommates(self_id, function(err, roommates) {
+        User.getRoommates(receiver_id, function(err, roommates) {
             //allow iff user is roommate of recipient
-            if (roommates.indexOf(receiver_id) === -1) {
-                //logged in user is not a roommate of the receiver, disallow
+            var recipients = roommates.map(function(roommate) {
+                return roommate._id.toString();
+            });
+            if (recipients.indexOf(self_id) === -1 && self_id !== receiver_id) {
+                //logged in user is not a roommate of the receiver or the receiver himself, disallow this operation
                 return handleError(res, 400, 'Logged in user not a roommate of recipient');
             }
-            deleteRequest(creator_id, receiver_id, handleDelete);
+            recipients.push(receiver_id);
+            Request.remove({from: creator_id, to: {$in: recipients}}, function(err) {
+                if (err) return handleError(res, 500, err);
+                res.json({success: true});
+            });
         });
     },
 
