@@ -12,7 +12,6 @@ var modifyRequest = function(req, res) {
 
     var self_id = req.session.userId;
     if (!self_id) return handleError(res, 400, 'Please login first');
-    if (receiver_id !== self_id) return handleError(res, 400, 'Not logged in as correct user');
 
     var accept = req.body.accept;
     var deny = req.body.deny;

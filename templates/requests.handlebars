@@ -13,7 +13,7 @@
 
 <h3> From you: </h3><br>
 {{#each requestsFromUser}}
-    <div to={{from}} from={{to._id}}>
+    <div to={{to._id}} from={{from}}>
         <span class='requestuser'><a value='{{to._id}}' class='user-profile' href='#'>{{to.name}}</a></span>
         <button class='btn btn-default cancel' type='button'>Cancel Request</button>
     </div>

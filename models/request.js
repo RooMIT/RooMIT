@@ -93,9 +93,15 @@ var addRoommate = function(user_id, other_id, roommate_ids, Request, callback) {
         if (err) return callback(err);
         roommate_ids.push(other_id);
         roommate_ids.forEach(function(creator_id) {
-            Request.removeFromTos(creator_id, roommate_ids, function(err, result) {
-                //do nothing
-            });
+            Request.getRequests(creator_id, function(err, requests) {
+                console.log(requests);
+                requests.requestsFrom.forEach(function(request) {
+                    request.remove();
+                });
+                requests.requestsTo.forEach(function(request) {
+                    request.remove();
+                })
+            })
         });
         callback();
     })
@@ -170,8 +176,8 @@ RequestSchema.statics.getRequestsFromOneToMany = function(from_id, to_ids, callb
         if (err) return callback(err);
         var result = requests.filter(function(request) {
             return to_ids.filter(function(id) {
-                return id.equals(request.to._id);
-            }).length;
+                return request.to._id.equals(id);
+            }).length > 0;
         });
         callback(undefined, result);
     });
