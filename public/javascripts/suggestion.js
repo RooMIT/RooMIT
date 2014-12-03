@@ -16,19 +16,21 @@ $(document).on('click', '#suggestions:not(.active) a', function(event) {
 // shows suggestions page
 var showSuggestions = function() {
     switchActive('#suggestions');
-    getMatches(function(matches) {
+    getSuggestions(function(response) {
+        var suggestions = response.suggestions
+
         $('#content').html(Handlebars.templates['suggestions']({
-            suggestions: matches
+            suggestions: suggestions
         }));
     });
 }
 
-// get the matches (suggestions) for the logged in user
-var getMatches = function(callback) {
+// get the suggestions for the logged in user
+var getSuggestions = function(callback) {
     $.get(
-        '/matches'
+        '/suggestions'
     ).done(function(response) {
-        callback(response.matches);
+        callback(response);
     }).fail(function(error) {
         handleError(error);
     });
