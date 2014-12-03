@@ -5,7 +5,7 @@
 var User = require('../models/user');
 var handleError = require('./utils').handleError;
 var initPreferences = require('./preferenceController').initialize;
-var Match = require('./match');
+var Suggestion = require('./suggestion');
 
 var exports = {};
 
@@ -89,8 +89,8 @@ exports.getRoommates = function(req, res) {
     });
 }
 
-// gets the matches of the logged in user
-exports.getMatches = function(req, res) {
+// gets the suggestions for the logged in user
+exports.getSuggestions = function(req, res) {
     var logged_in_id = req.session.userId;
     if (!logged_in_id) return handleError(res, 400, 'Please login first');
     
@@ -101,9 +101,9 @@ exports.getMatches = function(req, res) {
         User.getAllUsers(function(err, users) {
             if (err) return handleError(res, 500, err);
 
-            var compatible = Match.filterUsers(self, users);
-            var matches = Match.findMatches(self, compatible);
-            res.json({matches: matches});
+            var compatible = Suggestion.filterUsers(self, users);
+            var suggestions = Suggestion.findSuggestions(self, compatible);
+            res.json({suggestions: suggestions});
         })
     });
 }

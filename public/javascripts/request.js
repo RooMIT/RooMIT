@@ -59,7 +59,6 @@ $(document).on('click', '.deny', function(event) {
 });
 
 var confirmRequest = function(creator_id, callback) {
-    User.
 }
 
 // click confirm, remove the request and make the users roommates (as well as unavailable)

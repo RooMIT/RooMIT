@@ -80,14 +80,14 @@ module.exports = function(app) {
         Get all the users that match the logged in user
         and the percentage they match
 
-        GET /matches
+        GET /suggestions
         Request Body: empty
         Response:
-            - matches: list of users and percentages { user1: .8, ...}
+            - suggestions: list of users and percentages
             - error: error if there was one
     */
-    app.get('/matches', function(req, res) {
-        UserController.getMatches(req, res);
+    app.get('/suggestions', function(req, res) {
+        UserController.getSuggestions(req, res);
     });
 
     /*  
