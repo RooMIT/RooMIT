@@ -13,7 +13,7 @@ var name = 'testuser';
 var password = 'beans';
 var connectionString = 'http://localhost:8080/';
 
-asyncTest('registering a user', function() {
+asyncTest('Register a user', function() {
     registerUser(function(user) {
         equal(user.name, name);
         ok(user.preferences.length);
@@ -23,7 +23,7 @@ asyncTest('registering a user', function() {
     });
 });
 
-asyncTest('logging in a user', function() {
+asyncTest('Log in a user', function() {
     registerUser(function(user1) {
         login(user1.email, password, function(response) {
             var user = response.user;
@@ -35,7 +35,7 @@ asyncTest('logging in a user', function() {
     });
 });
 
-asyncTest('getting a user', function() {
+asyncTest('Get a user', function() {
     registerUser(function(user1) {
         getUser(user1._id, function(response) {
             var user = response.user;
@@ -47,7 +47,7 @@ asyncTest('getting a user', function() {
     });
 });
 
-asyncTest('get suggestions', function() {
+asyncTest('Get suggestions', function() {
     registerUser(function(user) {
         getSuggestions(function(response) {
             var suggestions = response.suggestions;
@@ -57,12 +57,14 @@ asyncTest('get suggestions', function() {
     });
 });
 
-asyncTest('modify preferences', function() {
+asyncTest('Modify preferences', function() {
     registerUser(function(user1) {
         getUser(user1._id, function(response) {
             var user = response.user;
             var preference = user.preferences[0];
+            equal(preference.response, 'Don\'t Care');
             
+            // make response Yes
             modifyPreference(preference._id, preference.description, 'Yes', function(response) {
                 ok(response.success)
 
@@ -70,51 +72,46 @@ asyncTest('modify preferences', function() {
                     var preference2 = response.user.preferences[0];
                     equal(preference2.response, 'Yes');
                     equal(preference.description, preference2.description);
-                    start();
+                    
+                    // make response No
+                    modifyPreference(preference2._id, preference2.description, 'No', function(response) {
+                        ok(response.success)
+
+                        getUser(user1._id, function(response) {
+                            var preference3 = response.user.preferences[0];
+                            equal(preference3.response, 'No');
+                            equal(preference.description, preference2.description);
+                            start();
+                        }); 
+                    });
                 }); 
             });
         });
     });
 });
 
-asyncTest('add and remove roommate', function() {
-    registerTwoUsers(function(user1, user2) {
-        // both have no roommates
-        getBothRoommates(user1._id, user2._id, function(roommates1, roommates2) {
-            equal(roommates1.length, 0);
-            equal(roommates2.length, 0);
-                
-            makeRoommates(user1._id, user2._id, function(response) {
-                ok(response.success)
+asyncTest('Modify availability', function() {
+    registerUser(function(user1) {
+        // check that user available
+        getUser(user1._id, function(response) {
+            ok(response.user.available);
 
-                // check that they both have each other
-                getBothUsers(user1._id, user2._id, function(user1, user2) {
-                    var group1 = user1.group;
-                    var group2 = user2.group;
-                    ok(group1 !== undefined); 
-                    ok(group2 !== undefined);
-                    equal(group1, group2);
+            // make unavailable
+            modifyUserAvailability(user1._id, false, function(response) {
+                ok(response.success);
 
-                    getBothRoommates(user1._id, user2._id, function(roommates1, roommates2) {
-                        same(roommates1, [user2._id]);
-                        same(roommates2, [user1._id]);
+                // should be unavailable
+                getUser(user1._id, function(response) {
+                    ok(response.user.available === false);
 
-                        // disband group
-                        leaveGroup(user1._id, function(response) {
-                            ok(response.success);
+                    // make available
+                    modifyUserAvailability(user1._id, true, function(response) {
+                        ok(response.success);
 
-                            getBothUsers(user1._id, user2._id, function(user1, user2) {
-                                var group1 = user1.group;
-                                var group2 = user2.group;
-                                ok(group1 === undefined); 
-                                ok(group2 ===  undefined);
-
-                                getBothRoommates(user1._id, user2._id, function(roommates1, roommates2) {
-                                    same(roommates1, []);
-                                    same(roommates2, []);
-                                    start();
-                                });
-                            });
+                        // should be available
+                        getUser(user1._id, function(response) {
+                            ok(response.user.available);
+                            start(); 
                         });
                     });
                 });
@@ -123,53 +120,97 @@ asyncTest('add and remove roommate', function() {
     });
 });
 
-asyncTest('modify availability', function() {
+asyncTest('Make a request', function() {
     registerTwoUsers(function(user1, user2) {
-        makeRoommates(user1._id, user2._id, function(response) {
-            ok(response.success);
 
-            // check that they are both available
-            getBothUsers(user1._id, user2._id, function(user1, user2) {
-                ok(user1.available); 
-                ok(user2.available);
+        // make sure there are no requests
+        getBothRequests(user1._id, user2._id, function(response1, response2) {
+            var reqTo1 = response1.requestsTo;
+            var reqTo2 = response2.requestsTo;
+            var reqFrom1 = response1.requestsFrom;
+            var reqFrom2 = response2.requestsFrom;
 
-                // make one unavailable
-                modifyUserAvailability(user1._id, false, function(response) {
-                    ok(response.success);
+            equal(reqTo1.length, 0);
+            equal(reqFrom2.length, 0);
+            equal(reqTo2.length, 0);
+            equal(reqFrom1.length, 0);
 
-                    // both should be unavailable
-                    getBothUsers(user1._id, user2._id, function(user1, user2) {
-                        ok(!user1.available); 
-                        ok(!user2.available);
+            createRequest(user1._id, user2._id, function(response) {
+                ok(response.success);
 
-                        // make one available
-                        modifyUserAvailability(user2._id, true, function(response) {
-                            ok(response.success);
+                // should be one request from user1 to user2
+                getBothRequests(user1._id, user2._id, function(response1, response2) {
+                    var reqTo1 = response1.requestsTo;
+                    var reqTo2 = response2.requestsTo;
+                    var reqFrom1 = response1.requestsFrom;
+                    var reqFrom2 = response2.requestsFrom;
 
-                            // both should be available
-                            getBothUsers(user1._id, user2._id, function(user1, user2) {
-                                ok(user1.available); 
-                                ok(user2.available);
+                    equal(reqTo1.length, 0);
+                    equal(reqFrom2.length, 0);
+                    equal(reqTo2.length, 1);
+                    equal(reqFrom1.length, 1);
 
-                                // disband group
-                                leaveGroup(user1._id, function(response) {
-                                    ok(response.success);
-                                    start();
-                                });
-                            });
-                        });
-                    });
+                    equal(reqTo2[0].to, user2._id);
+                    equal(reqTo2[0].from, user1._id);
+                    equal(reqFrom1[0].to, user2._id);
+                    equal(reqFrom1[0].from, user1._id);
+                    start();
                 });
             });
         });
     });
 });
 
-asyncTest('make and deny request', function() {
+asyncTest('Make and accept request', function() {
     registerTwoUsers(function(user1, user2) {
         createRequest(user1._id, user2._id, function(response) {
             ok(response.success);
 
+            // should be 1 request
+            getBothRequests(user1._id, user2._id, function(response1, response2) {
+                var reqTo1 = response1.requestsTo;
+                var reqTo2 = response2.requestsTo;
+                var reqFrom1 = response1.requestsFrom;
+                var reqFrom2 = response2.requestsFrom;
+
+                equal(reqTo1.length, 0);
+                equal(reqFrom2.length, 0);
+                equal(reqTo2.length, 1);
+                equal(reqFrom1.length, 1);
+
+                equal(reqTo2[0].to, user2._id);
+                equal(reqTo2[0].from, user1._id);
+                equal(reqFrom1[0].to, user2._id);
+                equal(reqFrom1[0].from, user1._id);
+
+                modifyRequest(user1._id, user2._id, true, false, false, function(response) {
+                    ok(response.success);
+
+                    // should be no requests
+                    getBothRequests(user1._id, user2._id, function(response1, response2) {
+                        var reqTo1 = response1.requestsTo;
+                        var reqTo2 = response2.requestsTo;
+                        var reqFrom1 = response1.requestsFrom;
+                        var reqFrom2 = response2.requestsFrom;
+
+                        equal(reqTo1.length, 0);
+                        equal(reqFrom2.length, 0);
+                        equal(reqTo2.length, 0);
+                        equal(reqFrom1.length, 0);
+                        start();
+                    });
+                });
+            });
+        });
+    });
+});
+
+asyncTest('Make and deny request', function() {
+    registerTwoUsers(function(user1, user2) {
+        createRequest(user1._id, user2._id, function(response) {
+            ok(response.success);
+
+            // should be 1 request
             getBothRequests(user1._id, user2._id, function(response1, response2) {
                 var reqTo1 = response1.requestsTo;
                 var reqTo2 = response2.requestsTo;
@@ -189,6 +230,7 @@ asyncTest('make and deny request', function() {
                 modifyRequest(user1._id, user2._id, false, true, false, function(response) {
                     ok(response.success);
 
+                    // should be no requests
                     getBothRequests(user1._id, user2._id, function(response1, response2) {
                         var reqTo1 = response1.requestsTo;
                         var reqTo2 = response2.requestsTo;
@@ -207,7 +249,7 @@ asyncTest('make and deny request', function() {
     });
 });
 
-asyncTest('make and cancel request', function() {
+asyncTest('Make and cancel request', function() {
     registerTwoUsers(function(user1, user2) {
         createRequest(user1._id, user2._id, function(response) {
             ok(response.success);
@@ -250,6 +292,261 @@ asyncTest('make and cancel request', function() {
     });
 });
 
+asyncTest('Add roommate', function() {
+    registerTwoUsers(function(user1, user2) {
+        // both have no roommates
+        getBothRoommates(user1._id, user2._id, function(roommates1, roommates2) {
+            equal(roommates1.length, 0);
+            equal(roommates2.length, 0);
+                
+            makeRoommates(user1._id, user2._id, function(response) {
+                ok(response.success)
+
+                // check that they both have each other
+                getBothUsers(user1._id, user2._id, function(user1, user2) {
+                    var group1 = user1.group;
+                    var group2 = user2.group;
+                    ok(group1 !== undefined); 
+                    ok(group2 !== undefined);
+                    equal(group1, group2);
+
+                    getBothRoommates(user1._id, user2._id, function(roommates1, roommates2) {
+                        same(roommates1, [user2._id]);
+                        same(roommates2, [user1._id]);
+                        start();
+                    });
+                });
+            });
+        });
+    });
+});
+
+asyncTest('Remove roommate', function() {
+    registerTwoUsers(function(user1, user2) {
+        makeRoommates(user1._id, user2._id, function(response) {
+            ok(response.success)
+
+            // check that they both have each other
+            getBothUsers(user1._id, user2._id, function(user1, user2) {
+                var group1 = user1.group;
+                var group2 = user2.group;
+                ok(group1 !== undefined); 
+                ok(group2 !== undefined);
+                equal(group1, group2);
+
+                getBothRoommates(user1._id, user2._id, function(roommates1, roommates2) {
+                    same(roommates1, [user2._id]);
+                    same(roommates2, [user1._id]);
+
+                    // disband group
+                    leaveGroup(user1._id, function(response) {
+                        ok(response.success);
+
+                        // check that they no longer have each other
+                        getBothUsers(user1._id, user2._id, function(user1, user2) {
+                            var group1 = user1.group;
+                            var group2 = user2.group;
+                            ok(group1 === undefined); 
+                            ok(group2 ===  undefined);
+
+                            getBothRoommates(user1._id, user2._id, function(roommates1, roommates2) {
+                                same(roommates1, []);
+                                same(roommates2, []);
+                                start();
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+});
+
+asyncTest('Modify availability with roommates', function() {
+    registerTwoUsers(function(user1, user2) {
+        makeRoommates(user1._id, user2._id, function(response) {
+            ok(response.success);
+
+            // check that they are both available
+            getBothUsers(user1._id, user2._id, function(user1, user2) {
+                ok(user1.available); 
+                ok(user2.available);
+
+                // make one unavailable
+                modifyUserAvailability(user1._id, false, function(response) {
+                    ok(response.success);
+
+                    // both should be unavailable
+                    getBothUsers(user1._id, user2._id, function(user1, user2) {
+                        ok(!user1.available); 
+                        ok(!user2.available);
+
+                        // make one available
+                        modifyUserAvailability(user2._id, true, function(response) {
+                            ok(response.success);
+
+                            // both should be available
+                            getBothUsers(user1._id, user2._id, function(user1, user2) {
+                                ok(user1.available); 
+                                ok(user2.available);
+                                start();
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+});
+
+asyncTest('Send request to group of two', function() {
+    registerTwoUsers(function(user1, user2) {  
+        makeRoommates(user1._id, user2._id, function(response) {
+            ok(response.success)
+
+            registerUser(function(user3) {
+
+                // user 3 sends request to user2 (roommates with user1)
+                createRequest(user3._id, user2._id, function(response) {
+                    ok(response.success);
+
+                    // check that both got the request
+                    getBothRequests(user1._id, user2._id, function(response1, response2) {
+                        var reqTo1 = response1.requestsTo;
+                        var reqTo2 = response2.requestsTo;
+
+                        equal(reqTo1.length, 1);
+                        equal(reqTo2.length, 1);
+
+                        equal(reqTo1[0].from, user3._id);
+                        equal(reqTo2[0].from, user3._id);
+                        start();
+                    });
+                });
+            });
+        });
+    });
+});
+
+asyncTest('Send request to group of two, accept it', function() {
+    registerThreeUsers(function(user1, user2, user3) {  
+        makeRoommates(user1._id, user2._id, function(response) {
+            ok(response.success)
+
+            // user 3 sends request to user2 (roommates with user1)
+            createRequest(user3._id, user2._id, function(response) {
+                ok(response.success);
+
+                // both accept the request
+                modifyRequest(user3._id, user1._id, true, false, false, function(response) {
+                    modifyRequest(user3._id, user2._id, true, false, false, function(response) {
+                        
+                        // check that they all have each other
+                        getThreeUsers(user1._id, user2._id, user3._id, function(user1, user2, user3) {
+                            var group1 = user1.group;
+                            var group2 = user2.group;
+                            var group3 = user3.group;
+                            ok(group1 !== undefined); 
+                            ok(group2 !== undefined);
+                            ok(group3 !== undefined);
+                            equal(group1, group2);
+                            equal(group1, group3);
+                            
+                            getRoommatesForThreeUsers(user1._id, user2._id, user3._id, function(roommates1, roommates2, roommates3) {
+                                equal(roommates1.length, 2);
+                                equal(roommates2.length, 2);
+                                equal(roommates3.length, 2);
+
+                                ok(roommates1.indexOf(user2._id) > -1);
+                                ok(roommates1.indexOf(user3._id) > -1);
+
+                                ok(roommates2.indexOf(user1._id) > -1);
+                                ok(roommates2.indexOf(user3._id) > -1);
+
+                                ok(roommates3.indexOf(user1._id) > -1);
+                                ok(roommates3.indexOf(user2._id) > -1);
+                                start();
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+});
+
+asyncTest('Send request to group of two, one denies, one accepts it', function() {
+    registerThreeUsers(function(user1, user2, user3) {  
+        makeRoommates(user1._id, user2._id, function(response) {
+            ok(response.success)
+
+            // user 3 sends request to user2 (roommates with user1)
+            createRequest(user3._id, user2._id, function(response) {
+                ok(response.success);
+
+                // one denies the request, one accepts
+                modifyRequest(user3._id, user1._id, false, true, false, function(response) {
+                    modifyRequest(user3._id, user2._id, true, false, false, function(response) {
+                        
+                        // check that they are not roommates
+                        getThreeUsers(user1._id, user2._id, user3._id, function(user1, user2, user3) {
+                            var group1 = user1.group;
+                            var group2 = user2.group;
+                            var group3 = user3.group;
+                            ok(group1 !== undefined); 
+                            ok(group2 !== undefined);
+                            ok(group3 === undefined);
+                            equal(group1, group2);
+                            
+                            // check that the request is gone
+                            getBothRequests(user1._id, user2._id, function(response1, response2) {
+                                var reqTo1 = response1.requestsTo;
+                                var reqTo2 = response2.requestsTo;
+
+                                equal(reqTo1.length, 0);
+                                equal(reqTo2.length, 0);
+                                start();
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+});
+
+asyncTest('Send request to group of two, cancel it', function() {
+    registerThreeUsers(function(user1, user2, user3) {  
+        makeRoommates(user1._id, user2._id, function(response) {
+            ok(response.success)
+
+            // user 3 sends request to user2 (roommates with user1)
+            createRequest(user3._id, user2._id, function(response) {
+                ok(response.success);
+
+                // cancel request to user1
+                modifyRequest(user3._id, user1._id, false, false, true, function(response) {
+                      
+                    // check that the request to both is gone
+                    getBothRequests(user1._id, user2._id, function(response1, response2) {
+                        var reqTo1 = response1.requestsTo;
+                        var reqTo2 = response2.requestsTo;
+
+                        equal(reqTo1.length, 0);
+                        equal(reqTo2.length, 0);
+                        start();
+                    });
+                });
+            });
+        });
+    });
+});
+
+
+/**
+* Helper methods to make tests less akin to callback hell
+*/
+
 function makeRoommates(userId1, userId2, callback) {
     // request and accept
     createRequest(userId1, userId2, function(response) {
@@ -265,6 +562,16 @@ function getBothUsers(userId1, userId2, callback) {
     });
 }
 
+function getThreeUsers(userId1, userId2, userId3, callback) {
+    getUser(userId1, function(response1) {
+        getUser(userId2, function(response2) {
+            getUser(userId3, function(response3) {
+                callback(response1.user, response2.user, response3.user);
+            });
+        });
+    });
+}
+
 function getBothRoommates(userId1, userId2, callback) {
     getRoommates(userId1, function(response1) {
         getRoommates(userId2, function(response2) {
@@ -273,10 +580,30 @@ function getBothRoommates(userId1, userId2, callback) {
     });
 }
 
+function getRoommatesForThreeUsers(userId1, userId2, userId3, callback) {
+    getRoommates(userId1, function(response1) {
+        getRoommates(userId2, function(response2) {
+            getRoommates(userId3, function(response3) {
+                callback(response1.roommates, response2.roommates, response3.roommates);
+            });
+        });
+    });
+}
+
 function getBothRequests(userId1, userId2, callback) {
     getRequests(userId1, function(response1) {
         getRequests(userId2, function(response2) {
             callback(response1, response2);
+        });
+    });
+}
+
+function registerThreeUsers(callback) {
+    registerUser(function(user1) {
+        registerUser(function(user2) {
+            registerUser(function(user3) {
+                callback(user1, user2, user3);
+            });
         });
     });
 }
