@@ -17,6 +17,9 @@ module.exports = {
             if (user._id.equals(self._id) || !user.available || !self.available) {
                 return false;
             }
+            if (user.group && self.group && self.group.equals(user.group)) {
+                return false;
+            }
             var compatible = user.preferences.filter(function(pref) {
                 return pref.response !== 'No' && acceptableDorms[pref.description];
             });
