@@ -41,7 +41,7 @@ $(document).on('click', '.leave-group', function(event) {
 
     // delete the roommate from the user, this makes them available
     updateUser(user_id, { leaveGroup: true }, function() {
-        showUserProfile(user);
+        showUserProfile(user_id);
     });
 
 });
