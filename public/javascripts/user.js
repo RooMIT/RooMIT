@@ -24,6 +24,8 @@ $(document).on('click', '#available-group .btn-default', function(event) {
 // click on link to a user's profile
 $(document).on('click', '.user-profile', function(event) {
     event.preventDefault();
+    removeError(); // remove previous errors
+    
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
 
@@ -179,13 +181,13 @@ var showUserProfile = function(userId) {
                areRoommates: areRoommates
             }));
 
-            handleRequestBox(user, loggedInUser);
+            handleRequestBox(user, loggedInUser, areRoommates);
         });
     });
 }
 
 // add the correct request button (accept/deny, cancel, or request)
-var handleRequestBox = function(user, loggedInUser) {
+var handleRequestBox = function(user, loggedInUser, areRoommates) {
     var yourRequest = getRequestTo(user._id, loggedInUser.requestsFrom);
     var usersRequest = getRequestTo(loggedInUser._id, user.requestsFrom);
 
@@ -209,9 +211,11 @@ var handleRequestBox = function(user, loggedInUser) {
         return;
     } 
 
-    // just show request button
-    $('#request-box').html(Handlebars.templates['request-button']({
-       user: user
-    }));
+    // if they're not roommates, just show request button
+    if (!areRoommates) {
+        $('#request-box').html(Handlebars.templates['request-button']({
+           user: user
+        }));
+    }
 
 }
