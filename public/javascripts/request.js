@@ -134,7 +134,7 @@ var getRequest = function(userId, callback) {
 // gets request to a certain id (undefined if none exist)
 var getRequestTo = function(to, requests) {
     var result = requests.filter(function(request) {
-        return request.to === to;
+        return request.to._id === to;
     });
 
     if (!result.length) return undefined;
