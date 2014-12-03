@@ -39,9 +39,8 @@ $(document).on('click', '.request-roommate', function(event) {
     if (!user_id) return showLogin();
 
     $.ajax({
-        url: '/users/' + user_id + '/requests/',
-        type: 'POST',
-        data: {from_id: user_id,  to_id: roommateId}
+        url: '/users/'+ user_id + '/requests/to/' + roommateId,
+        type: 'POST'
     }).done(function(response) {
         // update the ui accodingly
         showUserProfile(user_id);
