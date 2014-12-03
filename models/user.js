@@ -90,13 +90,21 @@ UserSchema.methods.getRequests = function(callback) {
 // get the populated (with preferences) user
 UserSchema.statics.getUser = function(userId, callback) {
     User.findOne({ _id: userId }, '_id name email preferences available group')
-                .populate('preferences').exec(callback);
+                .populate('preferences', 
+                    '_id description response isDormPreference isRoommateNumberPreference', 
+                    null, 
+                    { sort: { '_id': 1 } }
+                ).exec(callback);
 }
 
 // get all of the populated (with preferences) users
 UserSchema.statics.getAllUsers = function(callback) {
     User.find({}, '_id name email preferences available group')
-                .populate('preferences').exec(callback);
+                .populate('preferences', 
+                    '_id description response isDormPreference isRoommateNumberPreference', 
+                    null, 
+                    { sort: { '_id': 1 } }
+                ).exec(callback);
 }
 
 // find the user and validate their password
@@ -135,7 +143,11 @@ UserSchema.methods.setPreferences = function(prefs, callback) {
     var user = this;
     User.findOneAndUpdate({ _id: user._id }, { preferences : prefs }, 
                     '_id name email preferences available group')
-                    .populate('preferences').exec(callback);
+                    .populate('preferences',
+                        '_id description response isDormPreference isRoommateNumberPreference', 
+                        null, 
+                        { sort: { '_id': 1 } }
+                    ).exec(callback);
 };
 
 // get the roommates of the user
