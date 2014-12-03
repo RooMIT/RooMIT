@@ -81,8 +81,6 @@ $(document).on('click', '.cancel', function(event) {
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
     
-    console.log('Self: ', user_id);
-    console.log('Other: ', receiver_id);
     //Cancel request from user to receiver and to all of receiver's roommates
     modifyRequest(user_id, receiver_id, 'cancel', function(err) {
         if (err) return handleError(err);
@@ -153,7 +151,6 @@ var showRequests = function() {
     if (!user_id) return showLogin();
 
     getRequest(user_id, function(response) {
-        console.log(response);
         $('#content').html(Handlebars.templates['requests']({
             requestsToUser: response.requestsTo,
             requestsFromUser: response.requestsFrom

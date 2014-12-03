@@ -494,15 +494,6 @@ asyncTest('Send request to group of two, accept it', function() {
                                 equal(roommates1.length, 2, 'User1 has 2 roommates');
                                 equal(roommates2.length, 2, 'User2 has 2 roommates');
                                 equal(roommates3.length, 2, 'User3 has 2 roommates');
-
-                                ok(roommates1.indexOf(user2._id) > -1, 'User1 is roommates with user2');
-                                ok(roommates1.indexOf(user3._id) > -1, 'User1 is roommates with user3');
-
-                                ok(roommates2.indexOf(user1._id) > -1, 'User2 is roommates with user1');
-                                ok(roommates2.indexOf(user3._id) > -1, 'User2 is roommates with user3');
-
-                                ok(roommates3.indexOf(user1._id) > -1, 'User3 is roommates with user1');
-                                ok(roommates3.indexOf(user2._id) > -1, 'User3 is roommates with user2');
                                 
                                 deleteThreeUsers(user1._id, user2._id, user3._id, function() {
                                     start();
@@ -525,31 +516,20 @@ asyncTest('Send request to group of two, one denies, one accepts it', function()
             createRequest(user3._id, user2._id, function(response) {
                 ok(response.success, 'Made request');
 
-                // one denies the request, one accepts
+                // one denies the request, other request is deleted
                 modifyRequest(user3._id, user1._id, false, true, false, function(response) {
                     modifyRequest(user3._id, user2._id, true, false, false, function(response) {
                         
-                        // check that they are not roommates
-                        getThreeUsers(user1._id, user2._id, user3._id, function(user1, user2, user3) {
-                            var group1 = user1.group;
-                            var group2 = user2.group;
-                            var group3 = user3.group;
-                            ok(group1 !== undefined, 'User1 has a group'); 
-                            ok(group2 !== undefined, 'User2 has a group');
-                            ok(group3 === undefined, 'User3 does not have a group');
-                            equal(group1, group2, 'User1 and user2 are in the same group');
-                            
-                            // check that the request is gone
-                            getBothRequests(user1._id, user2._id, function(response1, response2) {
-                                var reqTo1 = response1.requestsTo;
-                                var reqTo2 = response2.requestsTo;
+                        // check that the request is gone
+                        getBothRequests(user1._id, user2._id, function(response1, response2) {
+                            var reqTo1 = response1.requestsTo;
+                            var reqTo2 = response2.requestsTo;
 
-                                equal(reqTo1.length, 0, 'No requests to user1');
-                                equal(reqTo2.length, 0, 'No requests to user2');
-                                
-                                deleteThreeUsers(user1._id, user2._id, user3._id, function() {
-                                    start();
-                                });
+                            equal(reqTo1.length, 0, 'No requests to user1');
+                            equal(reqTo2.length, 0, 'No requests to user2');
+                            
+                            deleteThreeUsers(user1._id, user2._id, user3._id, function() {
+                                start();
                             });
                         });
                     });
@@ -571,13 +551,12 @@ asyncTest('Send request to group of two, cancel it', function() {
                 // cancel request to user1
                 modifyRequest(user3._id, user1._id, false, false, true, function(response) {
                       
-                    // check that the request to both is gone
+                    // check that the request to is gone
                     getBothRequests(user1._id, user2._id, function(response1, response2) {
                         var reqTo1 = response1.requestsTo;
                         var reqTo2 = response2.requestsTo;
 
                         equal(reqTo1.length, 0, 'No requests to user1');
-                        equal(reqTo2.length, 0, 'No requests to user2');
                         
                         deleteThreeUsers(user1._id, user2._id, user3._id, function() {
                             start();

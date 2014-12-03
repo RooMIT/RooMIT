@@ -94,7 +94,6 @@ var addRoommate = function(user_id, other_id, roommate_ids, Request, callback) {
         roommate_ids.push(other_id);
         roommate_ids.forEach(function(creator_id) {
             Request.getRequests(creator_id, function(err, requests) {
-                console.log(requests);
                 requests.requestsFrom.forEach(function(request) {
                     request.remove();
                 });

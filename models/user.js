@@ -31,23 +31,19 @@ UserSchema.statics.addRoommate = function(userID, roommateID, callback) {
             if (err) return callback(err);
             if (!other) return callback('Other user does not exist');
             //If user already has a group, add other to user's group
-            console.log('Me!', user);
-            console.log('Other!', other);
+
             if (user.group) {
-                console.log('first situation', user.group);
                 other.group = user.group;
                 other.save(callback);
             }
             //If user has no group but other does, add user to other's group
             else if (other.group) {
-                console.log('second situation', other.group);
                 user.group = other.group;
                 user.save(callback);
             }
             //otherwise make a new group
             else {
                 var group = new Group();
-                console.log('third situation', group);
                 group.save(function (err) {
                     if (err) return callback(err);
                     // update both users to share the group
