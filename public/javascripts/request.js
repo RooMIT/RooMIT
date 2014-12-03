@@ -65,7 +65,7 @@ var modifyRequest = function(creator_id, receiver_id, operation, callback) {
         type: 'PUT',
         data: params
     }).done(function(response) {
-        callback(undefined);
+        callback();
     }).fail(function(error) {
         callback(error);
         handleError(error);
@@ -104,7 +104,7 @@ $(document).on('click', '.deny', function(event) {
     })
 });
 
-// click confirm, remove the request and make the users roommates (as well as unavailable)
+// click confirm, remove the request and make the users roommates
 $(document).on('click', '.confirm', function(event) {
     event.preventDefault();
     var creator_id = $(this).parent().attr('from');
@@ -115,7 +115,7 @@ $(document).on('click', '.confirm', function(event) {
 
     modifyRequest(creator_id, user_id, 'accept', function(err) {
         if (err) return handleError(err);
-        showRequests();
+        showUserProfile(creator_id);
     })
     
 });
