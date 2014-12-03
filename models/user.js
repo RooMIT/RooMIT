@@ -69,7 +69,9 @@ UserSchema.statics.leaveGroup = function (userId, callback) {
     User.findOne({ _id: userId }, 'group', function(err, user) {
 
         // set the user's group to undefined and availability to true
-        User.update({ _id: userId }, { group: undefined, available: true }, function (error) {
+        user.group = undefined;
+        user.available = true;
+        user.save(function (error) {
             if (error) return callback(error);
 
             // now find the remaining amount of users in the group

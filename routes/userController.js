@@ -83,7 +83,6 @@ exports.getRoommates = function(req, res) {
     var userId = req.params.id;
 
     User.getRoommates(userId, function(err, roommates) {
-        console.log(roommates);
         if (err) return handleError(res, 500, err);
         res.json({roommates: roommates});
     });
