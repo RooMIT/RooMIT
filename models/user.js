@@ -176,7 +176,7 @@ UserSchema.statics.getRoommates = function(userId, callback) {
 
             // filter out the user from roommates
             var roommates = users.filter(function(other) {
-                return user._id !== other._id;
+                return user.email !== other.email;
             });
 
             callback(undefined, roommates);
