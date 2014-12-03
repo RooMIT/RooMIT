@@ -11,7 +11,7 @@ $(document).on('click', '#requests:not(.active) a', function(event) {
 // create new request from user_id (logged in user) to receiver_id
 var createRequest = function(user_id, receiver_id, callback) {
     var url = '/users/' + user_id + '/requests/to/' + receiver_id;
-    console.log(url);
+
     $.ajax({
         url: url,
         type: 'POST',
@@ -80,8 +80,6 @@ $(document).on('click', '.cancel', function(event) {
     // get logged in user
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
-    console.log('Me: ', receiver_id);
-    console.log('Other: ', user_id);
     
     //Cancel request from user to receiver and to all of receiver's roommates
     modifyRequest(user_id, receiver_id, 'cancel', function(err) {
@@ -133,19 +131,6 @@ var getRequest = function(userId, callback) {
     });
 }
 
-//get requests from a user to a list of specified users
-var getRequestsTo = function(userId, to, callback) {
-    getRequest(userId, function(res){
-        var requestsFrom = res.requestsFrom;
-
-        requestsFrom = requestsFrom.filter(function(elem) {
-            return to.indexOf(elem.to._id) > -1;
-        });
-
-        callback(requestsFrom);
-    });
-}
-
 // gets request to a certain id (undefined if none exist)
 var getRequestTo = function(to, requests) {
     var result = requests.filter(function(request) {
@@ -164,15 +149,10 @@ var showRequests = function() {
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
 
-    $.ajax({
-        url: '/users/' + user_id + '/requests/',
-        type: 'GET'
-    }).done(function(response) {
+    getRequest(user_id, function(response) {
         $('#content').html(Handlebars.templates['requests']({
             requestsToUser: response.requestsTo,
             requestsFromUser: response.requestsFrom
         }));
-    }).fail(function(error) {
-        handleError(error);
     });
 }

@@ -43,6 +43,10 @@ li a {
   color:black;
 }
 
+#available-group .btn-primary, #available-group .btn-default {
+  width: 80px;
+}
+
 .requestuser { 
 	display: inline-block; 
 	width: 7%;
