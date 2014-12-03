@@ -20,41 +20,29 @@ RequestSchema.statics.findTo = function(userId, callback) {
     this.find({ to: userId }).populate('from', '_id name').exec(callback);
 }
 
-RequestSchema.statics.createRequest = function (fromId, toId, callback){
-    User.findOne({_id: toId}, function (err, toUser){
-        if (err) return callback(err);
-        User.findOne({_id: fromId}, function (err, fromUser){
-            if (err) return callback(err);
-            this.find({to: toId}, function (err, existingUsers){
-                if (err) return callback(err);
-                if (fromUser.group){
-                    User.find({group: fromUser.group}, function (err, fromUsers){
-                        if (err) return callback(err);
-                        var insertUsers = fromUsers.filter(function (curr){
-                            for (i in existingUsers){
-                                if (existingUsers[i]._id === curr._id){
-                                    return true;
-                                }
-                            }
-                            return false;
-                        });
-                        var inserts = insertUsers.map(function (insertUser){
-                            return {from: insertUser._id, to: toId};
-                        });
-                        this.collection.insert(inserts, function (err){
-                            callback(err);
-                        });
-                    });
-                } else {
-                    this.update({from: fromId, to: toId}, 
-                        {$setOnInsert: {from: fromId, to: toId}},
-                        {upsert: true}
-                    }).exec(function (err){
-                        callback(err);
-                    });
-                }
+RequestSchema.statics.createRequest = function (creator_id, receiver_id, callback){
+    var Request = this;
+    User.getUser(creator_id, function(err, creator) {
+        //Check if other user has roommates
+        User.getRoommates(receiver_id, function(err, other_roommates) {
+            //If both users have roommates, disallow request
+            if (other_roommates.length && creator.group) {
+                return callback('Cannot create request between two users with groups');
+            }
+            var recipients= other_roommates.map(function(roommate) {
+                return roommate._id;
             });
-            
+            recipients.push(receiver_id);
+            Request.getRequestsFromOneToMany(creator_id, recipients, function(err, requests) {
+                //If creator has any outstanding requests to roommates of receiver, disallow request
+                if (requests.length) {
+                    return callback('User has already requested to join a member of this group');
+                }
+                var new_requests = recipients.map(function(user_id) {
+                    return {from: creator_id, to: user_id};
+                });
+                this.collection.insert(new_requests, callback);
+            });
         });
     });
 }
@@ -66,8 +54,7 @@ RequestSchema.statics.getRequestsFromOneToMany = function(from_id, to_ids, callb
         var result = requests.filter(function(request) {
             return to_ids.indexOf(request.to.toString()) !== -1;
         });
-        if (result.length !== to_ids.length) return callback('Not all requets exist');
-        return result;
+        callback(undefined, result);
     })
 }
 
