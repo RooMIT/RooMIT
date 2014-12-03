@@ -173,9 +173,8 @@ module.exports = function(app) {
     });
 
     /*  
-        Delete requests from one user to another user.
-        If deleteRoommateRequests is true, then also delete requests to the other user's roommates.
-        Requires logged in user to either be to_id or a roommate of to_id
+        Modify a request from one user to another
+        Must be logged in as to_id if cancel or from_id otherwise
 
         PUT /users/{from_id}/requests/to/{to_id}
         Request body: {
