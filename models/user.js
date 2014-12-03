@@ -21,15 +21,17 @@ var UserSchema = new Schema({
 // this will either add the roommate to the user's group, 
 // add the user to the roommate's group,
 // or make an entirely new group if neither is in a group
-UserSchema.methods.addRoommate = function (roommateID, callback) {
+UserSchema.statics.addRoommate = function(userId, roommateID, callback) {
     var user = this;
 
     // if the user has a group, update the roommate to have the same group
-    if (user.group) {
-        User.update({ _id: roommateID }, { group: user.group }, function (err) {
-            return callback(err);
-        });
-    } 
+    User.find({ _id: userId }, 'group', function(err, user) {
+        if (user.group) {
+            User.update({ _id: roommateID }, { group: user.group }, function (err) {
+                return callback(err);
+            });
+        } 
+    });
 
     // now we check if the roommate has a group
     User.find({ _id: roommateID }, 'group', function(err, roommate) {
