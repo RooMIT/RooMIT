@@ -93,8 +93,6 @@ RequestSchema.acceptRequest = function(creator_id, receiver_id, callback) {
             }
         });
     });
-        User.getRoommates(creator_id, function(err, creator_roommates))
-    })
 }
 
 RequestSchema.statics.rejectRequest = function(creator_id, receiver_id, callback) {
