@@ -169,8 +169,7 @@ var showRequests = function() {
     }).done(function(response) {
         $('#content').html(Handlebars.templates['requests']({
             requestsToUser: response.requestsTo,
-            requestsFromUser: response.requestsFrom,
-            showName: true
+            requestsFromUser: response.requestsFrom
         }));
     }).fail(function(error) {
         handleError(error);

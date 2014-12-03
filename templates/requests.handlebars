@@ -3,14 +3,16 @@
 <h1> Requests </h1><br>
 
 <h3> From others: </h3><br>
-{{#if showName}}
-  <p>Sucks</p>
-{{/if}}
 {{#each requestsToUser}}
-    {{> request-to-user this}}
+    <span class='requestuser'><a value='{{from._id}}' class='user-profile' href='#'>{{from.name}}</a></span>
+    <button class='btn btn-primary confirm' type='button'>Confirm Request</button>
+    <button class='btn btn-default deny' type='button'>Deny Request</button>
 {{/each}}
 
 <h3> From you: </h3><br>
 {{#each requestsFromUser}}
-    {{> request-from-user this}}
+    <div from={{from._id}} to={{to._id}}>
+    <span class='requestuser'><a value='{{from._id}}' class='user-profile' href='#'>{{from.name}}</a></span>
+    <button class='btn btn-default cancel' type='button'>Cancel Request</button>
+</div>
 {{/each}}
