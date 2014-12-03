@@ -105,6 +105,8 @@ var addRoommate = function(user_id, other_id, roommate_ids, Request, callback) {
 
 RequestSchema.statics.acceptRequest = function(creator_id, receiver_id, callback) {
     User.getUser(creator_id, function(err, creator) {
+        if (err) return callback(err);
+        if (!creator) return callback('User ' + creator_id + 'does not exist');
         User.getRoommates(receiver_id, function(err, roommates) {
             if (creator.group && roommates.length > 0) {
                 //somehow both users have groups already...disregard the request entirely
