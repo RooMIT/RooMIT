@@ -9,13 +9,15 @@ var path = require('path');
 
 module.exports = function(app) {
 
-    app.get('/test', function(request, response) {
-      response.sendFile(path.join(__dirname, '../public', '/test/testing.html'));
-    });
-
     app.get('/', function(req, res) {
         res.locals.token = req.csrfToken();
         res.render('index');
+    });
+
+
+    app.get('/test', function(req, res) {
+        res.locals.token = req.csrfToken();
+        res.render('tests');
     });
 
     /* 
