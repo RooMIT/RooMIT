@@ -9,15 +9,7 @@ var handleError = require('./utils').handleError;
 
 module.exports = {
 
-    
-    create: function(req, res) {
-        Preference.createPreferences(function(err) {
-            if (err) return handleError(res, 500, err);
-            res.json({ success:true });
-        });
-    },
-
-    // modify a preference
+    // modify a preference of the logged in user
     update: function(req, res) {
         var oldPrefId = req.params.id;
         var description = req.body.description;
@@ -31,20 +23,21 @@ module.exports = {
             return handleError(res, 400, 'Please enter a valid response');
         }
 
-        Preference.findOne({response: response, description: description}, function (err, pref){
-            User.findOneAndUpdate({_id: userID}, 
-                {$pull: {"preferences" : oldPrefId}}, 
-                function (err){
-                    if (err) return handleError(res, 500, err);
-                    User.findOneAndUpdate({_id: userID},
-                        {$addToSet: {"preferences" : pref._id}},
-                        function (err){
-                            if (err) return handleError(res, 500, err);
-                            res.json({ success:true });
-                        }
-                    );
-                }
-            );
+        Preference.findOne({response: response, description: description}, function (err, pref) {
+            if (err) return handleError(res, 500, err);
+
+            // take out the old pref
+            User.findOneAndUpdate({_id: userID},{$pull: {"preferences" : oldPrefId}}, function (error) {
+                if (error) return handleError(res, 500, error);
+
+                // add in the new pref
+                User.findOneAndUpdate({_id: userID}, {$addToSet: {"preferences" : pref._id}}, function (error2) {
+                    if (error2) return handleError(res, 500, error2);
+                    res.json({ success:true });
+                });
+
+            });
+
         });
     },
 
@@ -53,9 +46,10 @@ module.exports = {
         // Creates preferences if they don't exist
         Preference.createPreferences(function (err) {
             if (err) return handleError(res, 500, err);
+
             // initially user only has don't cares
-            Preference.find({response: 'Don\'t Care'}, function (err, docs){
-                if (err) return callback(err);
+            Preference.find({response: 'Don\'t Care'}, function (error, docs){
+                if (error) return callback(error);
                 var prefIDs = docs.map(function (pref) {
                     return pref._id;
                 });

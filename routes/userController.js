@@ -24,6 +24,7 @@ var validateFields = function(fields) {
 };
 
 // login user and set session
+// returns the user object
 exports.login = function(req, res) {
     var params = req.body;
     var errorMessage = validateFields(params);
@@ -38,6 +39,7 @@ exports.login = function(req, res) {
 };
 
 // create a new user (with prefs), log them in, set session
+// returns the user object
 exports.create = function(req, res) {
     var params = req.body;
     var errorMessage = validateFields(params);
@@ -58,11 +60,13 @@ exports.create = function(req, res) {
     });
 };
 
+// destroys user session
 exports.logout = function(req, res) {
     delete req.session.userId;
     res.json({ success: true });
 };
 
+// gets the user object, populated with preferences
 exports.get = function(req, res) {
     if (!req.session.userId) return handleError(res, 400, 'Please login first');
     var userId = req.params.id;
@@ -74,15 +78,7 @@ exports.get = function(req, res) {
     });
 };
 
-exports.getAll = function(req, res) {
-    if (!req.session.userId) return handleError(res, 400, 'Please login first');
-    
-    User.getAllUsers(function(err, users) {
-        if (err) return handleError(res, 500, err);
-        res.json({users: users});
-    });
-};
-
+// gets the roommates of the given user, populated
 exports.getRoommates = function(req, res) {
     if (!req.session.userId) return handleError(res, 400, 'Please login first');
     var userId = req.params.id;
@@ -93,6 +89,7 @@ exports.getRoommates = function(req, res) {
     });
 }
 
+// gets the matches of the logged in user
 exports.getMatches = function(req, res) {
     var logged_in_id = req.session.userId;
     if (!logged_in_id) return handleError(res, 400, 'Please login first');
@@ -112,6 +109,7 @@ exports.getMatches = function(req, res) {
 }
 
 // update the user's availability or group
+// does not return the user object
 exports.update = function(req, res) {
     if (!req.session.userId) return handleError(res, 400, 'Please login first');
     var userId = req.params.id;
@@ -137,7 +135,8 @@ exports.update = function(req, res) {
     }
 }
 
-// add a new roommate to the user
+// adds a new roommate to the user
+// does not return the user object
 exports.addRoommate = function(req, res) {
     if (!req.session.userId) return handleError(res, 400, 'Please login first');
     var userId = req.params.id;
