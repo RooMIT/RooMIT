@@ -76,10 +76,20 @@ RequestSchema.acceptRequest = function(creator_id, receiver_id, callback) {
                     }
                     else {
                         //We are the last roommate to accept a request, so let's do a matching
-                        // do stuff
+                        Request.remove({from: creator_id, to: receiver_id}, function(err) {
+                            if (err) return callback(err);
+                            //Do the stuff to put them together
+                        });
                     }
-
-                })
+                });
+            }
+            else {
+                //Receiver and creator are both individuals
+                //That means we have to make them roommates and cancel all their existing requests
+                Request.remove({from: creator_id, to: receiver_id}, function(err) {
+                    if (err) return callback(err);
+                    //Do the stuff to put them together
+                });
             }
         });
     });
