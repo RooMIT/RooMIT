@@ -30,14 +30,19 @@ var modifyRequest = function(req, res) {
     var deny = req.body.deny;
     var cancel = req.body.cancel;
 
+    var response = function(err) {
+        if (err) return handleError(res, 500, err);
+        res.json({success: true});
+    };
+    
     if (accept) {
-        Request.acceptRequest(creator_id, receiver_id, req, res);
+        Request.acceptRequest(creator_id, receiver_id, response);
     }
     else if(deny) {
-        Request.denyRequest(creator_id, receiver_id, req, res);
+        Request.denyRequest(creator_id, receiver_id, response);
     }
     else if(cancel) {
-        Request.cancelRequest(creator_id, receiver_id, req, res);
+        Request.cancelRequest(creator_id, receiver_id, response);
     }
     else {
         res.json({success: true});

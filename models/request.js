@@ -146,10 +146,7 @@ RequestSchema.statics.denyRequest = function(creator_id, receiver_id, req, res) 
             return roommate._id.toString();
         });
         recipients.push(receiver_id);
-        Request.remove({from: creator_id, to: {$in: recipients}}, function(err) {
-            if (err) return handleError(res, 500, err);
-            res.json({success: true});
-        });
+        Request.remove({from: creator_id, to: {$in: recipients}}, callback);
     });
 }
 
