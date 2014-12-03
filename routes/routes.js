@@ -186,6 +186,6 @@ module.exports = function(app) {
             - error: error if there was one
     */
     app.put('/users/:from_id/requests/to/:to_id', function(req, res) {
-        RequestController.update(req, res);
+        RequestController.modify(req, res);
     });
 }
