@@ -386,9 +386,9 @@ asyncTest('Remove roommate', function() {
                             ok(group1 === undefined, 'User1 has no group'); 
                             ok(group2 ===  undefined, 'User2 has no group');
 
-                            getBothRoommates(user1._id, user2._id, function(roommates1, roommates2) {
-                                equal(roommates1, [], 'User1 has no roommates');
-                                equal(roommates2, [], 'User2 has no roommates');
+                            getBothRoommates(user1._id, user2._id, function(roommates1, roommates2) { 
+                                equal(roommates1.length, 0, 'User1 has no roommates');
+                                equal(roommates2.length, 0, 'User2 has no roommates');
                                 
                                 deleteTwoUsers(user1._id, user2._id, function() {
                                     start();

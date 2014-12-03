@@ -67,6 +67,8 @@ UserSchema.statics.addRoommate = function(userID, roommateID, callback) {
 UserSchema.statics.leaveGroup = function (userId, callback) {
     // get the user to find their group
     User.findOne({ _id: userId }, 'group', function(err, user) {
+        if (err) return callback(err);
+        var oldGroup = user.group;
 
         // set the user's group to undefined and availability to true
         user.group = undefined;
@@ -75,13 +77,12 @@ UserSchema.statics.leaveGroup = function (userId, callback) {
             if (error) return callback(error);
 
             // now find the remaining amount of users in the group
-            User.find({ group: user.group }, function (error2, users) {
+            User.find({ group: oldGroup }, function (error2, users) {
                 if (error2) return callback(error2);
                 if (users.length > 1) return callback(undefined);
 
                 // if there is only 1 user in the group, destroy the group
-                var user = users[0];
-                Group.remove({ _id: user.group }, callback);
+                Group.deleteGroup(oldGroup, callback);
             });
         });
 
