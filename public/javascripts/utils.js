@@ -4,7 +4,6 @@
 function handleError(error) {
     // not human readable error
     if (typeof error === 'object') {
-        console.log(error);
         var errorMessage = JSON.parse(error.responseText);
         $('#error').html(errorMessage);
     } else {
