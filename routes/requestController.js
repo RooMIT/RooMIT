@@ -19,7 +19,11 @@ module.exports = {
     create: function(req, res) {
         var userId = req.params.id;
         if (!req.session.userId) return handleError(res, 400, 'Please login first');
+        var toIds = req.body.to;
+        var fromIds = req.body.from;
         if (!toIds.length && !fromIds.length) return handleError(res, 400, 'Users do not exist');
+        Request.create(fromIds, toIds, function (err));
+
 
         var toIds = req.body.to;
         var requests = [];
