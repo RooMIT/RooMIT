@@ -4,15 +4,17 @@
 
 <h3> From others: </h3><br>
 {{#each requestsToUser}}
-    <span class='requestuser'><a value='{{from._id}}' class='user-profile' href='#'>{{from.name}}</a></span>
-    <button class='btn btn-primary confirm' type='button'>Confirm Request</button>
-    <button class='btn btn-default deny' type='button'>Deny Request</button>
+    <div to={{from._id}} from={{to}}>
+        <span class='requestuser'><a value='{{from._id}}' class='user-profile' href='#'>{{from.name}}</a></span>
+        <button class='btn btn-primary confirm' type='button'>Confirm Request</button>
+        <button class='btn btn-default deny' type='button'>Deny Request</button>
+    </div>
 {{/each}}
 
 <h3> From you: </h3><br>
 {{#each requestsFromUser}}
-    <div from={{from._id}} to={{to._id}}>
-    <span class='requestuser'><a value='{{from._id}}' class='user-profile' href='#'>{{from.name}}</a></span>
-    <button class='btn btn-default cancel' type='button'>Cancel Request</button>
-</div>
+    <div to={{from}} from={{to._id}}>
+        <span class='requestuser'><a value='{{to._id}}' class='user-profile' href='#'>{{to.name}}</a></span>
+        <button class='btn btn-default cancel' type='button'>Cancel Request</button>
+    </div>
 {{/each}}
