@@ -140,6 +140,7 @@ var password = 'beans';
                                 getBothRoommates(function(roommates1, roommates2) {
                                     same(roommates1, []);
                                     same(roommates2, []);
+                                    start();
                                 });
                             });
                         });
@@ -151,7 +152,7 @@ var password = 'beans';
 
     asyncTest('modify availability', function() {
         makeRoommates(response) {
-            ok(response.success)
+            ok(response.success);
 
             // check that they are both available
             getBothUsers(function(user1, user2) {
@@ -179,6 +180,7 @@ var password = 'beans';
                                     // disband group
                                     leaveGroup(userId1, function(response) {
                                         ok(response.success);
+                                        start();
                                     });
                                 });
                             });
@@ -189,41 +191,81 @@ var password = 'beans';
         });
     });
 
-    asyncTest('deny request', function() {
-            createRequest(userId, userId2, response) {
-                ok(response.success)
+    asyncTest('make and deny request', function() {
+        createRequest(userId, userId2, function(response) {
+            ok(response.success);
 
-                // check that they are both available
-                denyRequest(function(user1, user2) {
-                    ok(user1.available); 
-                    ok(user2.available);
+            getBothRequests(function(response1, response2) {
+                var reqTo1 = response1.requestsTo;
+                var reqTo2 = response2.requestsTo;
+                var reqFrom1 = response1.requestsFrom;
+                var reqFrom2 = response2.requestsFrom;
 
-                        // make one unavailable
-                        modifyUserAvailability(userId1, false, function(response) {
-                            ok(response.success);
+                equal(reqTo1.length, 0);
+                equal(reqFrom2.length, 0);
+                equal(reqTo2.length, 1);
+                equal(reqFrom1.length, 1);
 
-                            // both should be unavailable
-                            getBothUsers(function(user1, user2) {
-                                ok(!user1.available); 
-                                ok(!user2.available);
+                equal(reqTo2[0].to, userId2);
+                equal(reqTo2[0].from, userId1);
+                equal(reqFrom1[0].to, userId2);
+                equal(reqFrom1[0].from, userId1);
 
-                                // make one available
-                                modifyUserAvailability(userId2, true, function(response) {
-                                    ok(response.success);
+                modifyRequest(userId, userId2, false, true, false, function(response) {
+                    ok(response.success);
 
-                                    // both should be available
-                                    getBothUsers(function(user1, user2) {
-                                        ok(user1.available); 
-                                        ok(user2.available);
+                    getBothRequests(function(response1, response2) {
+                        var reqTo1 = response1.requestsTo;
+                        var reqTo2 = response2.requestsTo;
+                        var reqFrom1 = response1.requestsFrom;
+                        var reqFrom2 = response2.requestsFrom;
 
-                                        // disband group
-                                        leaveGroup(userId1, function(response) {
-                                            ok(response.success);
-                                        });
-                                    });
-                                });
-                            });
-                        });
+                        equal(reqTo1.length, 0);
+                        equal(reqFrom2.length, 0);
+                        equal(reqTo2.length, 0);
+                        equal(reqFrom1.length, 0);
+                        start();
+                    });
+                });
+            });
+        });
+    });
+
+    asyncTest('make and cancel request', function() {
+        createRequest(userId, userId2, function(response) {
+            ok(response.success);
+
+            getBothRequests(function(response1, response2) {
+                var reqTo1 = response1.requestsTo;
+                var reqTo2 = response2.requestsTo;
+                var reqFrom1 = response1.requestsFrom;
+                var reqFrom2 = response2.requestsFrom;
+
+                equal(reqTo1.length, 0);
+                equal(reqFrom2.length, 0);
+                equal(reqTo2.length, 1);
+                equal(reqFrom1.length, 1);
+
+                equal(reqTo2[0].to, userId2);
+                equal(reqTo2[0].from, userId1);
+                equal(reqFrom1[0].to, userId2);
+                equal(reqFrom1[0].from, userId1);
+
+                // cancel request
+                modifyRequest(userId, userId2, false, false, true, function(response) {
+                    ok(response.success);
+
+                    getBothRequests(function(response1, response2) {
+                        var reqTo1 = response1.requestsTo;
+                        var reqTo2 = response2.requestsTo;
+                        var reqFrom1 = response1.requestsFrom;
+                        var reqFrom2 = response2.requestsFrom;
+
+                        equal(reqTo1.length, 0);
+                        equal(reqFrom2.length, 0);
+                        equal(reqTo2.length, 0);
+                        equal(reqFrom1.length, 0);
+                        start();
                     });
                 });
             });
@@ -235,7 +277,7 @@ var password = 'beans';
 function makeRoommates(callback) {
     // request and accept
     createRequest(userId, userId2, function(response) {
-        acceptRequest(userId, userId2, callback);
+        modifyRequest(userId, userId2, true, false, false, callback);
     });
 }
 
@@ -251,6 +293,14 @@ function getBothRoommates(callback) {
     getRoommates(userId, function(response1) {
         getRoommates(userId2, function(response2) {
             callback(response1.roommates, response2.roommates);
+        });
+    });
+}
+
+function getBothRequests(callback) {
+    getRequests(userId, function(response1) {
+        getRequests(userId2, function(response2) {
+            callback(response1 response2);
         });
     });
 }
@@ -276,7 +326,7 @@ function leaveGroup(userId, callback) {
 }
 
 function modifyUserAvailability(userId, available, callback) {
-    ajax({available: available}, '/users/' + userId, 'PUT', 'Modify user', callback);
+    ajax({available: available}, '/users/' + userId, 'PUT', 'Modify user availability', callback);
 }
 
 function modifyPreference(preferenceId, response, callback) {
@@ -287,27 +337,17 @@ function getRoommates(userId, callback) {
     ajax({}, '/users/' + userId '/roommates', 'GET', 'Get roommates', callback);
 }
 
-function addRoommates(userId, roommateId, callback) {
-    ajax({roommateId: roommateId}, '/users/' + userId '/roommates', 'PUT', 'Add roommate', callback);
-}
-
 function getRequests(userId, callback) {
     ajax({}, '/users/' + userId + '/requests', 'GET', 'Get requests', callback);
 }
 
 function createRequest(from, to, callback) {
-    ajax({}, '/users/' + userId + '/requests', 'GET', 'Get requests', callback);
+    ajax({}, '/users/' + from + '/requests/to/' + to, 'POST', 'Make a request', callback);
 }
 
-function denyRequest(from, to, callback) {
-    ajax({}, '/users/' + userId + '/requests', 'GET', 'Get requests', callback);
+function modifyRequest(from, to, accept, deny, cancel, callback) {
+    ajax({deny: deny, cancel: cancel, accept: accept}, '/users/' + from + '/requests/to/' + to, 'PUT', 'Modify request', callback);
 }
-
-function acceptRequest(from, to, callback) {
-    ajax({}, '/users/' + userId + '/requests', 'GET', 'Get requests', callback);
-}
-
-// TODO: requests shit
 
 function ajax (params, url, restType, testName, success) {
     if (restType != 'DELETE' && restType != 'PUT' && restType != 'POST') {

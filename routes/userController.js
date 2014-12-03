@@ -135,20 +135,4 @@ exports.update = function(req, res) {
     }
 }
 
-// adds a new roommate to the user
-// does not return the user object
-exports.addRoommate = function(req, res) {
-    if (!req.session.userId) return handleError(res, 400, 'Please login first');
-    var userId = req.params.id;
-    var roommateId = req.body.roommateId;
-
-    // nothing to update
-    if (!roommateId) return res.json({ success:true });
-
-    User.addRoommate(userId, roommateId, function (err) {
-        if (err) return handleError(res, 500, err);
-        return res.json({ success:true });
-    });
-};
-
 module.exports = exports;

@@ -132,19 +132,6 @@ module.exports = function(app) {
     });
 
     /*
-        Add a new roommate to the user
-
-        PUT /user/{id}/roommates/
-        Request Body:
-            - roommateId: id of roommate to be added
-        Response:
-            - error: error if there was one
-    */
-    app.put('/users/:id/roommates/', function(req, res) {
-        UserController.addRoommate(req, res);
-    });
-
-    /*
         Get all requests to/from a user
 
         GET /user/{id}/requests/
@@ -161,14 +148,12 @@ module.exports = function(app) {
     /*  
         Create requests from a user to a user.
 
-        POST /users/{id}/requests/
+        POST /users/{from_id}/requests/to/{to_id}
         Request Body:
-            - to_id: the id of an user to whom the request is made
-            - from_id: the id of the user making the request
         Response:
             - error: error if there was one
     */
-    app.post('/users/:id/requests/', function(req, res) {
+    app.post('/users/:from_id/requests/to/:to_id', function(req, res) {
         RequestController.create(req, res);
     });
 
@@ -178,7 +163,7 @@ module.exports = function(app) {
 
         PUT /users/{from_id}/requests/to/{to_id}
         Request body: {
-            reject: true/false
+            deny: true/false
             cancel: true/false
             accept: true/false
         }
