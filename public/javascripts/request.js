@@ -144,13 +144,13 @@ var getRequestTo = function(to, requests) {
 // refetch all requests to/from user and display them
 var showRequests = function() {
     switchActive('#requests');
+    removeError(); // remove previous errors
 
     // get logged in user
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
 
     getRequest(user_id, function(response) {
-        console.log(response);
         $('#content').html(Handlebars.templates['requests']({
             requestsToUser: response.requestsTo,
             requestsFromUser: response.requestsFrom

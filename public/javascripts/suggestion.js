@@ -8,6 +8,8 @@ Handlebars.registerHelper('percent', function(num) {
 // click suggestions
 $(document).on('click', '#suggestions:not(.active) a', function(event) {
     event.preventDefault();
+    removeError(); // remove previous errors
+    
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
     showSuggestions();

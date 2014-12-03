@@ -457,8 +457,8 @@ asyncTest('Send request to group of two', function() {
                         equal(reqTo1.length, 1, 'There is one request to user1');
                         equal(reqTo2.length, 1, 'There is one request to user2');
 
-                        equal(reqTo1[0].from, user3._id, 'Request to user1 is from user3');
-                        equal(reqTo2[0].from, user3._id, 'Request to user2 is from user3');
+                        equal(reqTo1[0].from._id, user3._id, 'Request to user1 is from user3');
+                        equal(reqTo2[0].from._id, user3._id, 'Request to user2 is from user3');
                         
                         deleteThreeUsers(user1._id, user2._id, user3._id, function() {
                             start();
