@@ -210,7 +210,9 @@ var handleRequestBox = function(user, loggedInUser) {
     if (yourRequest) {
         $('#request-box').html(Handlebars.templates['request-from-user']({
            showName: false,
-           request: yourRequest
+           request: yourRequest,
+           from: user,
+           to: loggedInUser
         }));
         return;
     }
@@ -219,7 +221,9 @@ var handleRequestBox = function(user, loggedInUser) {
     if (usersRequest) {
         $('#request-box').html(Handlebars.templates['request-to-user']({
            showName: false,
-           request: usersRequest
+           request: usersRequest,
+           to: loggedInUser,
+           from: user
         }));
         return;
     } 

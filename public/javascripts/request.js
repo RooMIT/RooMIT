@@ -74,15 +74,17 @@ var modifyRequest = function(creator_id, receiver_id, operation, callback) {
 // click cancel request
 $(document).on('click', '.cancel', function(event) {
     event.preventDefault();
-    var receiver_id = $(this).parent().attr('user-id');
+    var receiver_id = $(this).parent().attr('to');
 
     // get logged in user
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
+    console.log('Me: ', receiver_id);
+    console.log('Other: ', user_id);
     
     //Cancel request from user to receiver and to all of receiver's roommates
     modifyRequest(user_id, receiver_id, 'cancel', function(err) {
-        if (err) return handleError(res, 500, err);
+        if (err) return handleError(err);
         showRequests();
     })
 });
@@ -90,7 +92,7 @@ $(document).on('click', '.cancel', function(event) {
 // click deny
 $(document).on('click', '.deny', function(event) {
     event.preventDefault();
-    var creator_id = $(this).parent().attr('user-id');
+    var creator_id = $(this).parent().attr('from');
 
     // get logged in user
     var user_id = $.cookie('user');
@@ -98,7 +100,7 @@ $(document).on('click', '.deny', function(event) {
     
     //Accept request from creator to user, and add creator to user's roommates if all of user's other roommates have already accepted
     modifyRequest(creator_id, user_id, 'deny', function(err) {
-        if (err) return handleError(res, 500, err);
+        if (err) return handleError(err);
         showRequests();
     })
 });
@@ -106,14 +108,14 @@ $(document).on('click', '.deny', function(event) {
 // click confirm, remove the request and make the users roommates (as well as unavailable)
 $(document).on('click', '.confirm', function(event) {
     event.preventDefault();
-    var creator_id = $(this).parent().attr('user-id');
+    var creator_id = $(this).parent().attr('from');
 
     // get logged in user
     var user_id = $.cookie('user');
     if (!user_id) return showLogin();
 
     modifyRequest(creator_id, user_id, 'accept', function(err) {
-        if (err) return handleError(res, 500, err);
+        if (err) return handleError(err);
         showRequests();
     })
     
