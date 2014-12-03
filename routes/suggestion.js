@@ -25,29 +25,29 @@ module.exports = {
         return filtered;
     },
 
-    findMatches: function(self, users) {
-        var matches = [];
+    findSuggestions: function(self, users) {
+        var suggestions = [];
         var selfPrefs = {};
         //make it easy to access self prefs by putting them in a dictionary not a list
         self.preferences.forEach(function(pref) {
             selfPrefs[pref.description] = pref.response;
         });
         users.forEach(function(user) {
-            var match = {};
-            match.id = user._id;
-            match.name = user.name;
-            match.email = user.email;
-            match.fullUser = user;
-            match.value = 0;
+            var suggestion = {};
+            suggestion.id = user._id;
+            suggestion.name = user.name;
+            suggestion.email = user.email;
+            suggestion.fullUser = user;
+            suggestion.value = 0;
             user.preferences.forEach(function(pref) {
                 var selfPref = selfPrefs[pref.description];
                 var otherPref = pref.response;
-                match.value += matchScore(selfPref, otherPref);
+                suggestion.value += suggestionScore(selfPref, otherPref);
             });
-            match.value = convertScoreToPercentage(match.value, user.preferences.length);
-            matches.push(match);
+            suggestion.value = convertScoreToPercentage(suggestion.value, user.preferences.length);
+            suggestions.push(suggestion);
         });
-        return matches.sort(function(a,b) {
+        return suggestions.sort(function(a,b) {
             return b.value - a.value;
         });
     }
@@ -61,7 +61,7 @@ module.exports = {
  * if {yes, no} / don't care or don't care / {yes, no}, give -1
  * if no / yes or yes / no, give -2
  */
-function matchScore(selfPref, otherPref) {
+function suggestionScore(selfPref, otherPref) {
     if (selfPref === 'Yes') {
         if (otherPref === 'Yes') {
             return 2;
