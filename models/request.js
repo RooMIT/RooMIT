@@ -59,7 +59,7 @@ RequestSchema.acceptRequest = function(creator_id, receiver_id, callback) {
                 //That means he must now send requests out to all other group members.
                 Request.remove({from: creator_id, to: receiver_id}, function(err) {
                     if (err) return callback(err);
-                    this.createRequest(receiver_id, creator_id, callback);
+                    this.createRequest(receiver_id, creator_id, false, callback);
                 });
             }
             else if (roommates.length > 0) {
@@ -139,7 +139,7 @@ RequestSchema.statics.getRequests = function(userId, callback) {
     });
 }
 
-RequestSchema.statics.rejectRequest = function(creator_id, receiver_id, req, res) {
+RequestSchema.statics.denyRequest = function(creator_id, receiver_id, req, res) {
     //delete all requests from creator to receiver as well as to roommates of receiver
     User.getRoommates(receiver_id, function(err, roommates) {
         var recipients = roommates.map(function(roommate) {
