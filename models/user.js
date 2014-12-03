@@ -77,6 +77,7 @@ UserSchema.statics.leaveGroup = function (userId, callback) {
     });
 };
 
+// verify the given password
 UserSchema.methods.verifyPassword = function (enteredPassword, callback) {
     var user = this;
     bcrypt.compare(enteredPassword, user.password, callback);

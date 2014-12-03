@@ -12,6 +12,7 @@ var PreferenceSchema = new Schema({
     isRoommateNumberPreference: { type: Boolean, required: true, default: false }
 });
 
+// find a preference with the given description and response strings. 
 PreferenceSchema.statics.findPreference = function(description, response, callback) {
     Preference.findOne({ description: description, response: response }, callback);
 }
@@ -80,7 +81,5 @@ var getPrefs = function() {
     ];
 }
 
-//TODO: I commented out the following line of code. Should it be there? FIXME
-//PreferenceSchema.createPreference = function()
 var Preference = mongoose.model('Preference', PreferenceSchema);
 module.exports = Preference;

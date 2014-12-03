@@ -97,6 +97,7 @@ var showRegister = function() {
     attachValidators();
 }
 
+// log in the user
 var login = function() {
     removeError(); // remove previous errors
     var email = $('#email').val();
@@ -120,6 +121,7 @@ var login = function() {
     });
 }
 
+//register a user
 var register = function() {
     removeError(); // remove previous errors
     var name = $('#name').val();

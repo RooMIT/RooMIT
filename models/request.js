@@ -12,10 +12,12 @@ var RequestSchema = new Schema({
     to: { type: ObjectId, ref: 'User', required: true }
 });
 
+// find all requests from userId 
 RequestSchema.statics.findFrom = function(userId, callback) {
     this.find({ from: userId }).populate('to', '_id name').exec(callback);
 }
 
+// find all requests to userId
 RequestSchema.statics.findTo = function(userId, callback) {
     this.find({ to: userId }).populate('from', '_id name').exec(callback);
 }
