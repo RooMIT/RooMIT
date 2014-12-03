@@ -50,9 +50,14 @@ RequestSchema.statics.findFrom = function(userId, callback) {
 
 RequestSchema.statics.createRequest = function (creator_id, receiver_id, include_receiver, callback){
     var Request = this;
+    console.log(creator_id);
+    console.log(receiver_id);
     User.getUser(creator_id, function(err, creator) {
         //Check if other user has roommates
+        if (err) return callback(err);
+        if (!creator) return callback('Creator does not exist');
         User.getRoommates(receiver_id, function(err, other_roommates) {
+            if (err) return callback(err);
             //If both users have roommates, disallow request
             if (other_roommates.length && creator.group) {
                 return callback('Cannot create request between two users with groups');
@@ -91,7 +96,7 @@ var addRoommate = function(user_id, other_id, roommate_ids, Request, callback) {
     })
 };
 
-RequestSchema.acceptRequest = function(creator_id, receiver_id, callback) {
+RequestSchema.statics.acceptRequest = function(creator_id, receiver_id, callback) {
     User.getUser(creator_id, function(err, creator) {
         User.getRoommates(receiver_id, function(err, roommates) {
             if (creator.group && roommates.length > 0) {
@@ -132,7 +137,7 @@ RequestSchema.acceptRequest = function(creator_id, receiver_id, callback) {
                 //That means we have to make them roommates and cancel all their existing requests
                 Request.removeFromTos(creator_id, [receiver_id], function(err) { 
                     if (err) return callback(err);
-                    addRoommate(user, creator_id, [], Request, callback);
+                    addRoommate(creator_id, receiver_id, [], Request, callback);
                 });
             }
         });

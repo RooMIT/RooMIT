@@ -25,7 +25,11 @@ var UserSchema = new Schema({
 UserSchema.statics.addRoommate = function(userID, roommateID, callback) {
     var User = this;
     User.find({ _id: userID}, 'group', function(err, user) {
+        if (err) return callback(err);
+        if (!user) return callback('User does not exist');
         User.find({_id: roommateID}, 'group', function(err, other) {
+            if (err) return callback(err);
+            if (!other) return callback('Other user does not exist');
             //If user already has a group, add other to user's group
             if (user.group) {
                 User.update({ _id: roommateID }, { group: user.group }, function (err) {
@@ -33,8 +37,8 @@ UserSchema.statics.addRoommate = function(userID, roommateID, callback) {
                 });
             }
             //If user has no group but other does, add user to other's group
-            else if (roommate.group) {
-                User.update({ _id: user._id }, { group: roommate.group }, function (err) {
+            else if (other.group) {
+                User.update({ _id: user._id }, { group: other.group }, function (err) {
                     return callback(err);
                 });
             }
@@ -44,7 +48,9 @@ UserSchema.statics.addRoommate = function(userID, roommateID, callback) {
                 group.save(function (err) {
                     if (err) return callback(err);
                     // update both users to share the group
-                    User.update({ _id: { $in: [user._id, roommateID] } }, { group: group._id }, function (err) {
+                    console.log(group);
+                    User.update({ _id: { $in: [userID, roommateID] } }, { group: group._id }, function (err) {
+                        console.log('Something fucked up');
                         callback(err);
                     });
                 });

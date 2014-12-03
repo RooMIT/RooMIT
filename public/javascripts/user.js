@@ -166,6 +166,8 @@ var getPopulatedUser = function(userId, callback) {
 }
 
 Handlebars.registerPartial('preference', Handlebars.templates['preference']);
+Handlebars.registerPartial('request-to-user', Handlebars.templates['request-to-user']);
+Handlebars.registerPartial('request-from-user', Handlebars.templates['request-from-user']);
 
 // show a user's profile
 // TODO: make profile and my-profile one thing
