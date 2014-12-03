@@ -16,7 +16,7 @@ a {
 }
 
 #toolbar {
-    position: fixed; 
+    position: absolute; 
     right: 3%; 
     top: 3%;
 }
@@ -54,7 +54,7 @@ li a {
 
 .space {
   display: inline-block;
-  width: 30%;
+  width: 500px;
 }
 
 #name {
@@ -74,7 +74,5 @@ li a {
   color: black;
   border-color: #FFFFFF;
 }
-
-
 
 
