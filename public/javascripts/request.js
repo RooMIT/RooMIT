@@ -150,6 +150,7 @@ var showRequests = function() {
     if (!user_id) return showLogin();
 
     getRequest(user_id, function(response) {
+        console.log(response);
         $('#content').html(Handlebars.templates['requests']({
             requestsToUser: response.requestsTo,
             requestsFromUser: response.requestsFrom
