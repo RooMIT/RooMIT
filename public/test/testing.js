@@ -467,7 +467,7 @@ asyncTest('Send request to group of two', function() {
 });
 
 asyncTest('Send request to group of two, accept it', function() {
-    registerThreeUsers(function(user1, user2, user3) {  
+    registerThreeUsers(function(user1, user2, user3) {
         makeRoommates(user1._id, user2._id, function(response) {
             ok(response.success, 'Made rooommates')
 
@@ -597,7 +597,7 @@ asyncTest('Send request to group of two, cancel it', function() {
 function makeRoommates(userId1, userId2, callback) {
     // request and accept
     createRequest(userId1, userId2, function(response) {
-        modifyRequest(userId1, userId2, true, false, false, callback);
+        modifyRequest(userId2, userId1, true, false, false, callback);
     });
 }
 
