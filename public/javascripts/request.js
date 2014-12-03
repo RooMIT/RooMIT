@@ -233,6 +233,16 @@ var getRequestsTo = function(userId, to, callback) {
     });
 }
 
+// gets request to a certain id (undefined if none exist)
+var getRequestTo = function(to, requests) {
+    var result = requests.filter(function(request) {
+        return request.to === to;
+    });
+
+    // true if length > 0, false if 0
+    return result;
+}
+
 // refetch all requests to/from user and display them
 var showRequests = function() {
     switchActive('#requests');

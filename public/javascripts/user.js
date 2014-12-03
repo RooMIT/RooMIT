@@ -199,18 +199,45 @@ var showUserProfile = function(userId) {
         // else show visitor profile
         getPopulatedUser(loggedInUserID, function(loggedInUser) {
             $('li').removeClass('active');
-
-            var youRequestedUser = loggedInUser.requested.indexOf(user._id) > -1;
-            var userRequestedYou = loggedInUser.requested.indexOf(user._id) > -1;
             var areRoommates = user.group === loggedInUser.group;
             
             $('#content').html(Handlebars.templates['profile']({
                user: user,
-               youRequestedUser: youRequestedUser,
-               userRequestedYou: userRequestedYou,
                areRoommates: areRoommates
             }));
+
+            handleRequestBox(user, loggedInUser);
         });
 
     });
+}
+
+// add the correct request button (accept/deny, cancel, or request)
+var handleRequestBox = function(user, loggedInUser) {
+    var yourRequest = getRequestTo(user._id, loggedInUser.requestFrom);
+    var usersRequest = getRequestTo(loggedInUser._id, user.requestFrom);
+
+    // if you requested the user, show a cancel request button
+    if (yourRequest) {
+        $('#request-box').html(Handlebars.templates['request-from-user']({
+           showName: false,
+           request: yourRequest
+        }));
+        return;
+    }
+
+    // the user requested you, show accept/deny
+    if (usersRequest) {
+        $('#request-box').html(Handlebars.templates['request-to-user']({
+           showName: false,
+           request: usersRequest
+        }));
+        return;
+    } 
+
+    // just show request button
+    $('#request-box').html(Handlebars.templates['request-button']({
+       user: user
+    }));
+
 }

@@ -131,7 +131,6 @@ exports.update = function(req, res) {
     }
 
     if (available !== undefined) {
-        console.log("I AM HERE");
         User.updateAvailability(userId, available, function (err) {
             if (err) return handleError(res, 500, err);
             return res.json({ success:true });
