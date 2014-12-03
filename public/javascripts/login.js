@@ -4,11 +4,12 @@
 
 Handlebars.registerHelper('checked', function(label, response) {
     if (label == response) {
-        return 'checked: checked';
+        return 'btn-primary';
     }
 
-    return '';
-});
+    return 'btn-default';
+}); 
+
 
 // set the CSRF token in each request
 $.ajaxPrefilter(function(options, _, xhr) {
