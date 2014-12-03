@@ -234,7 +234,6 @@ var handleRequestBox = function(user, loggedInUser) {
     // if you requested the user, show a cancel request button
     if (yourRequest) {
         $('#request-box').html(Handlebars.templates['request-from-user']({
-           showName: false,
            request: yourRequest,
            from: user,
            to: loggedInUser
@@ -245,7 +244,6 @@ var handleRequestBox = function(user, loggedInUser) {
     // the user requested you, show accept/deny
     if (usersRequest) {
         $('#request-box').html(Handlebars.templates['request-to-user']({
-           showName: false,
            request: usersRequest,
            to: loggedInUser,
            from: user

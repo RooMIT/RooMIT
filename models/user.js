@@ -24,6 +24,8 @@ var UserSchema = new Schema({
 // or make an entirely new group if neither is in a group
 UserSchema.statics.addRoommate = function(userID, roommateID, callback) {
     var User = this;
+    console.log('Adding user ', userID);
+    console.log('Adding other user', roommateID);
     User.find({ _id: userID}, 'group', function(err, user) {
         if (err) return callback(err);
         if (!user) return callback('User does not exist');
