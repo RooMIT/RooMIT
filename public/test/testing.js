@@ -168,10 +168,8 @@ asyncTest('Make a request', function() {
                     equal(reqTo2.length, 1, 'One request to user2');
                     equal(reqFrom1.length, 1, 'One request from user1');
 
-                    equal(reqTo2[0].to._id, user2._id, 'Request to user2 is to user2');
                     equal(reqTo2[0].from._id, user1._id, 'Request to user2 is from user1');
                     equal(reqFrom1[0].to._id, user2._id, 'Request from user1 is to user2');
-                    equal(reqFrom1[0].from._id, user1._id, 'Request from user1 is from user1');
                     
                     deleteTwoUsers(user1._id, user2._id, function() {
                         start();
@@ -199,10 +197,8 @@ asyncTest('Make and accept request', function() {
                 equal(reqTo2.length, 1, 'One request to user2');
                 equal(reqFrom1.length, 1, 'One request from user1');
 
-                equal(reqTo2[0].to._id, user2._id, 'Request to user2 is to user2');
                 equal(reqTo2[0].from._id, user1._id, 'Request to user2 is from user1');
                 equal(reqFrom1[0].to._id, user2._id, 'Request from user1 is to user2');
-                equal(reqFrom1[0].from._id, user1._id, 'Request from user1 is from user1');
 
                 modifyRequest(user1._id, user2._id, true, false, false, function(response) {
                     ok(response.success, 'Modified request');
@@ -246,10 +242,8 @@ asyncTest('Make and deny request', function() {
                 equal(reqTo2.length, 1, 'One request to user2');
                 equal(reqFrom1.length, 1, 'One request from user1');
 
-                equal(reqTo2[0].to._id, user2._id, 'Request to user2 is to user2');
                 equal(reqTo2[0].from._id, user1._id, 'Request to user2 is from user1');
                 equal(reqFrom1[0].to._id, user2._id, 'Request from user1 is to user2');
-                equal(reqFrom1[0].from._id, user1._id, 'Request from user1 is from user1');
 
                 modifyRequest(user1._id, user2._id, false, true, false, function(response) {
                     ok(response.success);
@@ -292,10 +286,8 @@ asyncTest('Make and cancel request', function() {
                 equal(reqTo2.length, 1, 'One request to user2');
                 equal(reqFrom1.length, 1, 'One request from user1');
 
-                equal(reqTo2[0].to._id, user2._id, 'Request to user2 is to user2');
                 equal(reqTo2[0].from._id, user1._id, 'Request to user2 is from user1');
                 equal(reqFrom1[0].to._id, user2._id, 'Request from user1 is to user2');
-                equal(reqFrom1[0].from._id, user1._id, 'Request from user1 is from user1');
 
                 // cancel request
                 modifyRequest(user1._id, user2._id, false, false, true, function(response) {
