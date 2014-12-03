@@ -159,12 +159,12 @@ module.exports = function(app) {
     });
 
     /*  
-        Create requests regarding the specified user
+        Create requests from a user to a user.
 
         POST /users/{id}/requests/
         Request Body:
-            - to: list of ids of users to whom the request is made by the specified user
-            - from: list of ids of users making a request to the specified user
+            - to_id: the id of an user to whom the request is made
+            - from_id: the id of the user making the request
         Response:
             - error: error if there was one
     */
@@ -173,34 +173,19 @@ module.exports = function(app) {
     });
 
     /*  
-        Delete requests from one user to another user.
-        If deleteRoommateRequests is true, then also delete requests to the other user's roommates.
-        Requires logged in user to either be to_id or a roommate of to_id
+        Modify a request from one user to another
+        Must be logged in as to_id if cancel or from_id otherwise
 
         PUT /users/{from_id}/requests/to/{to_id}
         Request body: {
-            deleteRoommateRequests: true/false
+            reject: true/false
+            cancel: true/false
+            accept: true/false
         }
         Response:
             - error: error if there was one
     */
     app.put('/users/:from_id/requests/to/:to_id', function(req, res) {
-        RequestController.delete(req, res);
+        RequestController.update(req, res);
     });
-
-    /*  
-        Delete requests specified by the body
-
-        DELETE /requests/
-        Request Body: 
-            - deleteRequests: list of requests to be deleted
-        Response:
-            - error: error if there was one
-    */
-    app.delete('/requests/', function(req, res) {
-        RequestController.delete(req, res);
-    });
-
-
-
 }
