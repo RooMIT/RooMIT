@@ -26,9 +26,9 @@ var modifyRequest = function(req, res) {
     if (!self_id) return handleError(res, 400, 'Please login first');
     if (receiver_id !== self_id) return handleError(res, 400, 'Not logged in as correct user');
 
-    var accept = req.session.accept;
-    var reject = req.session.reject;
-    var cancel = req.session.cancel;
+    var accept = req.body.accept;
+    var reject = req.body.reject;
+    var cancel = req.body.cancel;
 
     if (accept) {
         Request.acceptRequest(creator_id, receiver_id, req, res);
