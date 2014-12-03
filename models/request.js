@@ -149,6 +149,7 @@ RequestSchema.statics.acceptRequest = function(creator_id, receiver_id, callback
                 //That means we have to make them roommates and cancel all their existing requests
                 Request.removeFromTos(creator_id, [receiver_id], function(err) { 
                     if (err) return callback(err);
+                    console.log('Second one called');
                     addRoommate(creator_id, receiver_id, [], Request, callback);
                 });
             }
@@ -181,6 +182,7 @@ RequestSchema.statics.getRequestsFromOneToMany = function(from_id, to_ids, callb
     var Request = this;
     Request.findFrom(from_id, function(err, requests) {
         if (err) return callback(err);
+        console.log('Requests!', requests);
         var result = requests.filter(function(request) {
             return to_ids.indexOf(request.to.toString()) !== -1;
         });

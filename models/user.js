@@ -24,15 +24,16 @@ var UserSchema = new Schema({
 // or make an entirely new group if neither is in a group
 UserSchema.statics.addRoommate = function(userID, roommateID, callback) {
     var User = this;
-    User.find({ _id: userID}, 'group', function(err, user) {
+    User.find({ _id: userID}, '_id group', function(err, user) {
         if (err) return callback(err);
         if (!user) return callback('User does not exist');
-        User.find({_id: roommateID}, 'group', function(err, other) {
+        User.find({_id: roommateID}, '_id group', function(err, other) {
             if (err) return callback(err);
             if (!other) return callback('Other user does not exist');
             //If user already has a group, add other to user's group
+            console.log('IM ADDING A ROOMMATE');
             if (user.group) {
-                User.update({ _id: roommateID }, { group: user.group }, function (err) {
+                User.update({ _id: other._id }, { group: user.group }, function (err) {
                     return callback(err);
                 });
             }
@@ -52,10 +53,9 @@ UserSchema.statics.addRoommate = function(userID, roommateID, callback) {
                         result.forEach(function(elem) {
                             elem.group = group._id;
                             elem.save();
+
                         });
-                    })
-                    User.update({ _id: { $in: [userID, roommateID] } }, { group: group._id }, function (err) {
-                        callback(err);
+                        callback();
                     });
                 });
             }
@@ -176,10 +176,7 @@ UserSchema.statics.getRoommates = function(userId, callback) {
 
             // filter out the user from roommates
             var roommates = users.filter(function(other) {
-                console.log(user.email);
-                console.log(other.email);
-                console.log(other._id.equals(user._id));
-                return user.email != other.email;
+                return !(other._id.equals(user._id))
             });
             callback(undefined, roommates);
         });
