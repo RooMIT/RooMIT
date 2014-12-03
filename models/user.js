@@ -24,8 +24,6 @@ var UserSchema = new Schema({
 // or make an entirely new group if neither is in a group
 UserSchema.statics.addRoommate = function(userID, roommateID, callback) {
     var User = this;
-    console.log('Adding user ', userID);
-    console.log('Adding other user', roommateID);
     User.find({ _id: userID}, 'group', function(err, user) {
         if (err) return callback(err);
         if (!user) return callback('User does not exist');
@@ -34,14 +32,12 @@ UserSchema.statics.addRoommate = function(userID, roommateID, callback) {
             if (!other) return callback('Other user does not exist');
             //If user already has a group, add other to user's group
             if (user.group) {
-                console.log('User already has group');
                 User.update({ _id: roommateID }, { group: user.group }, function (err) {
                     return callback(err);
                 });
             }
             //If user has no group but other does, add user to other's group
             else if (other.group) {
-                console.log('Other already has group');
                 User.update({ _id: user._id }, { group: other.group }, function (err) {
                     return callback(err);
                 });
@@ -52,16 +48,13 @@ UserSchema.statics.addRoommate = function(userID, roommateID, callback) {
                 group.save(function (err) {
                     if (err) return callback(err);
                     // update both users to share the group
-                    console.log(group);
                     User.find({_id: {$in: [userID, roommateID] } }, function(err, result) {
-                        console.log('Result', result);
                         result.forEach(function(elem) {
                             elem.group = group._id;
                             elem.save();
                         });
                     })
                     User.update({ _id: { $in: [userID, roommateID] } }, { group: group._id }, function (err) {
-                        if (err) console.log('Something fucked up', err);
                         callback(err);
                     });
                 });
@@ -183,7 +176,6 @@ UserSchema.statics.getRoommates = function(userId, callback) {
 
             // filter out the user from roommates
             var roommates = users.filter(function(other) {
-                //FIXME remember all that stuff about ids and equality...this might fail idk
                 return user._id !== other._id;
             });
 
