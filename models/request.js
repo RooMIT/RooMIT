@@ -49,7 +49,7 @@ RequestSchema.statics.createRequest = function (creator_id, receiver_id, include
     });
 }
 
-var addRoommate(user_id, other_id, roommate_ids, Request, callback) {
+var addRoommate = function(user_id, other_id, roommate_ids, Request, callback) {
     roommate_ids.push(user_id);
     User.addRoommate(user_id, other_id, function(err) {
         if (err) return callback(err);
@@ -60,7 +60,7 @@ var addRoommate(user_id, other_id, roommate_ids, Request, callback) {
             Request.remove({to: {$in: roommate_ids}}, callback);
         })
     })
-}
+};
 
 RequestSchema.acceptRequest = function(creator_id, receiver_id, callback) {
     User.getUser(creator_id, function(err, creator) {
