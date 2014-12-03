@@ -41,7 +41,6 @@ RequestSchema.statics.removeFromTos = function(creator_id, receiver_ids, callbac
 // find all requests from userId 
 RequestSchema.statics.findFrom = function(userId, callback) {
     this.find({}).populate('to', '_id name').exec(function(err, result) {
-        console.log('From', result);
         result = result.filter(function(request) {
             return request.from.equals(userId);
         });
@@ -181,12 +180,10 @@ RequestSchema.statics.cancelRequest = function(creator_id, receiver_id, callback
 RequestSchema.statics.getRequestsFromOneToMany = function(from_id, to_ids, callback) {
     var Request = this;
     Request.findFrom(from_id, function(err, requests) {
-        console.log('Requests', requests);
         if (err) return callback(err);
         var result = requests.filter(function(request) {
             return to_ids.indexOf(request.to.toString()) !== -1;
         });
-        console.log('Result', result);
         callback(undefined, result);
     });
 }
